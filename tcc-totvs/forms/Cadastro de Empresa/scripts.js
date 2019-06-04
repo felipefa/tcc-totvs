@@ -1,21 +1,17 @@
 $(document).ready(function () {
-	$('#cnpj').on('blur', function () {
-		var inputCnpj = $(this);
-		var cnpj = inputCnpj.val();
-		if (validarCnpj(cnpj)) {
-			inputCnpj.parent().find('.help-block').hide();
-			inputCnpj.parent().removeClass('has-error');
-		} else {
-			inputCnpj.parent().find('.help-block').show();
-			inputCnpj.parent().addClass('has-error');
-		}
-	});
-
 	// $(':text').css('text-transform', 'uppercase');
 	$(':text').on('blur', function () {
 		input = $(this);
 		if (input.val() == '' || input.val() == null) {
 			input.parent().addClass('has-error');
+		} else if (input.prop('id') === 'cnpj') {
+			if (validarCnpj(input.val())) {
+				input.parent().find('.help-block').hide();
+				input.parent().removeClass('has-error');
+			} else {
+				input.parent().find('.help-block').show();
+				input.parent().addClass('has-error');
+			}
 		} else {
 			// input.val(input.val().toUpperCase());
 			input.parent().removeClass('has-error');
@@ -27,6 +23,8 @@ $(document).ready(function () {
  * @function validarCnpj Valida CNPJ digitado de acordo com algoritmo da Receita Federal.
  * 
  * @param {String} cnpj Valor que deve ser validado.
+ * 
+ * @returns {Boolean} True se cnpj for válido e não estiver cadastrado.
  */
 function validarCnpj(cnpj) {
 	var cnpjComMascara = cnpj;
