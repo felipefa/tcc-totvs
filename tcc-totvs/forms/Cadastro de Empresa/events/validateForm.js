@@ -4,7 +4,7 @@ function validateForm(form) {
 	// Informações básicas da empresa
 	if (form.getValue('cnpj') == '') {
 		campos += '<br>' + i18n.translate('cnpj');
-	} else {
+	} else if (form.getFormMode() == 'ADD') {
 		var cnpj = form.getValue('cnpj');
 		var constraintsCnpj = [
 			DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST),
@@ -60,11 +60,6 @@ function validateForm(form) {
 	}
 	if (form.getValue('telefone1') == '') {
 		campos += '<br>' + i18n.translate('telefone') + ' 1';
-	} else {
-		var telefone = form.getValue('telefone1');
-		if (telefone.indexOf('(') == -1 || telefone.indexOf(')') == -1 || telefone.indexOf('-') == -1) {
-			throw 'O telefone 1 informado &eacute; inv&aacute;lido.';
-		}
 	}
 
 	if (campos != '') {
