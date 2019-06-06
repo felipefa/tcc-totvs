@@ -7,6 +7,23 @@ function validateForm(form) {
 	}
 	if (form.getValue('cnpj') == '') {
 		campos += '<br>' + i18n.translate('cnpj');
+	} else if (form.getFormMode() == 'ADD') {
+		var cnpj = form.getValue('cnpj');
+		var constraintsCnpj = [
+			DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST),
+			DatasetFactory.createConstraint('dataset', 'felipe_CadastroFornecedor', 'felipe_CadastroFornecedor', ConstraintType.MUST),
+			DatasetFactory.createConstraint('campoCnpj', 'cnpj', 'cnpj', ConstraintType.MUST),
+			DatasetFactory.createConstraint('campoNomeEmpresa', 'nomeFornecedor', 'nomeFornecedor', ConstraintType.MUST),
+		];
+		var dsValidaCnpj = DatasetFactory.getDataset('dsValidaCnpj', null, constraintsCnpj, null);
+
+		if (dsValidaCnpj.rowsCount > 0) {
+			if (dsValidaCnpj.getValue(0, 'sucesso') == 'false') {
+				throw dsValidaCnpj.getValue(0, 'mensagem') + '.';
+			}
+		} else {
+			throw 'Erro ao validar CNPJ.';
+		}
 	}
 	if (form.getValue('nomeFornecedor') == '') {
 		campos += '<br>' + i18n.translate('nomeFornecedor');
@@ -32,6 +49,11 @@ function validateForm(form) {
 	// Informações de contato
 	if (form.getValue('email') == '') {
 		campos += '<br>' + i18n.translate('email');
+	} else {
+		var email = form.getValue('email');
+		if (email.indexOf('@') == -1 || email.indexOf('.') == -1) {
+			throw 'O e-mail informado &eacute; inv&aacute;lido.';
+		}
 	}
 	if (form.getValue('telefone1') == '') {
 		campos += '<br>' + i18n.translate('telefone') + ' 1';
@@ -43,6 +65,6 @@ function validateForm(form) {
 		if (quantidadeCampos > 1) {
 			cabecalhoMsg = i18n.translate('msgCamposVazios');
 		}
-		throw cabecalhoMsg + '<br>' + campos;
+		throw '<script>cardPublisherFrame.validarCampos()</script>' + cabecalhoMsg + '<br>' + campos;
 	}
 }
