@@ -1,6 +1,9 @@
 function createDataset(fields, constraints, sortFields) {
 	try {
 		var buscarCnpj = '';
+		var buscarDataset = '';
+		var campoCnpj = '';
+		var campoNomeEmpresa = '';
 		var mensagem = 'CNPJ válido';
 		var sucesso = 'true';
 		var dsValidaCnpj = DatasetBuilder.newDataset();
@@ -8,11 +11,41 @@ function createDataset(fields, constraints, sortFields) {
 		dsValidaCnpj.addColumn('cnpj');
 		dsValidaCnpj.addColumn('sucesso');
 		dsValidaCnpj.addColumn('mensagem');
+		dsValidaCnpj.addColumn('dataset');
+		dsValidaCnpj.addColumn('campoCnpj');
+		dsValidaCnpj.addColumn('campoNomeEmpresa');
 
 		if (constraints != null) {
+			/**
+			 * Constraints aceitas:
+			 * cnpj - CNPJ que deve ser validado (obrigatório)
+			 * 
+			 * Para também validar se o CNPJ já foi cadastrado em um formulário, obrigatoriamente as seguintes constraints também devem ser informadas:
+			 * dataset - Nome do dataset do formulário a ser verificado
+			 * campoCnpj - Nome do campo que contém o CNPJ no formulário
+			 * campoNomeEmpresa - Nome do campo com o nome da empresa no formulário (opcional, usado na customização da mensagem de retorno)
+			 * 
+			 * Exemplo:
+			 * constraintsValidacao = [
+			 * 		DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST),
+			 * 		DatasetFactory.createConstraint('dataset', 'formCadastroEmpresa', 'formCadastroEmpresa', ConstraintType.MUST),
+			 * 		DatasetFactory.createConstraint('campoCnpj', 'cnpj', 'cnpj', ConstraintType.MUST),
+			 * 		DatasetFactory.createConstraint('campoNomeEmpresa', 'nomeFantasia', 'nomeFantasia', ConstraintType.MUST),
+			 * ];
+			 * DatasetFactory.getDataset('dsValidaCnpj', null, constraintsValidacao, null);
+			 */
 			for (var indexConstraints = 0; indexConstraints < constraints.length; indexConstraints++) {
 				if (constraints[indexConstraints].fieldName == 'cnpj') {
 					buscarCnpj = constraints[indexConstraints].initialValue;
+				}
+				if (constraints[indexConstraints].fieldName == 'dataset') {
+					buscarDataset = constraints[indexConstraints].initialValue;
+				}
+				if (constraints[indexConstraints].fieldName == 'campoCnpj') {
+					campoCnpj = constraints[indexConstraints].initialValue;
+				}
+				if (constraints[indexConstraints].fieldName == 'campoNomeEmpresa') {
+					campoNomeEmpresa = constraints[indexConstraints].initialValue;
 				}
 			}
 		}
@@ -80,12 +113,22 @@ function createDataset(fields, constraints, sortFields) {
 					if (resultado != parseInt(digitos.substring(1, 2))) {
 						mensagem = 'Dígito verificador inválido';
 						sucesso = 'false';
+					} else if (buscarDataset != '' && campoCnpj != '') {
+						var constraintsCnpj = [DatasetFactory.createConstraint(campoCnpj, buscarCnpj, buscarCnpj, ConstraintType.MUST)];
+						var datasetConsultado = DatasetFactory.getDataset(buscarDataset, null, constraintsCnpj, null);
+
+						if (datasetConsultado.rowsCount > 0) {
+							mensagem = campoNomeEmpresa == '' ? 
+								'CNPJ já usado em outro cadastro' : 
+								'CNPJ já usado no cadastro da empresa ' + datasetConsultado.getValue(0, campoNomeEmpresa);
+							sucesso = 'false';
+						}
 					}
 				}
 			}
 		}
 
-		dsValidaCnpj.addRow([buscarCnpj, sucesso, mensagem]);
+		dsValidaCnpj.addRow([buscarCnpj, sucesso, mensagem, buscarDataset, campoCnpj, campoNomeEmpresa]);
 
 		return dsValidaCnpj;
 	} catch (e) {
