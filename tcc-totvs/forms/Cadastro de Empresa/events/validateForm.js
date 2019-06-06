@@ -4,6 +4,27 @@ function validateForm(form) {
 	// Informações básicas da empresa
 	if (form.getValue('cnpj') == '') {
 		campos += '<br>' + i18n.translate('cnpj');
+	} else {
+		var cnpj = form.getValue('cnpj');
+		var constraintsCnpj = [DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST)];
+		var dsValidaCnpj = DatasetFactory.getDataset('dsValidaCnpj', null, constraintsCnpj, null);
+
+		if (dsValidaCnpj.rowsCount > 0) {
+			var sucesso = dsValidaCnpj.getValue(0, 'sucesso') == 'true' ? true : false;
+
+			if (sucesso) {
+				// Verifica se CNPJ já está cadastrado para outra empresa
+				var felipe_CadastroEmpresa = DatasetFactory.getDataset('felipe_CadastroEmpresa', null, constraintsCnpj, null);
+
+				if (felipe_CadastroEmpresa.rowsCount > 0) {
+					throw 'CNPJ j&aacute; cadastrado para a empresa ' + felipe_CadastroEmpresa.getValue(0, 'nomeFantasia') + '.';
+				}
+			} else {
+				throw dsValidaCnpj.getValue(0, 'mensagem') + '.';
+			}
+		} else {
+			throw 'Erro ao validar CNPJ.';
+		}
 	}
 	if (form.getValue('razaoSocial') == '') {
 		campos += '<br>' + i18n.translate('razaoSocial');
@@ -35,9 +56,19 @@ function validateForm(form) {
 	// Informações de contato
 	if (form.getValue('email') == '') {
 		campos += '<br>' + i18n.translate('email');
+	} else {
+		var email = form.getValue('email');
+		if (email.indexOf('@') == -1 || email.indexOf('.') == -1) {
+			throw 'O e-mail informado &eacute; inv&aacute;lido.';
+		}
 	}
 	if (form.getValue('telefone1') == '') {
 		campos += '<br>' + i18n.translate('telefone') + ' 1';
+	} else {
+		var telefone = form.getValue('telefone1');
+		if (telefone.indexOf('(') == -1 || telefone.indexOf(')') == -1 || telefone.indexOf('-') == -1) {
+			throw 'O telefone 1 informado &eacute; inv&aacute;lido.';
+		}
 	}
 
 	if (campos != '') {

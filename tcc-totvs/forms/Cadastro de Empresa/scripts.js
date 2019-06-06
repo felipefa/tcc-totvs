@@ -1,16 +1,17 @@
 $(document).ready(function () {
 	$('.obrigatorio').on('blur', function () {
-		input = $(this);
+		var input = $(this);
 		if (input.val() == '' || input.val() == null) {
+			toast('Preencha o campo ' + $('label[for=' + input.prop('id') + ']').html(), '', 'warning');
 			input.parent().addClass('has-error');
 		} else if (input.prop('id') === 'cnpj') {
+			loading.show();
 			if (validarCnpj(input.val())) {
-				input.parent().find('.help-block').hide();
 				input.parent().removeClass('has-error');
 			} else {
-				input.parent().find('.help-block').show();
 				input.parent().addClass('has-error');
 			}
+			loading.hide();
 		} else {
 			input.parent().removeClass('has-error');
 		}
@@ -21,6 +22,10 @@ $(document).ready(function () {
 	});
 });
 
+var loading = FLUIGC.loading(window, {
+	textMessage: 'Carregando...'
+});
+
 /**
  * @function validarCnpj Valida CNPJ digitado de acordo com algoritmo da Receita Federal.
  * 
@@ -29,67 +34,29 @@ $(document).ready(function () {
  * @returns {Boolean} True se cnpj for válido e não estiver cadastrado.
  */
 function validarCnpj(cnpj) {
-	let cnpjComMascara = cnpj;
-	cnpj = cnpj.replace(/[^\d]+/g, '');
+	var constraintsCnpj = [DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST)];
+	var dsValidaCnpj = DatasetFactory.getDataset('dsValidaCnpj', null, constraintsCnpj, null);
 
-	if (cnpj == '') return false;
+	if (dsValidaCnpj.values.length > 0) {
+		var sucesso = FLUIGC.utilities.parseBoolean(dsValidaCnpj.values[0].sucesso);
 
-	if (cnpj.length != 14) return false;
+		if (sucesso) {
+			// Verifica se CNPJ já está cadastrado para outra empresa
+			let felipe_CadastroEmpresa = DatasetFactory.getDataset('felipe_CadastroEmpresa', null, constraintsCnpj, null);
 
-	// Elimina CNPJs inválidos conhecidos
-	if (cnpj == '00000000000000' ||
-		cnpj == '11111111111111' ||
-		cnpj == '22222222222222' ||
-		cnpj == '33333333333333' ||
-		cnpj == '44444444444444' ||
-		cnpj == '55555555555555' ||
-		cnpj == '66666666666666' ||
-		cnpj == '77777777777777' ||
-		cnpj == '88888888888888' ||
-		cnpj == '99999999999999')
-		return false;
+			if (felipe_CadastroEmpresa.values.length > 0) {
+				toast('CNPJ já cadastrado para a empresa ' + felipe_CadastroEmpresa.values[0].nomeFantasia + '.', '', 'warning');
+				return false;
+			}
 
-	// Valida dígitos verificadores
-	tamanho = cnpj.length - 2
-	numeros = cnpj.substring(0, tamanho);
-	digitos = cnpj.substring(tamanho);
-	soma = 0;
-	pos = tamanho - 7;
-	for (i = tamanho; i >= 1; i--) {
-		soma += numeros.charAt(tamanho - i) * pos--;
-		if (pos < 2)
-			pos = 9;
-	}
-	resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-	if (resultado != digitos.charAt(0))
-		return false;
-
-	tamanho = tamanho + 1;
-	numeros = cnpj.substring(0, tamanho);
-	soma = 0;
-	pos = tamanho - 7;
-	for (i = tamanho; i >= 1; i--) {
-		soma += numeros.charAt(tamanho - i) * pos--;
-		if (pos < 2)
-			pos = 9;
-	}
-	resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-	if (resultado != digitos.charAt(1))
-		return false;
-
-	// Verifica se CNPJ já está cadastrado para outra empresa
-	let constraintsEmpresa = new Array(
-		DatasetFactory.createConstraint('cnpj', cnpjComMascara, cnpjComMascara, ConstraintType.MUST)
-	);
-	let felipe_CadastroEmpresa = DatasetFactory.getDataset('felipe_CadastroEmpresa', null, constraintsEmpresa, null);
-
-	if (felipe_CadastroEmpresa.values.length > 0) {
-		// TO DO: melhorar alerta de CNPJ existente
-		alert('CNPJ já cadastrado.');
-		return false;
+			return true;
+		} else {
+			toast(dsValidaCnpj.values[0].mensagem + '.', '', 'warning');
+			return false;
+		}
 	}
 
-	return true;
+	return false;
 }
 
 /**
@@ -108,48 +75,59 @@ function limparEndereco() {
  * @param {String} cep CEP a ser consultado.
  */
 function consultarCep(cep) {
-	//Verifica se campo cep possui valor informado.
 	if (cep != '') {
-
-		//Nova variável 'cep' somente com dígitos.
+		// Tranforma cep para somente dígitos.
 		cep = cep.replace(/\D/g, '');
 
-		//Expressão regular para validar o CEP.
+		// Expressão regular para validar o CEP.
 		let validacep = /^[0-9]{8}$/;
 
-		//Valida o formato do CEP.
+		// Valida o formato do CEP.
 		if (validacep.test(cep)) {
+			loading.show();
 
-			//Preenche os campos com '...' enquanto consulta webservice.
-			$('#logradouro').val('...');
-			$('#bairro').val('...');
-			$('#localidade').val('...');
-			$('#uf').val('...');
-
-			//Consulta o webservice viacep.com.br/
+			// Consulta o webservice viacep.com.br/
 			$.getJSON('https://viacep.com.br/ws/' + cep + '/json/?callback=?', function (dados) {
 				if (!('erro' in dados)) {
-					//Atualiza os campos com os valores da consulta.
+					// Atualiza os campos com os valores da consulta.
 					$('#logradouro').val(dados.logradouro);
 					$('#bairro').val(dados.bairro);
 					$('#localidade').val(dados.localidade);
 					$('#uf').val(dados.uf);
-				} //end if.
-				else {
-					//CEP pesquisado não foi encontrado.
+				} else {
+					// CEP pesquisado não foi encontrado.
 					limparEndereco();
-					alert('CEP não encontrado.');
+					toast('CEP não encontrado.', '', 'warning');
 				}
+			}).fail(function () {
+				toast('Erro ao buscar CEP.', '', 'warning');
+			}).always(function () {
+				loading.hide();
 			});
-		} //end if.
-		else {
-			//cep é inválido.
+		} else {
+			// CEP inválido.
 			limparEndereco();
-			alert('Formato de CEP inválido.');
+			toast('Formato de CEP inválido.', '', 'warning');
 		}
-	} //end if.
-	else {
-		//cep sem valor, limpa formulário.
+	} else {
+		// CEP sem valor, limpa formulário.
 		limparEndereco();
 	}
+}
+
+/**
+ * @function toast Função genérica para gerar toast.
+ * 
+ * @param {String} titulo Título do toast.
+ * @param {String} msg Mensagem para informação do toast.
+ * @param {String} tipo Tipos: 'success', 'warning', 'info' e 'danger'.
+ * @param {Number} timeout Tempo de duração do Toast. Valor padrão: 4000.
+ */
+function toast(titulo, msg, tipo, timeout = 4000) {
+	FLUIGC.toast({
+		title: titulo,
+		message: msg,
+		type: tipo,
+		timeout: timeout
+	});
 }
