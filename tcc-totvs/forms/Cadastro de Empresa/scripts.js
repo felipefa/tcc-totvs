@@ -2,7 +2,6 @@ $(document).ready(function () {
 	$('.obrigatorio').on('blur', function () {
 		var input = $(this);
 		if (input.val() == '' || input.val() == null) {
-			toast('Preencha o campo ' + $('label[for=' + input.prop('id') + ']').html(), '', 'warning');
 			input.parent().addClass('has-error');
 		} else if (input.prop('id') === 'cnpj') {
 			loading.show();
