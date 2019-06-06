@@ -17,6 +17,6 @@ function validateForm(form) {
 		if (quantidadeCampos > 1) {
 			cabecalhoMsg = i18n.translate('msgCamposVazios');
 		}
-		throw cabecalhoMsg + '<br>' + campos;
+		throw '<script>cardPublisherFrame.validarCampos()</script>' + cabecalhoMsg + '<br>' + campos;
 	}
 }
