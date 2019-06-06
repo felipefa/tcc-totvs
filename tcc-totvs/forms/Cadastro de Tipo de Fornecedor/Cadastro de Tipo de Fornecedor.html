@@ -7,7 +7,7 @@
 	<script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
 	<script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
 	<script type="text/javascript" src="jquery.mask.js" charset="utf-8"></script>
-	<script type="text/javascript" src="view.js" charset="utf-8"></script>
+	<script type="text/javascript" src="scripts.js" charset="utf-8"></script>
 </head>
 
 <body>
@@ -21,11 +21,11 @@
 						<div class="row">
 							<div class="form-group col-md-3">
 								<label class="control-label" for="ramoAtividade">i18n.translate("ramoAtividade")</label>
-								<input id="ramoAtividade" class="form-control" type="text" name="ramoAtividade">
+								<input id="ramoAtividade" class="form-control obrigatorio" type="text" name="ramoAtividade">
 							</div>
 							<div class="form-group col-md-2">
 								<label class="control-label" for="possuiLimite">i18n.translate("possuiLimite")</label>
-								<select id="possuiLimite" class="form-control" type="text" name="possuiLimite">
+								<select id="possuiLimite" class="form-control obrigatorio" type="text" name="possuiLimite">
 									<option value="" disabled selected>i18n.translate("selecione")</option>
 									<option value="sim">i18n.translate("sim")</option>
 									<option value="nao">i18n.translate("nao")</option>
@@ -33,7 +33,7 @@
 							</div>
 							<div class="form-group col-md-2 valorLimite">
 								<label class="control-label" for="valorLimite">i18n.translate("valorLimite")</label>
-								<input id="valorLimite" class="form-control real" type="text" name="valorLimite" placeholder="R$ 0,00">
+								<input id="valorLimite" class="form-control obrigatorio real" type="text" name="valorLimite" placeholder="R$ 0,00">
 							</div>
 						</div>
 				  </div>
