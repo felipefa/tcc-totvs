@@ -6,20 +6,16 @@ function validateForm(form) {
 		campos += '<br>' + i18n.translate('cnpj');
 	} else {
 		var cnpj = form.getValue('cnpj');
-		var constraintsCnpj = [DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST)];
+		var constraintsCnpj = [
+			DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST),
+			DatasetFactory.createConstraint('dataset', 'felipe_CadastroEmpresa', 'felipe_CadastroEmpresa', ConstraintType.MUST),
+			DatasetFactory.createConstraint('campoCnpj', 'cnpj', 'cnpj', ConstraintType.MUST),
+			DatasetFactory.createConstraint('campoNomeEmpresa', 'nomeFantasia', 'nomeFantasia', ConstraintType.MUST),
+		];
 		var dsValidaCnpj = DatasetFactory.getDataset('dsValidaCnpj', null, constraintsCnpj, null);
 
 		if (dsValidaCnpj.rowsCount > 0) {
-			var sucesso = dsValidaCnpj.getValue(0, 'sucesso') == 'true' ? true : false;
-
-			if (sucesso) {
-				// Verifica se CNPJ já está cadastrado para outra empresa
-				var felipe_CadastroEmpresa = DatasetFactory.getDataset('felipe_CadastroEmpresa', null, constraintsCnpj, null);
-
-				if (felipe_CadastroEmpresa.rowsCount > 0) {
-					throw 'CNPJ j&aacute; cadastrado para a empresa ' + felipe_CadastroEmpresa.getValue(0, 'nomeFantasia') + '.';
-				}
-			} else {
+			if (dsValidaCnpj.getValue(0, 'sucesso') == 'false') {
 				throw dsValidaCnpj.getValue(0, 'mensagem') + '.';
 			}
 		} else {
@@ -77,6 +73,6 @@ function validateForm(form) {
 		if (quantidadeCampos > 1) {
 			cabecalhoMsg = i18n.translate('msgCamposVazios');
 		}
-		throw cabecalhoMsg + '<br>' + campos;
+		throw '<script>cardPublisherFrame.validarCampos()</script>' + cabecalhoMsg + '<br>' + campos;
 	}
 }

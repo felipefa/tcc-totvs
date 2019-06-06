@@ -27,49 +27,6 @@ var loading = FLUIGC.loading(window, {
 });
 
 /**
- * @function validarCnpj Valida CNPJ digitado de acordo com algoritmo da Receita Federal.
- * 
- * @param {String} cnpj Valor que deve ser validado.
- * 
- * @returns {Boolean} True se cnpj for válido e não estiver cadastrado.
- */
-function validarCnpj(cnpj) {
-	var constraintsCnpj = [DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST)];
-	var dsValidaCnpj = DatasetFactory.getDataset('dsValidaCnpj', null, constraintsCnpj, null);
-
-	if (dsValidaCnpj.values.length > 0) {
-		var sucesso = FLUIGC.utilities.parseBoolean(dsValidaCnpj.values[0].sucesso);
-
-		if (sucesso) {
-			// Verifica se CNPJ já está cadastrado para outra empresa
-			let felipe_CadastroEmpresa = DatasetFactory.getDataset('felipe_CadastroEmpresa', null, constraintsCnpj, null);
-
-			if (felipe_CadastroEmpresa.values.length > 0) {
-				toast('CNPJ já cadastrado para a empresa ' + felipe_CadastroEmpresa.values[0].nomeFantasia + '.', '', 'warning');
-				return false;
-			}
-
-			return true;
-		} else {
-			toast(dsValidaCnpj.values[0].mensagem + '.', '', 'warning');
-			return false;
-		}
-	}
-
-	return false;
-}
-
-/**
- * @function limparEndereco Limpa valores dos campos de endereço.
- */
-function limparEndereco() {
-	$('#logradouro').val('');
-	$('#bairro').val('');
-	$('#localidade').val('');
-	$('#uf').val('');
-}
-
-/**
  * @function consultarCep Busca um CEP informado para preencher os demais campos do endereço.
  * 
  * @param {String} cep CEP a ser consultado.
@@ -116,6 +73,16 @@ function consultarCep(cep) {
 }
 
 /**
+ * @function limparEndereco Limpa valores dos campos de endereço.
+ */
+function limparEndereco() {
+	$('#logradouro').val('');
+	$('#bairro').val('');
+	$('#localidade').val('');
+	$('#uf').val('');
+}
+
+/**
  * @function toast Função genérica para gerar toast.
  * 
  * @param {String} titulo Título do toast.
@@ -130,4 +97,39 @@ function toast(titulo, msg, tipo, timeout = 4000) {
 		type: tipo,
 		timeout: timeout
 	});
+}
+
+/**
+ * @function validarCampos Função que força a execução do evento blur dos campos obrigatórios para validação visual.
+ */
+function validarCampos() {
+	$('.obrigatorio').blur();
+}
+
+/**
+ * @function validarCnpj Valida CNPJ digitado de acordo com algoritmo da Receita Federal.
+ * 
+ * @param {String} cnpj Valor que deve ser validado.
+ * 
+ * @returns {Boolean} True se cnpj for válido e não estiver cadastrado.
+ */
+function validarCnpj(cnpj) {
+	var constraintsCnpj = [
+		DatasetFactory.createConstraint('cnpj', cnpj, cnpj, ConstraintType.MUST),
+		DatasetFactory.createConstraint('dataset', 'felipe_CadastroEmpresa', 'felipe_CadastroEmpresa', ConstraintType.MUST),
+		DatasetFactory.createConstraint('campoCnpj', 'cnpj', 'cnpj', ConstraintType.MUST),
+		DatasetFactory.createConstraint('campoNomeEmpresa', 'nomeFantasia', 'nomeFantasia', ConstraintType.MUST),
+	];
+	var dsValidaCnpj = DatasetFactory.getDataset('dsValidaCnpj', null, constraintsCnpj, null);
+
+	if (dsValidaCnpj.values.length > 0) {
+		if (dsValidaCnpj.values[0].sucesso == 'true') {
+			return true;
+		} else {
+			toast(dsValidaCnpj.values[0].mensagem + '.', '', 'warning');
+			return false;
+		}
+	}
+
+	return false;
 }
