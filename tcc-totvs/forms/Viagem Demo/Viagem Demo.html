@@ -1,0 +1,539 @@
+<html>
+
+<head>
+	<link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
+	<script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+	<script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+	<script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+	<script type="text/javascript" src="jquery.mask.js" charset="utf-8"></script>
+	<script type="text/javascript" src="utils.js" charset="utf-8"></script>
+	<script type="text/javascript" src="view.js" charset="utf-8"></script>
+	<script type="text/javascript" src="scripts.js" charset="utf-8"></script>
+	<script type="text/javascript" src="zoom.js" charset="utf-8"></script>
+	<script type="text/javascript" src="validate.js" charset="utf-8"></script>
+	<!-- importar moment.js para cálculos de diferenças entre datas -->
+</head>
+
+<body>
+	<div class="fluig-style-guide container-fluid">
+		<form name="form" role="form">
+			<!-- Início do Painel de Dados da Solicitação -->
+			<div class="panel panel-primary" id="panelDadosSolicitacao">
+				<div class="panel-heading">
+					<h3 class="panel-title">Dados da Solicitação</h3>
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="form-group col-md-2">
+							<label class="control-label" for="dataSolicitacao">Data da Solicitação</label>
+							<input type="text" name="dataSolicitacao" id="dataSolicitacao" class="form-control"
+								readonly>
+						</div>
+						<div class="form-group col-md-1">
+							<label class="control-label" for="numeroSolicitacao">Solicitação</label>
+							<input type="text" name="numeroSolicitacao" id="numeroSolicitacao" class="form-control"
+								readonly>
+						</div>
+						<div class="form-group col-md-3">
+							<label class="control-label" for="nomeSolicitante">Solicitante</label>
+							<input type="zoom" name="nomeSolicitante" id="nomeSolicitante" class="form-control"
+								data-zoom="{
+									'displayKey':'colleagueName',
+									'datasetId':'colleague',
+									'filterValues':'active,true',
+									'placeholder': 'Selecione o solicitante',
+									'fields':[
+										{'field':'colleagueName', 'label':'Nome', 'standard':'true'},
+										{'field':'login', 'label':'Login'}]
+									}">
+						</div>
+						<div class="form-group col-md-3">
+							<label class="control-label" for="centroCusto">Centro de Custo</label>
+							<input type="zoom" name="centroCusto" id="centroCusto" class="form-control" data-zoom="{
+									'displayKey':'nomeCentroCusto',
+									'datasetId':'felipe_CadastroCentroCusto',
+									'placeholder': 'Selecione o centro de custo',
+									'fields':[
+										{'field': 'nomeCentroCusto', 'label': 'Nome', 'standard': 'true'},
+										{'field': 'zoomEmpresa', 'label': 'Empresa'},
+										{'field': 'zoomGestor', 'label': 'Gestor'},
+										{'field': 'loginGestor', 'visible': 'false'}]
+									}">
+						</div>
+						<div class="form-group col-md-3">
+							<label class="control-label" for="nomeGestor">Gestor</label>
+							<input type="text" name="nomeGestor" id="nomeGestor" class="form-control" readonly>
+						</div>
+						<!-- Início de Campos Ocultos dos Dados da Solicitação -->
+						<input id="loginSolicitante" type="hidden" name="loginSolicitante">
+						<input id="loginGestor" type="hidden" name="loginGestor">
+						<!-- Fim de Campos Ocultos dos Dados da Solicitação -->
+					</div>
+					<div class="row">
+						<div class="form-group col-xs-12">
+							<label class="control-label" for="obsSolicitante">Observação (Opcional)</label>
+							<textarea class="form-control" name="obsSolicitante" id="obsSolicitante" rows="1"
+								style="resize: vertical"></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Fim do Painel de Dados da Solicitação -->
+
+			<!-- Início do Painel de Itinerário -->
+			<div class="panel panel-primary" id="panelItinerario">
+				<div class="panel-heading" id="headingItinerario">
+					<div class="row">
+						<div class="col-xs-6 col-sm-8">
+							<h3 class="panel-title" style="margin-top: .5rem;">Itinerário</h3>
+						</div>
+						<div class="col-sm-4 text-right">
+							<button class="btn btn-default" type="button" id="btnNovoTrajeto">Novo Trajeto</button>
+						</div>
+					</div>
+				</div>
+				<div class="panel-body acertoViagem" id="bodyItinerario">
+					<div class="row">
+						<div class="form-group col-md-2">
+							<label class="control-label" for="idaPrevista">Ida Prevista</label>
+							<div class="input-group">
+								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="idaPrevista"
+									id="idaPrevista" mask="00/00/0000">
+								<span class="input-group-addon">
+									<span class="fluigicon fluigicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group col-md-2">
+							<label class="control-label" for="voltaPrevista">Volta Prevista</label>
+							<div class="input-group">
+								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="voltaPrevista"
+									id="voltaPrevista" mask="00/00/0000">
+								<span class="input-group-addon">
+									<span class="fluigicon fluigicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group col-md-2 acertoViagem" hidden>
+							<label class="control-label" for="idaEfetiva">Ida Efetiva</label>
+							<div class="input-group">
+								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="idaEfetiva"
+									id="idaEfetiva" mask="00/00/0000">
+								<span class="input-group-addon">
+									<span class="fluigicon fluigicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group col-md-2 acertoViagem" hidden>
+							<label class="control-label" for="voltaEfetiva">Volta Efetiva</label>
+							<div class="input-group">
+								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="voltaEfetiva"
+									id="voltaEfetiva" mask="00/00/0000">
+								<span class="input-group-addon">
+									<span class="fluigicon fluigicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+					</div>
+					<hr class="trajetos" hidden>
+					<div class="row trajetos" hidden>
+						<!-- Início do pai filho de trajetos -->
+						<table class="col-xs-12" id="tableItinerario" tablename="itinerario" noaddbutton="true">
+							<thead>
+								<tr>
+									<th class="tableColumn"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td id="tdTrajeto">
+										<div class="row">
+											<div class="form-group col-xs-3 col-sm-2 col-md-1">
+												<label class="control-label" for="trajeto">Nº Trajeto</label>
+												<input id="trajeto" class="form-control" type="text" name="trajeto"
+													readonly>
+											</div>
+											<div class="form-group col-md-5">
+												<label class="control-label" for="cidadeOrigem">Cidade de Origem</label>
+												<input type="zoom" name="cidadeOrigem" id="cidadeOrigem"
+													class="form-control" data-zoom="{
+														'displayKey':'cidade',
+														'resultLimit':'5',
+														'datasetId':'dsCidadesBrasil',
+														'placeholder': 'Selecione a cidade de origem',
+														'fields':[
+															{'field':'cidade', 'label':'Cidade', 'standard':'true'},
+															{'field':'estado', 'label':'Estado'},
+															{'field':'uf', 'label':'UF'}]
+														}">
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="estadoOrigem">Estado de Origem</label>
+												<input type="text" name="estadoOrigem" id="estadoOrigem"
+													class="form-control" readonly>
+											</div>
+											<div class="form-group col-sm-3 col-md-2">
+												<label class="control-label" for="dataSaidaOrigem">Saída da
+													Origem</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="dataSaidaOrigem" id="dataSaidaOrigem">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-sm-3 col-md-2">
+												<label class="control-label" for="distancia">Distância (em km)</label>
+												<input type="text" name="distancia" id="distancia" class="form-control">
+											</div>
+										</div>
+										<div class="row">
+											<div class="form-group col-md-5 col-md-offset-1">
+												<label class="control-label" for="cidadeDestino">Cidade de
+													Destino</label>
+												<input type="zoom" name="cidadeDestino" id="cidadeDestino"
+													class="form-control" data-zoom="{
+														'displayKey':'cidade',
+														'resultLimit':'5',
+														'datasetId':'dsCidadesBrasil',
+														'placeholder': 'Selecione a cidade de destino',
+														'fields':[
+															{'field':'cidade', 'label':'Cidade', 'standard':'true'},
+															{'field':'estado', 'label':'Estado'},
+															{'field':'uf', 'label':'UF'}]
+														}">
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="estadoDestino">Estado de
+													Destino</label>
+												<input type="text" name="estadoDestino" id="estadoDestino"
+													class="form-control" readonly>
+											</div>
+											<div class="form-group col-sm-3 col-md-2">
+												<label class="control-label" for="dataChegadaDestino">Chegada ao
+													Destino</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="dataChegadaDestino" id="dataChegadaDestino">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-md-2">
+												<label>&nbsp;</label>
+												<button class="btn btn-block btn-primary" type="button"
+													id="btnAdicionarDespesa" onclick="adicionarDespesa(this)">Adicionar
+													Despesa</button>
+											</div>
+										</div>
+										<hr id="hrTrajeto" hidden>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<!-- Fim do pai filho de trajetos -->
+					</div>
+				</div>
+			</div>
+			<!-- Fim do Painel de Itinerário -->
+
+			<!-- Início do Painel de Despesas da Viagem -->
+			<div class="panel panel-primary acertoViagem" id="panelDespesasViagem" hidden>
+				<div class="panel-heading">
+					<h3 class="panel-title">Despesas da Viagem</h3>
+				</div>
+				<div class="panel-body">
+					<table class="col-xs-12" id="tableDespesasViagem" tablename="despesasViagem" noaddbutton="true">
+						<thead>
+							<tr>
+								<th class="tableColumn"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>
+									<div class="row">
+										<div class="form-group col-xs-3 col-sm-2 col-md-1">
+											<label class="control-label" for="numeroTrajeto">Nº Trajeto</label>
+											<input id="numeroTrajeto" class="form-control" type="text"
+												name="numeroTrajeto" readonly>
+										</div>
+										<div class="col-xs-9 col-sm-10 col-md-11">
+											<label class="control-label" for="origemDestino">Trajeto</label>
+											<h3 id="origemDestino" style="margin-top: .5rem;">Cidade Origem > Cidade
+												Destino</h3>
+										</div>
+									</div>
+									<div class="row dadosFornecedor">
+										<div class="form-group col-md-3">
+											<label class="control-label" for="tipoFornecedor">Tipo</label>
+											<input id="tipoFornecedor" class="form-control" type="zoom"
+												name="tipoFornecedor" data-zoom="{
+													'displayKey':'ramoAtividade',
+													'datasetId':'felipe_CadastroTipoFornecedor',
+													'placeholder': 'Selecione o tipo de fornecedor',
+													'fields':[
+														{'field':'ramoAtividade', 'label':'Tipo', 'standard':'true'},
+														{'field':'possuiLimite', 'visible': 'false'},
+														{'field':'valorLimite', 'label': 'Valor Limite'}]
+													}">
+										</div>
+										<div class="form-group col-md-3">
+											<label class="control-label" for="nomeFornecedor">Fornecedor</label>
+											<input id="nomeFornecedor" class="form-control" type="zoom"
+												name="nomeFornecedor" data-zoom="{
+													'displayKey':'nomeFornecedor',
+													'datasetId':'felipe_CadastroFornecedor',
+													'placeholder': 'Selecione o fornecedor',
+													'fields':[
+														{'field':'nomeFornecedor', 'label':'Nome', 'standard':'true'},
+														{'field':'cnpj', 'label': 'CNPJ'},
+														{'field':'zoomTipoFornecedor', 'visible': 'false'}]
+													}">
+										</div>
+										<div class="form-group col-md-2">
+											<label class="control-label" for="valorLimite">Valor Limite</label>
+											<input id="valorLimite" class="form-control real" type="text"
+												name="valorLimite" readonly>
+										</div>
+										<div class="form-group col-md-2">
+											<label class="control-label" for="valorPrevisto">Valor Previsto</label>
+											<input id="valorPrevisto" class="form-control real" type="text"
+												name="valorPrevisto">
+										</div>
+										<div class="form-group col-md-2 acertoViagem" hidden>
+											<label class="control-label" for="efetuado">Despesa Efetuada?</label>
+											<select id="efetuado" class="form-control" name="efetuado"
+												style="cursor: pointer;">
+												<option value="sim">Sim</option>
+												<option value="nao">Não</option>
+											</select>
+										</div>
+										<!-- Início de Campos Ocultos dos Dados do Fornecedor -->
+										<input id="despesaPrevista" type="hidden" name="despesaPrevista" value="sim">
+										<input id="possuiLimite" type="hidden" name="possuiLimite">
+										<input id="cnpjFornecedor" type="hidden" name="cnpjFornecedor">
+										<!-- Fim de Campos Ocultos dos Dados do Fornecedor -->
+									</div>
+									<div class="row detalhesDespesa">
+										<div class="tipoAereo" hidden>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="dataIdaVoo">Ida do Voo</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="dataIdaVoo" id="dataIdaVoo">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="dataChegadaVoo">Chegada do Voo</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="dataChegadaVoo" id="dataChegadaVoo">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="numeroVoo">Número do Voo</label>
+												<input id="numeroVoo" class="form-control" type="text" name="numeroVoo">
+											</div>
+										</div>
+										<div class="tipoAluguelVeiculos" hidden>
+											<div class="form-group col-md-3">
+												<label class="control-label" for="dataRetirada">Retirada</label>
+												<div class="input-group calendarioHora" style="cursor: pointer;">
+													<input type="text" class="form-control"
+														placeholder="Selecione HH:mm" name="dataRetirada"
+														id="dataRetirada">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-md-3">
+												<label class="control-label" for="dataDevolucao">Devolução</label>
+												<div class="input-group calendarioHora" style="cursor: pointer;">
+													<input type="text" class="form-control"
+														placeholder="Selecione HH:mm" name="dataDevolucao"
+														id="dataDevolucao">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="tipoHospedagem" hidden>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="checkin">Check-in</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="checkin" id="checkin">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="checkout">Checkout</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="checkout" id="checkout">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="diarias">Diárias</label>
+												<input id="diarias" class="form-control" type="text" name="diarias">
+											</div>
+										</div>
+										<div class="tipoPadrao" hidden>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="dataPrevista">Data Prevista</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="dataPrevista" id="dataPrevista">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="dataEfetiva">Data Efetiva</label>
+												<div class="input-group calendario" style="cursor: pointer;">
+													<input type="text" class="form-control" placeholder="Selecione"
+														name="dataEfetiva" id="dataEfetiva">
+													<span class="input-group-addon">
+														<span class="fluigicon fluigicon-calendar"></span>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="comprovante acertoViagem" hidden>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="valorEfetivo">Valor Efetivo</label>
+												<input id="valorEfetivo" class="form-control real" type="text"
+													name="valorEfetivo">
+											</div>
+											<div class="form-group col-md-3">
+												<label class="control-label" for="anexoComprovante">Anexar
+													Comprovante</label>
+												<div class="input-group">
+													<input type="text" name="nomeArquivo" id="nomeArquivo"
+														class="form-control" readonly>
+													<span class="input-group-btn">
+														<label class="file-input-wrapper btn btn-primary">
+															Buscar
+															<input type="file" id="files" name="files"
+																data-url="/ecm/upload" data-toggle="tooltip"
+																data-placement="bottom" title="Buscar arquivos" multiple
+																onclick="anexarComprovantes(this)">
+														</label>
+													</span>
+												</div>
+											</div>
+											<div class="form-group">
+												<label for="btnVerAnexos">&nbsp;</label>
+												<button id="btnVerAnexos" class="form-control" type="text"
+													name="btnVerAnexos">Anexos</button>
+											</div>
+										</div>
+									</div>
+									<div class="row aprovacaoGestor aprovacaoFinanceiro acertoViagem" hidden>
+										<div class="form-group col-md-3">
+											<label class="control-label" for="aprovacaoGestor">Aprovação do
+												Gestor</label>
+											<select class="form-control" name="aprovacaoGestor" id="aprovacaoGestor"
+												style="cursor: pointer;">
+												<option value="ajustar">Ajustar</option>
+												<option value="aprovar">Aprovar</option>
+												<option value="reprovar">Reprovar</option>
+											</select>
+										</div>
+										<div class="form-group col-md-9">
+											<label class="control-label" for="justificativaGestor">Justificativa do
+												Gestor</label>
+											<textarea id="justificativaGestor" class="form-control"
+												name="justificativaGestor" rows="2" style="resize: vertical"></textarea>
+										</div>
+									</div>
+									<div class="row aprovacaoFinanceiro acertoViagem" hidden>
+										<div class="form-group col-md-3">
+											<label class="control-label" for="aprovadorFinanceiro">Aprovador do
+												Financeiro</label>
+											<input id="aprovadorFinanceiro" class="form-control" type="text"
+												name="aprovadorFinanceiro" readonly>
+										</div>
+										<div class="form-group col-md-3">
+											<label class="control-label" for="aprovacaoFinanceiro">Aprovação do
+												Financeiro</label>
+											<select class="form-control" name="aprovacaoFinanceiro"
+												id="aprovacaoFinanceiro" style="cursor: pointer;">
+												<option value="ajustar">Ajustar</option>
+												<option value="aprovar">Aprovar</option>
+												<option value="reprovar">Reprovar</option>
+											</select>
+										</div>
+										<div class="form-group col-md-6">
+											<label class="control-label" for="justificativaFinanceiro">Justificativa do
+												Financeiro</label>
+											<textarea id="justificativaFinanceiro" class="form-control"
+												name="justificativaFinanceiro" rows="2"
+												style="resize: vertical"></textarea>
+										</div>
+										<!-- Início de Campos Ocultos da Aprovação do Financeiro -->
+										<input id="matriculaFinanceiro" type="hidden" name="matriculaFinanceiro">
+										<!-- Fim de Campos Ocultos da Aprovação do Financeiro -->
+									</div>
+									<hr id="hrDespesa" hidden>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- Fim do Painel de Despesas da Viagem -->
+
+			<!-- Início do Painel de Resumo da Viagem -->
+			<div class="panel panel-primary aprovacaoGestor aprovacaoFinanceiro" id="panelResumoViagem" hidden>
+				<div class="panel-heading">
+					<h3 class="panel-title">Resumo da Viagem</h3>
+				</div>
+				<div class="panel-body">
+					<div class="row">
+						<div class="form-group col-md-2">
+							<label class="control-label" for="valorTotalPrevisto">Total Previsto</label>
+							<input id="valorTotalPrevisto" class="form-control real" type="text"
+								name="valorTotalPrevisto" readonly>
+						</div>
+						<div class="form-group col-md-2 acertoViagem" hidden>
+							<label class="control-label" for="valorTotalEfetuado">Total Efetuado</label>
+							<input id="valorTotalEfetuado" class="form-control real" type="text"
+								name="valorTotalEfetuado" readonly>
+						</div>
+						<div class="form-group col-md-2">
+							<label class="control-label" for="distanciaTotal">Distância Total</label>
+							<input id="distanciaTotal" class="form-control" type="text" name="distanciaTotal" readonly>
+						</div>
+						<!-- Início de Campos Ocultos do Resumo da Viagem -->
+						<input type="hidden" id="aprovacaoGestorFinal" name="aprovacaoGestorFinal">
+						<input type="hidden" id="aprovacaoFinanceiroFinal" name="aprovacaoFinanceiroFinal">
+						<!-- Fim de Campos Ocultos do Resumo da Viagem -->
+					</div>
+				</div>
+			</div>
+			<!-- Fim do Painel de Resumo da Viagem -->
+		</form>
+	</div>
+</body>
+
+</html>
