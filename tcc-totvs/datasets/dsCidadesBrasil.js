@@ -78,7 +78,7 @@ function consultarApi(consulta) {
 	try {
 		var endpoint = '/' + consulta.tipo;
 		if (consulta.buscar != '') {
-			endpoint += '?q=' + consulta.buscar;
+			endpoint += '?q=' + consulta.buscar.replace(' ', '%20');
 		}
 		var clientService = fluigAPI.getAuthorizeClientService();
 		var data = {
