@@ -1,27 +1,6 @@
 $(document).ready(function () {
 	$('#btnNovoTrajeto').on('click', function () {
-		// let idaPrevista = $('#idaPrevista').val();
-		// let voltaPrevista = $('#voltaPrevista').val();
-
-		// Validação comentada
-		// if (!estaVazio(idaPrevista) && !estaVazio(voltaPrevista)) {
-		let trajeto = wdkAddChild('itinerario');
-		$('.trajetos').show();
-		$('#trajeto___' + trajeto).val(trajeto);
-
-		esconderUltimaHr('hrTrajeto___', trajeto);
-
-		estanciaCalendarioFluig([
-			'dataSaidaOrigem___' + trajeto, 'dataChegadaDestino___' + trajeto,
-		]);
-		FLUIGC.utilities.scrollTo('#trajeto___' + trajeto, 500);
-		// } else {
-		// 	if (idaPrevista == '') {
-		// 		toast('A ida prevista da viagem deve estar preenchida.', '', 'warning');
-		// 	} else if (voltaPrevista == '') {
-		// 		toast('A volta prevista da viagem deve estar preenchida.', '', 'warning');
-		// 	}
-		// }
+		adicionarTrajeto();
 	});
 
 	$('#idaPrevista, #voltaPrevista').on('blur', function () {
@@ -31,12 +10,12 @@ $(document).ready(function () {
 		let voltaPrevista = '';
 
 		if (input.prop('id') == 'idaPrevista') {
-			idaPrevista = $(this).val();
+			idaPrevista = input.val();
 			voltaPrevista = $('#voltaPrevista').val();
 			mensagem = 'A data da ida deve ser anterior ou igual a volta prevista.';
 		} else if (input.prop('id') == 'voltaPrevista') {
 			idaPrevista = $('#idaPrevista').val();
-			voltaPrevista = $(this).val();
+			voltaPrevista = input.val();
 			mensagem = 'A data da volta deve ser posterior ou igual a ida prevista.'
 		}
 
@@ -56,7 +35,7 @@ function adicionarDespesa(elemento) {
 	let trajeto = $(elemento).prop('id').split('___')[1];
 	let campoVazioTrajeto = [];
 
-	$('#tdTrajeto___' + trajeto).find('input').each(function () {
+	$('#trTrajeto___' + trajeto).find('input').each(function () {
 		campoVazioTrajeto.push(validarCampoVazio($(this)));
 	});
 
@@ -65,35 +44,102 @@ function adicionarDespesa(elemento) {
 	} else {
 		let numeroIdDespesa = wdkAddChild('despesasViagem');
 
-		// TO DO: testar calendario com id na div 
-		estanciaCalendarioFluig([
-			'dataIdaVoo___' + numeroIdDespesa, 'dataChegadaVoo___' + numeroIdDespesa,
-			'checkin___' + numeroIdDespesa, 'checkout___' + numeroIdDespesa,
-			'dataPrevista___' + numeroIdDespesa, 'dataVoo___' + numeroIdDespesa,
-			'dataEfetiva___' + numeroIdDespesa
-		]);
-		estanciaCalendarioFluig([
-			'dataRetirada___' + numeroIdDespesa, 'dataDevolucao___' + numeroIdDespesa
-		], true);
+		FLUIGC.calendar('.calendario', {
+			pickDate: true,
+			pickTime: false
+		});
+		FLUIGC.calendar('.calendarioHora', {
+			pickDate: true,
+			pickTime: true,
+			sideBySide: true
+		});
 
 		if (codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
 			$('#despesaPrevista___' + numeroIdDespesa).val('nao');
 		}
-		$('#numeroTrajeto___' + numeroIdDespesa).val(trajeto);
+		$('#numeroTrajetoDespesa___' + numeroIdDespesa).val(trajeto);
 		let cidadeOrigem = $('#cidadeOrigem___' + trajeto).val();
 		let cidadeDestino = $('#cidadeDestino___' + trajeto).val();
 		let origemDestino = cidadeOrigem + ' > ' + cidadeDestino;
 		$('#origemDestino___' + numeroIdDespesa).html(origemDestino);
+		desativarZoom('nomeFornecedor___' + numeroIdDespesa);
 
 		$('#panelDespesasViagem').show();
-		FLUIGC.utilities.scrollTo('#numeroTrajeto___' + numeroIdDespesa, 500);
+		FLUIGC.utilities.scrollTo('#numeroTrajetoDespesa___' + numeroIdDespesa, 500);
 
-		esconderUltimaHr('hrDespesa___', numeroIdDespesa);
+		esconderUltimaHr('hrDespesa___');
+		$('#panelDespesasViagem').show();
+		atualizarZoom('fornecedor___' + numeroIdDespesa);
+		atualizarZoom('tipoFornecedor___' + numeroIdDespesa);
 
 		$('.real').maskMoney({
 			prefixMoney: 'R$ ',
 			placeholder: 'R$ 0,00'
 		});
-		$('.calendario').mask('00/00/0000');
 	}
+}
+
+/**
+ * @function adicionarTrajeto Adiciona um novo trajeto ao pai filho do painel de itinerário caso as datas previstas da viagem estejam preenchidas.
+ */
+function adicionarTrajeto() {
+	let idaPrevista = $('#idaPrevista').val();
+	let voltaPrevista = $('#voltaPrevista').val();
+
+	if (!estaVazio(idaPrevista) && !estaVazio(voltaPrevista)) {
+		let trajeto = wdkAddChild('itinerario');
+		$('.trajetos').show();
+		$('#trajeto___' + trajeto).val(trajeto);
+
+		atualizarZoom('cidadeOrigem___' + trajeto);
+		atualizarZoom('cidadeDestino___' + trajeto);
+
+		esconderUltimaHr('hrTrajeto___');
+
+		FLUIGC.calendar('.calendario', {
+			pickDate: true,
+			pickTime: false
+		});
+		$('.trajetos').show();
+		FLUIGC.utilities.scrollTo('#trajeto___' + trajeto, 500);
+	} else {
+		if (idaPrevista == '') {
+			toast('A ida prevista da viagem deve estar preenchida.', '', 'warning');
+		} else if (voltaPrevista == '') {
+			toast('A volta prevista da viagem deve estar preenchida.', '', 'warning');
+		}
+	}
+}
+
+/**
+ * @function excluirDespesa Exclui uma despesa do pai filho.
+ * 
+ * @param {Object} elemento Objeto do JQuery que é acionado ao excluir uma despesa.
+ */
+function excluirDespesa(elemento) {
+	fnWdkRemoveChild(elemento);
+	let quantidadeDespesas = $('[id^=numeroTrajetoDespesa___]').length;
+	if (quantidadeDespesas == 0) $('#panelDespesasViagem').hide();
+	else esconderUltimaHr('hrDespesa___');
+}
+
+/**
+ * @function excluirTrajeto Exclui um trajeto do pai filho do painel de Itinerário se ele não tiver despesas associadas.
+ * 
+ * @param {Object} elemento Objeto do JQuery que é acionado ao excluir um trajeto.
+ */
+function excluirTrajeto(elemento) {
+	let numeroIdTrajeto = getPosicaoPaiFilho(elemento);
+	let existeDespesa = false;
+
+	$('[id^=numeroTrajetoDespesa___]').each(function () {
+		if ($(this).val() == numeroIdTrajeto) existeDespesa = true;
+	});
+
+	if (!existeDespesa) {
+		fnWdkRemoveChild(elemento);
+		let quantidadeTrajetos = $('[id^=trajeto___]').length;
+		if (quantidadeTrajetos == 0) $('.trajetos').hide();
+		else esconderUltimaHr('hrTrajetos___');
+	} else toast('É necessário excluir todas as despesas deste trajeto antes de removê-lo.', '', 'warning');
 }

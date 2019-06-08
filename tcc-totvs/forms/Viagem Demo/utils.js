@@ -1,4 +1,22 @@
 /**
+ * @function atribuirReadOnly Atribui readonly para os campos encontrados dentro do seletor.
+ * 
+ * @param {String} seletor String com o(s) seletor(es) usado(s) no JQuery.
+ */
+function atribuirReadOnly(seletor) {
+	$(seletor).find('input, select, textarea').each(function () {
+		let elemento = $(this);
+		elemento.attr('readonly', true);
+		if (elemento.prop("tagName") == 'SELECT') {
+			elemento.css({
+				'pointer-events': 'none',
+				'touch-action': 'none'
+			});
+		}
+	});
+}
+
+/**
  * @function colorirElementoHtml Função para colorir inputs no html.
  * 
  * @param {Object} elemento Elemento do JQuery que deve ser colorido.
@@ -49,12 +67,11 @@ function compararDatas(dataInicial, dataFinal, dataIntervalar = null) {
  * @param {String} id Id da tag hr no pai filho com underscore sem a posição. Exemplo: 'hrDespesa___'.
  * @param {String} ultimaPosicao Última posição do pai filho.
  */
-function esconderUltimaHr(id, ultimaPosicao) {
-	$('[id*=' + id + ']').each(function () {
-		let hr = $(this);
-		if (hr.prop('id') == id + ultimaPosicao) hr.hide();
-		else hr.show();
+function esconderUltimaHr(id) {
+	$('[id^=' + id + ']').each(function () {
+		$(this).show();
 	});
+	$('[id^=' + id + ']:last').hide();
 }
 
 /**
@@ -96,40 +113,65 @@ function estaVazio(valor) {
 }
 
 /**
+ * @function controlarDetalhesTipoDespesa Faz o controle de qual grupo de elementos deve ser exibido conforme o tipo de fornecedor selecionado.
+ * Os seguintes tipos de fornecedores possuem grupos específicos:
+ * - Aéreo;
+ * - Aluguel de Veículos;
+ * - Hospedagem;
+ * - Transfer;
  * 
- * @param {*} ramoAtividade 
+ * Para outros tipos de fornecedores, o grupo padrão será exibido.
+ * 
+ * @param {String} ramoAtividade Ramo de atividade a ser verificado.
+ * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
  */
-function controlarDetalhesTipoDespesa(ramoAtividade) {
+function controlarDetalhesTipoDespesa(ramoAtividade, numeroIdPaiFilho) {
 	switch (ramoAtividade) {
 		case 'Aéreo':
-			alternarDetalhesTipoDespesa('.tipoAereo');
+			alternarDetalhesTipoDespesa('tipoAereo', numeroIdPaiFilho);
 			break;
 		case 'Aluguel de Veículos':
-			alternarDetalhesTipoDespesa('.tipoAluguelVeiculos');
+			alternarDetalhesTipoDespesa('tipoAluguelVeiculos', numeroIdPaiFilho);
 			break;
 		case 'Hospedagem':
-			alternarDetalhesTipoDespesa('.tipoHospedagem');
+			alternarDetalhesTipoDespesa('tipoHospedagem', numeroIdPaiFilho);
 			break;
 		case 'Transfer':
-			alternarDetalhesTipoDespesa('.tipoTransfer');
+			alternarDetalhesTipoDespesa('tipoTransfer', numeroIdPaiFilho);
 			break;
 		default:
-			alternarDetalhesTipoDespesa('.tipoPadrao');
+			alternarDetalhesTipoDespesa('tipoPadrao', numeroIdPaiFilho);
 			break;
 	}
 }
 
 /**
+ * @function alternarDetalhesTipoDespesa Exibe os elementos relacionados ao tipo de fornecedor informado e oculta os outros não relacionados.
  * 
- * @param {*} classeAtual 
+ * @param {String} exibirId Prefixo do id do grupo de elementos que devem ser exibidos.
+ * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
  */
-function alternarDetalhesTipoDespesa(classeAtual) {
-	let tipos = ['.tipoAereo', '.tipoAluguelVeiculos', '.tipoHospedagem', '.tipoTransfer', '.tipoPadrao'];
+function alternarDetalhesTipoDespesa(exibirId, numeroIdPaiFilho) {
+	let idsTipos = ['tipoAereo', 'tipoAluguelVeiculos', 'tipoHospedagem', 'tipoTransfer', 'tipoPadrao'];
 
-	tipos.map(function(classe) {
-		if (classe == classeAtual) $(classe).show();
-		else $(classe).hide();
-	})
+	idsTipos.map(function (id) {
+		if (exibirId == id) $('#' + exibirId + '___' + numeroIdPaiFilho).show();
+		else $('#' + id + '___' + numeroIdPaiFilho).hide();
+	});
+}
+
+/**
+ * @function getPosicaoPaiFilho Busca o número do id de um elemento em um pai filho.
+ * 
+ * @param {Object} elemento Objeto do JQuery que contém um elemento do pai filho.
+ * 
+ * @returns {String} String com o número contido no id do elemento do pai filho.
+ */
+function getPosicaoPaiFilho(elemento) {
+	let id = $(elemento).prop('id');
+	if (elemento.className == 'fluigicon fluigicon-trash fluigicon-md')
+		id = $(elemento).closest('tr').prop('id');
+	return id.split('___')[1];
 }
 
 /**

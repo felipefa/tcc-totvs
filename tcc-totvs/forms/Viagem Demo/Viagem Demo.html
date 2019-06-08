@@ -99,8 +99,8 @@
 						<div class="form-group col-md-2">
 							<label class="control-label" for="idaPrevista">Ida Prevista</label>
 							<div class="input-group">
-								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="idaPrevista"
-									id="idaPrevista" mask="00/00/0000">
+								<input type="text" class="form-control calendario" placeholder="DD/MM/AAAA"
+									name="idaPrevista" id="idaPrevista" mask="00/00/0000">
 								<span class="input-group-addon">
 									<span class="fluigicon fluigicon-calendar"></span>
 								</span>
@@ -109,8 +109,8 @@
 						<div class="form-group col-md-2">
 							<label class="control-label" for="voltaPrevista">Volta Prevista</label>
 							<div class="input-group">
-								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="voltaPrevista"
-									id="voltaPrevista" mask="00/00/0000">
+								<input type="text" class="form-control calendario" placeholder="DD/MM/AAAA"
+									name="voltaPrevista" id="voltaPrevista" mask="00/00/0000">
 								<span class="input-group-addon">
 									<span class="fluigicon fluigicon-calendar"></span>
 								</span>
@@ -119,8 +119,8 @@
 						<div class="form-group col-md-2 acertoViagem" hidden>
 							<label class="control-label" for="idaEfetiva">Ida Efetiva</label>
 							<div class="input-group">
-								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="idaEfetiva"
-									id="idaEfetiva" mask="00/00/0000">
+								<input type="text" class="form-control calendario" placeholder="DD/MM/AAAA"
+									name="idaEfetiva" id="idaEfetiva" mask="00/00/0000">
 								<span class="input-group-addon">
 									<span class="fluigicon fluigicon-calendar"></span>
 								</span>
@@ -129,8 +129,8 @@
 						<div class="form-group col-md-2 acertoViagem" hidden>
 							<label class="control-label" for="voltaEfetiva">Volta Efetiva</label>
 							<div class="input-group">
-								<input type="text" class="form-control" placeholder="DD/MM/AAAA" name="voltaEfetiva"
-									id="voltaEfetiva" mask="00/00/0000">
+								<input type="text" class="form-control calendario" placeholder="DD/MM/AAAA"
+									name="voltaEfetiva" id="voltaEfetiva" mask="00/00/0000">
 								<span class="input-group-addon">
 									<span class="fluigicon fluigicon-calendar"></span>
 								</span>
@@ -140,15 +140,16 @@
 					<hr class="trajetos" hidden>
 					<div class="row trajetos" hidden>
 						<!-- Início do pai filho de trajetos -->
-						<table class="col-xs-12" id="tableItinerario" tablename="itinerario" noaddbutton="true">
+						<table class="col-xs-12" id="tableItinerario" tablename="itinerario" noaddbutton="true"
+							customFnDelete="excluirTrajeto(this)">
 							<thead>
 								<tr>
 									<th class="tableColumn"></th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
-									<td id="tdTrajeto">
+								<tr id="trTrajeto">
+									<td>
 										<div class="row">
 											<div class="form-group col-xs-3 col-sm-2 col-md-1">
 												<label class="control-label" for="trajeto">Nº Trajeto</label>
@@ -177,9 +178,10 @@
 											<div class="form-group col-sm-3 col-md-2">
 												<label class="control-label" for="dataSaidaOrigem">Saída da
 													Origem</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="dataSaidaOrigem" id="dataSaidaOrigem">
+												<div class="input-group" style="cursor: pointer;">
+													<input type="text" class="form-control calendario"
+														placeholder="Selecione" name="dataSaidaOrigem"
+														id="dataSaidaOrigem">
 													<span class="input-group-addon">
 														<span class="fluigicon fluigicon-calendar"></span>
 													</span>
@@ -215,9 +217,10 @@
 											<div class="form-group col-sm-3 col-md-2">
 												<label class="control-label" for="dataChegadaDestino">Chegada ao
 													Destino</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="dataChegadaDestino" id="dataChegadaDestino">
+												<div class="input-group" style="cursor: pointer;">
+													<input type="text" class="form-control calendario"
+														placeholder="Selecione" name="dataChegadaDestino"
+														id="dataChegadaDestino">
 													<span class="input-group-addon">
 														<span class="fluigicon fluigicon-calendar"></span>
 													</span>
@@ -247,20 +250,21 @@
 					<h3 class="panel-title">Despesas da Viagem</h3>
 				</div>
 				<div class="panel-body">
-					<table class="col-xs-12" id="tableDespesasViagem" tablename="despesasViagem" noaddbutton="true">
+					<table class="col-xs-12" id="tableDespesasViagem" tablename="despesasViagem" noaddbutton="true"
+						customFnDelete="excluirDespesa(this)">
 						<thead>
 							<tr>
 								<th class="tableColumn"></th>
 							</tr>
 						</thead>
 						<tbody>
-							<tr>
+							<tr id="trDespesa">
 								<td>
 									<div class="row">
 										<div class="form-group col-xs-3 col-sm-2 col-md-1">
-											<label class="control-label" for="numeroTrajeto">Nº Trajeto</label>
-											<input id="numeroTrajeto" class="form-control" type="text"
-												name="numeroTrajeto" readonly>
+											<label class="control-label" for="numeroTrajetoDespesa">Nº Trajeto</label>
+											<input id="numeroTrajetoDespesa" class="form-control" type="text"
+												name="numeroTrajetoDespesa" readonly>
 										</div>
 										<div class="col-xs-9 col-sm-10 col-md-11">
 											<label class="control-label" for="origemDestino">Trajeto</label>
@@ -269,10 +273,11 @@
 										</div>
 									</div>
 									<div class="row dadosFornecedor">
-										<div class="form-group col-md-3">
-											<label class="control-label" for="tipoFornecedor">Tipo</label>
-											<input id="tipoFornecedor" class="form-control" type="zoom"
-												name="tipoFornecedor" data-zoom="{
+										<div class="dadosFornecedor">
+											<div class="form-group col-md-3">
+												<label class="control-label" for="tipoFornecedor">Tipo</label>
+												<input id="tipoFornecedor" class="form-control" type="zoom"
+													name="tipoFornecedor" data-zoom="{
 													'displayKey':'ramoAtividade',
 													'datasetId':'felipe_CadastroTipoFornecedor',
 													'placeholder': 'Selecione o tipo de fornecedor',
@@ -281,11 +286,11 @@
 														{'field':'possuiLimite', 'visible': 'false'},
 														{'field':'valorLimite', 'label': 'Valor Limite'}]
 													}">
-										</div>
-										<div class="form-group col-md-3">
-											<label class="control-label" for="nomeFornecedor">Fornecedor</label>
-											<input id="nomeFornecedor" class="form-control" type="zoom"
-												name="nomeFornecedor" data-zoom="{
+											</div>
+											<div class="form-group col-md-3">
+												<label class="control-label" for="nomeFornecedor">Fornecedor</label>
+												<input id="nomeFornecedor" class="form-control" type="zoom"
+													name="nomeFornecedor" data-zoom="{
 													'displayKey':'nomeFornecedor',
 													'datasetId':'felipe_CadastroFornecedor',
 													'placeholder': 'Selecione o fornecedor',
@@ -294,16 +299,17 @@
 														{'field':'cnpj', 'label': 'CNPJ'},
 														{'field':'zoomTipoFornecedor', 'visible': 'false'}]
 													}">
-										</div>
-										<div class="form-group col-md-2">
-											<label class="control-label" for="valorLimite">Valor Limite</label>
-											<input id="valorLimite" class="form-control real" type="text"
-												name="valorLimite" readonly>
-										</div>
-										<div class="form-group col-md-2">
-											<label class="control-label" for="valorPrevisto">Valor Previsto</label>
-											<input id="valorPrevisto" class="form-control real" type="text"
-												name="valorPrevisto">
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="valorLimite">Valor Limite</label>
+												<input id="valorLimite" class="form-control real" type="text"
+													name="valorLimite" readonly>
+											</div>
+											<div class="form-group col-md-2">
+												<label class="control-label" for="valorPrevisto">Valor Previsto</label>
+												<input id="valorPrevisto" class="form-control real" type="text"
+													name="valorPrevisto">
+											</div>
 										</div>
 										<div class="form-group col-md-2 acertoViagem" hidden>
 											<label class="control-label" for="efetuado">Despesa Efetuada?</label>
@@ -319,112 +325,150 @@
 										<input id="cnpjFornecedor" type="hidden" name="cnpjFornecedor">
 										<!-- Fim de Campos Ocultos dos Dados do Fornecedor -->
 									</div>
-									<div class="row detalhesDespesa">
-										<div class="tipoAereo" hidden>
-											<div class="form-group col-md-2">
-												<label class="control-label" for="dataIdaVoo">Ida do Voo</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="dataIdaVoo" id="dataIdaVoo">
-													<span class="input-group-addon">
-														<span class="fluigicon fluigicon-calendar"></span>
-													</span>
+									<div class="row">
+										<div class="detalhesDespesa">
+											<div id="tipoAereo" name="tipoAereo" hidden>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="dataIdaVoo">Ida do Voo</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendario"
+															placeholder="Selecione" name="dataIdaVoo" id="dataIdaVoo">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
+												</div>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="dataChegadaVoo">Chegada do
+														Voo</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendario"
+															placeholder="Selecione" name="dataChegadaVoo"
+															id="dataChegadaVoo">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
+												</div>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="numeroVoo">Número do Voo</label>
+													<input id="numeroVoo" class="form-control" type="text"
+														name="numeroVoo">
 												</div>
 											</div>
-											<div class="form-group col-md-2">
-												<label class="control-label" for="dataChegadaVoo">Chegada do Voo</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="dataChegadaVoo" id="dataChegadaVoo">
-													<span class="input-group-addon">
-														<span class="fluigicon fluigicon-calendar"></span>
-													</span>
+											<div id="tipoAluguelVeiculos" name="tipoAluguelVeiculos" hidden>
+												<div class="form-group col-md-3">
+													<label class="control-label" for="dataRetirada">Retirada</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendarioHora"
+															placeholder="DD/MM/AAAA HH:mm" name="dataRetirada"
+															id="dataRetirada">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
+												</div>
+												<div class="form-group col-md-3">
+													<label class="control-label" for="dataDevolucao">Devolução</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendarioHora"
+															placeholder="DD/MM/AAAA HH:mm" name="dataDevolucao"
+															id="dataDevolucao">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
 												</div>
 											</div>
-											<div class="form-group col-md-2">
-												<label class="control-label" for="numeroVoo">Número do Voo</label>
-												<input id="numeroVoo" class="form-control" type="text" name="numeroVoo">
+											<div id="tipoHospedagem" name="tipoHospedagem" hidden>
+												<div class="form-group col-md-2">
+													<label class="control-label"
+														for="hospedagemCheckin">Check-in</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendario"
+															placeholder="Selecione" name="hospedagemCheckin"
+															id="hospedagemCheckin">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
+												</div>
+												<div class="form-group col-md-2">
+													<label class="control-label"
+														for="hospedagemCheckout">Checkout</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendario"
+															placeholder="Selecione" name="hospedagemCheckout"
+															id="hospedagemCheckout">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
+												</div>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="hospedagemDiarias">Diárias</label>
+													<input id="hospedagemDiarias" class="form-control" type="text"
+														name="hospedagemDiarias">
+												</div>
+											</div>
+											<div id="tipoTransfer" name="tipoTransfer" hidden>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="transferAPartirDe">A partir
+														de</label>
+													<input id="transferAPartirDe" class="form-control" type="text"
+														name="transferAPartirDe">
+												</div>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="transferAte">Até</label>
+													<input id="transferAte" class="form-control" type="text"
+														name="transferAte">
+												</div>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="transferDataVoo">Ida do
+														Voo</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendario"
+															placeholder="Selecione" name="transferDataVoo"
+															id="transferDataVoo">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
+												</div>
+											</div>
+											<div id="tipoPadrao" name="tipoPadrao" hidden>
+												<div class="form-group col-md-2">
+													<label class="control-label" for="dataPrevista">Data
+														Prevista</label>
+													<div class="input-group" style="cursor: pointer;">
+														<input type="text" class="form-control calendario"
+															placeholder="Selecione" name="dataPrevista"
+															id="dataPrevista">
+														<span class="input-group-addon">
+															<span class="fluigicon fluigicon-calendar"></span>
+														</span>
+													</div>
+												</div>
 											</div>
 										</div>
-										<div class="tipoAluguelVeiculos" hidden>
-											<div class="form-group col-md-3">
-												<label class="control-label" for="dataRetirada">Retirada</label>
-												<div class="input-group calendarioHora" style="cursor: pointer;">
-													<input type="text" class="form-control"
-														placeholder="Selecione HH:mm" name="dataRetirada"
-														id="dataRetirada">
-													<span class="input-group-addon">
-														<span class="fluigicon fluigicon-calendar"></span>
-													</span>
-												</div>
-											</div>
-											<div class="form-group col-md-3">
-												<label class="control-label" for="dataDevolucao">Devolução</label>
-												<div class="input-group calendarioHora" style="cursor: pointer;">
-													<input type="text" class="form-control"
-														placeholder="Selecione HH:mm" name="dataDevolucao"
-														id="dataDevolucao">
-													<span class="input-group-addon">
-														<span class="fluigicon fluigicon-calendar"></span>
-													</span>
-												</div>
-											</div>
-										</div>
-										<div class="tipoHospedagem" hidden>
-											<div class="form-group col-md-2">
-												<label class="control-label" for="checkin">Check-in</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="checkin" id="checkin">
-													<span class="input-group-addon">
-														<span class="fluigicon fluigicon-calendar"></span>
-													</span>
-												</div>
-											</div>
-											<div class="form-group col-md-2">
-												<label class="control-label" for="checkout">Checkout</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="checkout" id="checkout">
-													<span class="input-group-addon">
-														<span class="fluigicon fluigicon-calendar"></span>
-													</span>
-												</div>
-											</div>
-											<div class="form-group col-md-2">
-												<label class="control-label" for="diarias">Diárias</label>
-												<input id="diarias" class="form-control" type="text" name="diarias">
-											</div>
-										</div>
-										<div class="tipoPadrao" hidden>
-											<div class="form-group col-md-2">
-												<label class="control-label" for="dataPrevista">Data Prevista</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="dataPrevista" id="dataPrevista">
-													<span class="input-group-addon">
-														<span class="fluigicon fluigicon-calendar"></span>
-													</span>
-												</div>
-											</div>
+										<div class="acertoViagem" id="comprovante" hidden>
 											<div class="form-group col-md-2">
 												<label class="control-label" for="dataEfetiva">Data Efetiva</label>
-												<div class="input-group calendario" style="cursor: pointer;">
-													<input type="text" class="form-control" placeholder="Selecione"
-														name="dataEfetiva" id="dataEfetiva">
+												<div class="input-group" style="cursor: pointer;">
+													<input type="text" class="form-control calendario"
+														placeholder="Selecione" name="dataEfetiva" id="dataEfetiva">
 													<span class="input-group-addon">
 														<span class="fluigicon fluigicon-calendar"></span>
 													</span>
 												</div>
 											</div>
-										</div>
-										<div class="comprovante acertoViagem" hidden>
 											<div class="form-group col-md-2">
 												<label class="control-label" for="valorEfetivo">Valor Efetivo</label>
 												<input id="valorEfetivo" class="form-control real" type="text"
 													name="valorEfetivo">
 											</div>
 											<div class="form-group col-md-3">
+												<!-- TO DO: Colocar upload de anexos dentro da modal e exibir apenas o botão anexos -->
 												<label class="control-label" for="anexoComprovante">Anexar
 													Comprovante</label>
 												<div class="input-group">
@@ -441,7 +485,7 @@
 													</span>
 												</div>
 											</div>
-											<div class="form-group">
+											<div class="form-group col-md-1">
 												<label for="btnVerAnexos">&nbsp;</label>
 												<button id="btnVerAnexos" class="form-control" type="text"
 													name="btnVerAnexos">Anexos</button>
@@ -463,7 +507,7 @@
 											<label class="control-label" for="justificativaGestor">Justificativa do
 												Gestor</label>
 											<textarea id="justificativaGestor" class="form-control"
-												name="justificativaGestor" rows="2" style="resize: vertical"></textarea>
+												name="justificativaGestor" rows="1" style="resize: vertical"></textarea>
 										</div>
 									</div>
 									<div class="row aprovacaoFinanceiro acertoViagem" hidden>
@@ -487,11 +531,11 @@
 											<label class="control-label" for="justificativaFinanceiro">Justificativa do
 												Financeiro</label>
 											<textarea id="justificativaFinanceiro" class="form-control"
-												name="justificativaFinanceiro" rows="2"
+												name="justificativaFinanceiro" rows="1"
 												style="resize: vertical"></textarea>
 										</div>
 										<!-- Início de Campos Ocultos da Aprovação do Financeiro -->
-										<input id="matriculaFinanceiro" type="hidden" name="matriculaFinanceiro">
+										<input id="loginFinanceiro" type="hidden" name="loginFinanceiro">
 										<!-- Fim de Campos Ocultos da Aprovação do Financeiro -->
 									</div>
 									<hr id="hrDespesa" hidden>
