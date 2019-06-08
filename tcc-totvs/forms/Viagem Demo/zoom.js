@@ -100,6 +100,8 @@ function setSelectedZoomItem(selectedItem) {
 	/** Início de campos zoom do painel Despesas da Viagem */
 	// Atualiza o zoom de fornecedores com apenas aqueles do tipo selecionado
 	if (idCampoZoom == 'tipoFornecedor' && !estaVazio(numeroIdPaiFilho)) {
+		let tituloDespesa = numeroIdPaiFilho + ' - ' + selectedItem.ramoAtividade;
+		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#possuiLimite___' + numeroIdPaiFilho).val(selectedItem.possuiLimite);
 		$('#valorLimite___' + numeroIdPaiFilho).val(selectedItem.valorLimite);
 		controlarDetalhesTipoDespesa(selectedItem.ramoAtividade, numeroIdPaiFilho);
@@ -108,7 +110,10 @@ function setSelectedZoomItem(selectedItem) {
 	}
 
 	// Preenche campos ocultos com os dados do fornecedor selecionado
-	if (idCampoZoom == 'fornecedor' && !estaVazio(numeroIdPaiFilho)) {
+	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
+		let tipoFornecedor = $('#tipoFornecedor___'+numeroIdPaiFilho).val();
+		let tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor + ' - ' + selectedItem.nomeFornecedor;
+		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#cnpjFornecedor___' + numeroIdPaiFilho).val(selectedItem.cnpj);
 	}
 	/** Fim de campos zoom do painel Despesas da Viagem */
@@ -157,6 +162,8 @@ function removedZoomItem(removedItem) {
 	/** Início de campos zoom do painel Despesas da Viagem */
 	// Atualiza o zoom de fornecedores com apenas aqueles do tipo selecionado
 	if (idCampoZoom == 'tipoFornecedor' && !estaVazio(numeroIdPaiFilho)) {
+		let tituloDespesa = numeroIdPaiFilho + ' - Preencha a despesa';
+		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#possuiLimite___' + numeroIdPaiFilho).val('');
 		$('#valorLimite___' + numeroIdPaiFilho).val('');
 		desativarZoom('nomeFornecedor___' + numeroIdPaiFilho);
@@ -164,7 +171,10 @@ function removedZoomItem(removedItem) {
 	}
 
 	// Preenche campos ocultos com os dados do fornecedor selecionado
-	if (idCampoZoom == 'fornecedor' && !estaVazio(numeroIdPaiFilho)) {
+	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
+		let tipoFornecedor = $('#tipoFornecedor___'+numeroIdPaiFilho).val();
+		let tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor;
+		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#cnpjFornecedor___' + numeroIdPaiFilho).val('');
 	}
 	/** Fim de campos zoom do painel Despesas da Viagem */

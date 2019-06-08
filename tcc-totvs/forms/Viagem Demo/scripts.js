@@ -3,6 +3,10 @@ $(document).ready(function () {
 		adicionarTrajeto();
 	});
 
+	$('#btnAdicionarDespesa').on('click', function () {
+		adicionarDespesa();
+	});
+
 	$('#idaPrevista, #voltaPrevista').on('blur', function () {
 		let input = $(this);
 		let mensagem = '';
@@ -26,12 +30,53 @@ $(document).ready(function () {
 	});
 });
 
+// APIs para busca de aeroportos:
+// https://any-api.com/?query=airport
+// http://iatacodes.org/#/get_started
+
+function adicionarDespesa() {
+	$('[id^=despesa___]').each(function () {
+		$(this).collapse('hide');
+	});
+
+	let numeroIdDespesa = wdkAddChild('despesas');
+	let quantidadeDespesas = $('[id^=despesa___]').length;
+
+	$('#btnDetalhesDespesa___' + numeroIdDespesa).attr('href', '#despesa___' + numeroIdDespesa);
+
+	if (codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
+		$('#despesaPrevista___' + numeroIdDespesa).val('nao');
+	}
+
+
+	$('.bodyDespesas').show();
+	desativarZoom('nomeFornecedor___' + numeroIdDespesa);
+	FLUIGC.calendar('.calendario', {
+		pickDate: true,
+		pickTime: false
+	});
+	FLUIGC.calendar('.calendarioHora', {
+		pickDate: true,
+		pickTime: true,
+		sideBySide: true
+	});
+	FLUIGC.utilities.scrollTo('#despesa___' + numeroIdDespesa, 500);
+}
+
+function excluirDespesa(elemento) {
+	fnWdkRemoveChild(elemento);
+
+	let quantidadeDespesas = $('[id^=despesa___]').length;
+	if (quantidadeDespesas == 0) $('.bodyDespesas').hide();
+}
+
 /**
- * @function adicionarDespesa Adiciona um novo filho no painel Despesas da Viagem.
+ * @deprecated
+ * @function adicionarDespesa_OLD Adiciona um novo filho no painel Despesas da Viagem.
  * 
  * @param {Object} elemento Objeto do JQuery com o botão de adicionar despesa clicado.
  */
-function adicionarDespesa(elemento) {
+function adicionarDespesa_OLD(elemento) {
 	let trajeto = $(elemento).prop('id').split('___')[1];
 	let campoVazioTrajeto = [];
 
@@ -80,6 +125,7 @@ function adicionarDespesa(elemento) {
 }
 
 /**
+ * @deprecated
  * @function adicionarTrajeto Adiciona um novo trajeto ao pai filho do painel de itinerário caso as datas previstas da viagem estejam preenchidas.
  */
 function adicionarTrajeto() {
@@ -112,11 +158,12 @@ function adicionarTrajeto() {
 }
 
 /**
+ * @deprecated
  * @function excluirDespesa Exclui uma despesa do pai filho.
  * 
  * @param {Object} elemento Objeto do JQuery que é acionado ao excluir uma despesa.
  */
-function excluirDespesa(elemento) {
+function excluirDespesa_OLD(elemento) {
 	fnWdkRemoveChild(elemento);
 	let quantidadeDespesas = $('[id^=numeroTrajetoDespesa___]').length;
 	if (quantidadeDespesas == 0) $('#panelDespesasViagem').hide();
@@ -124,6 +171,7 @@ function excluirDespesa(elemento) {
 }
 
 /**
+ * @deprecated
  * @function excluirTrajeto Exclui um trajeto do pai filho do painel de Itinerário se ele não tiver despesas associadas.
  * 
  * @param {Object} elemento Objeto do JQuery que é acionado ao excluir um trajeto.
