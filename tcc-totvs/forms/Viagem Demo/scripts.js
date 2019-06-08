@@ -40,7 +40,7 @@ function adicionarDespesa() {
 	});
 
 	let numeroIdDespesa = wdkAddChild('despesas');
-	let quantidadeDespesas = $('[id^=despesa___]').length;
+	// let quantidadeDespesas = $('[id^=despesa___]').length;
 
 	$('#btnDetalhesDespesa___' + numeroIdDespesa).attr('href', '#despesa___' + numeroIdDespesa);
 
@@ -48,8 +48,9 @@ function adicionarDespesa() {
 		$('#despesaPrevista___' + numeroIdDespesa).val('nao');
 	}
 
-
 	$('.bodyDespesas').show();
+	limparZoom('tipoFornecedor___' + numeroIdDespesa);
+	limparZoom('nomeFornecedor___' + numeroIdDespesa);
 	desativarZoom('nomeFornecedor___' + numeroIdDespesa);
 	FLUIGC.calendar('.calendario', {
 		pickDate: true,

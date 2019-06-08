@@ -18,7 +18,10 @@ function atualizarZoom(id, campo = '', valor = '') {
 	let estaAtivo = $('#' + id).prop('disabled') ? false : true;
 	reloadZoomFilterValues(id, campo + ',' + valor);
 	// Se o zoom estiver desativado, desativa-o novamente após atualizá-lo
-	if (!estaAtivo) desativarZoom(id);
+	if (!estaAtivo) {
+		limparZoom(id)
+		desativarZoom(id);
+	}
 }
 
 /**
@@ -27,7 +30,6 @@ function atualizarZoom(id, campo = '', valor = '') {
  * @param {String} id String com o id do campo zoom que deve ser desativado.
  */
 function desativarZoom(id) {
-	limparZoom(id);
 	window[id].disable(true);
 }
 
@@ -69,14 +71,16 @@ function setSelectedZoomItem(selectedItem) {
 
 
 	/** Início de campos zoom do painel Itinerário */
-	// Preenche o campo de estado de origem ao selecionar a cidade de origem do trajeto
-	if (idCampoZoom == 'cidadeOrigem' && !estaVazio(numeroIdPaiFilho)) {
-		$('#estadoOrigem___' + numeroIdPaiFilho).val(selectedItem.estado);
+	// Atualiza o zoom Cidade de Origem de acordo com o Estado de Origem escolhido.
+	if (idCampoZoom == 'estadoOrigem') {
+		ativarZoom('cidadeOrigem');
+		atualizarZoom('cidadeOrigem', 'estado', selectedItem.estado);
 	}
 
-	// Preenche o campo de estado de destino ao selecionar a cidade de destino do trajeto
-	if (idCampoZoom == 'cidadeDestino' && !estaVazio(numeroIdPaiFilho)) {
-		$('#estadoDestino___' + numeroIdPaiFilho).val(selectedItem.estado);
+	// Atualiza o zoom Cidade de Destino de acordo com o Estado de Destino escolhido.
+	if (idCampoZoom == 'estadoDestino') {
+		ativarZoom('cidadeDestino');
+		atualizarZoom('cidadeDestino', 'estado', selectedItem.estado);
 	}
 
 	// Caso a cidade de origem ou destino seja alterada, altera a rota nas suas despesas associadas
@@ -111,7 +115,7 @@ function setSelectedZoomItem(selectedItem) {
 
 	// Preenche campos ocultos com os dados do fornecedor selecionado
 	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		let tipoFornecedor = $('#tipoFornecedor___'+numeroIdPaiFilho).val();
+		let tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val();
 		let tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor + ' - ' + selectedItem.nomeFornecedor;
 		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#cnpjFornecedor___' + numeroIdPaiFilho).val(selectedItem.cnpj);
@@ -140,21 +144,24 @@ function removedZoomItem(removedItem) {
 	}
 
 	// Limpa os campos ocultos relacionados ao gestor selecionado anteriormente
-	if (idCampoZoom == 'nomeGestor') {
+	if (idCampoZoom == 'centroCusto') {
 		$('#loginGestor').val('');
+		$('#nomeGestor').val('');
 	}
 	/** Fim de campos zoom do painel Dados da Solicitação */
 
 
 	/** Início de campos zoom do painel Itinerário */
-	// Limpa o campo do estado de origem do trajeto em questão
-	if (idCampoZoom == 'cidadeOrigem' && !estaVazio(numeroIdPaiFilho)) {
-		$('#estadoOrigem___' + numeroIdPaiFilho).val('');
+	// Limpa o zoom Cidade de Origem se o Estado de Origem for excluído
+	if (idCampoZoom == 'estadoOrigem') {
+		limparZoom('cidadeOrigem');
+		desativarZoom('cidadeOrigem');
 	}
 
-	// Limpa o campo do estado de destino do trajeto em questão
-	if (idCampoZoom == 'cidadeDestino' && !estaVazio(numeroIdPaiFilho)) {
-		$('#estadoDestino___' + numeroIdPaiFilho).val('');
+	// Limpa o zoom Cidade de Destino se o Estado de Destino for excluído
+	if (idCampoZoom == 'estadoDestino') {
+		limparZoom('cidadeDestino');
+		desativarZoom('cidadeDestino');
 	}
 	/** Fim de campos zoom do painel Itinerário */
 
@@ -166,13 +173,14 @@ function removedZoomItem(removedItem) {
 		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#possuiLimite___' + numeroIdPaiFilho).val('');
 		$('#valorLimite___' + numeroIdPaiFilho).val('');
+		limparZoom('nomeFornecedor___' + numeroIdPaiFilho);
 		desativarZoom('nomeFornecedor___' + numeroIdPaiFilho);
 		alternarDetalhesTipoDespesa(null, numeroIdPaiFilho);
 	}
 
 	// Preenche campos ocultos com os dados do fornecedor selecionado
 	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		let tipoFornecedor = $('#tipoFornecedor___'+numeroIdPaiFilho).val();
+		let tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val();
 		let tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor;
 		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#cnpjFornecedor___' + numeroIdPaiFilho).val('');
