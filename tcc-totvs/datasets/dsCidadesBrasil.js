@@ -1,61 +1,69 @@
 function createDataset(fields, constraints, sortFields) {
 	try {
 		var dsCidadesBrasil = DatasetBuilder.newDataset();
-
-		dsCidadesBrasil.addColumn('id');
-		dsCidadesBrasil.addColumn('cidade');
-		dsCidadesBrasil.addColumn('estado');
-		dsCidadesBrasil.addColumn('uf');
-
-		// var buscarCidade = '';
-		// var buscarEstado = '';
-		// var buscarUf = '';
-		var consulta = {
-			'tipo': 'municipios',
-			'buscar': ''
-		};
+		var buscar = '';
+		var tipoConsulta = 'municipios';
 		var sqlLimit = 0;
 
-		// TO DO: Buscar por estado e UF
 		if (constraints != null) {
 			for (var indexConstraints = 0; indexConstraints < constraints.length; indexConstraints++) {
 				if (constraints[indexConstraints].fieldName == 'cidade') {
-					consulta.buscar = constraints[indexConstraints].initialValue;
+					tipoConsulta = 'municipios';
+					buscar = constraints[indexConstraints].initialValue.toLowerCase();
 				}
-				// if (constraints[indexConstraints].fieldName == 'estado') {
-				// 	buscarEstado = constraints[indexConstraints].initialValue.toLowerCase();
-				// }
+				if (constraints[indexConstraints].fieldName == 'estado') {
+					tipoConsulta = 'estados';
+					buscar = constraints[indexConstraints].initialValue.toLowerCase();
+				}
 				// if (constraints[indexConstraints].fieldName == 'uf') {
-				// 	buscarUf = constraints[indexConstraints].initialValue.toLowerCase();
+				// 	buscar = constraints[indexConstraints].initialValue.toLowerCase();
 				// }
 				if (constraints[indexConstraints].fieldName == 'sqlLimit') {
-					sqlLimit = constraints[indexConstraints].initialValue;
+					sqlLimit = parseInt(constraints[indexConstraints].initialValue);
 				}
 			}
 		}
 
-		var localidades = JSON.parse(consultarApi(consulta));
+		var localidades = JSON.parse(consultarApi(tipoConsulta, buscar));
+		var quantidadeLinhas = localidades.length;
 
-		if (localidades.length > 0) {
-			var quantidadeLinhas = localidades.length;
+		if (quantidadeLinhas > 0) {
+			dsCidadesBrasil.addColumn('id');
+			dsCidadesBrasil.addColumn('estado');
+			dsCidadesBrasil.addColumn('uf');			
 
 			if (sqlLimit != 0 && sqlLimit <= quantidadeLinhas) {
-				quantidadeLinhas = parseInt(sqlLimit);
+				quantidadeLinhas = sqlLimit;
 			}
 
-			for (var indexCidades = 0; indexCidades < quantidadeLinhas; indexCidades++) {
-				var cidade = localidades[indexCidades];
+			if (tipoConsulta == 'municipios') {
+				dsCidadesBrasil.addColumn('cidade');
 
-				dsCidadesBrasil.addRow([
-					cidade.id,
-					cidade.nome,
-					cidade.microrregiao.mesorregiao.UF.nome,
-					cidade.microrregiao.mesorregiao.UF.sigla
-				]);
+				for (var indexCidades = 0; indexCidades < quantidadeLinhas; indexCidades++) {
+					var cidade = localidades[indexCidades];
+
+					dsCidadesBrasil.addRow([
+						cidade.id,
+						cidade.microrregiao.mesorregiao.UF.nome,
+						cidade.microrregiao.mesorregiao.UF.sigla,
+						cidade.nome
+					]);
+				}
+			} else if (tipoConsulta == 'estados') {
+				for (var indexEstados = 0; indexEstados < quantidadeLinhas; indexEstados++) {
+					var estado = localidades[indexEstados];
+
+					dsCidadesBrasil.addRow([
+						estado.id,
+						estado.nome,
+						estado.sigla
+					]);
+				}
 			}
 		} else {
 			dsCidadesBrasil.addColumn('erro');
-			dsCidadesBrasil.addRow(['', '', '', '', 'true']);
+			dsCidadesBrasil.addColumn('mensagem');
+			dsCidadesBrasil.addRow(['true', 'Nenhum dado encontrado']);
 		}
 
 		return dsCidadesBrasil;
@@ -72,14 +80,17 @@ function createDataset(fields, constraints, sortFields) {
 /**
  * @function consultarApi Consulta a API de localidades do IBGE cadastrada nos serviços do fluig.
  * 
- * @param {Object} consulta Objeto com dados que devem ser consultados.
+ * @param {String} tipo Tipo de dado a ser buscado, podendo ser:
+ * - municipios
+ * - estados
+ * @param {String} buscar Texto que será buscado.
+ * 
+ * @returns {Object} Resultado da consulta à API.
  */
-function consultarApi(consulta) {
+function consultarApi(tipo, buscar) {
 	try {
-		var endpoint = '/' + consulta.tipo;
-		if (consulta.buscar != '') {
-			endpoint += '?q=' + consulta.buscar.replace(' ', '%20');
-		}
+		var endpoint = '/' + tipo;
+		if (buscar != '') endpoint += '?q=' + buscar.replace(' ', '%20');
 		var clientService = fluigAPI.getAuthorizeClientService();
 		var data = {
 			companyId: getValue('WKCompany') + '',
