@@ -20,19 +20,19 @@
 				<div class="panel-body">
 					<div class="row">
 						<div class="form-group col-md-2">
-							<label class="control-label" for="cnpj">i18n.translate("cnpj")</label>
+							<label class="control-label" for="cnpj">i18n.translate("cnpj") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="cnpj" class="form-control obrigatorio" type="text" name="cnpj" mask="00.000.000/0000-00">
 						</div>
 						<div class="form-group col-md-4">
-							<label class="control-label" for="razaoSocial">i18n.translate("razaoSocial")</label>
+							<label class="control-label" for="razaoSocial">i18n.translate("razaoSocial") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="razaoSocial" class="form-control obrigatorio" type="text" name="razaoSocial">
 						</div>
 						<div class="form-group col-md-4">
-							<label class="control-label" for="nomeFantasia">i18n.translate("nomeFantasia")</label>
+							<label class="control-label" for="nomeFantasia">i18n.translate("nomeFantasia") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="nomeFantasia" class="form-control obrigatorio" type="text" name="nomeFantasia">
 						</div>
 						<div class="form-group col-md-2">
-							<label class="control-label" for="tipoUnidade">i18n.translate("tipoUnidade")</label>
+							<label class="control-label" for="tipoUnidade">i18n.translate("tipoUnidade") <span class="text-danger"><strong>*</strong></span></label>
 							<select class="form-control obrigatorio" name="tipoUnidade" id="tipoUnidade" style="cursor: pointer;">
 								<option value="" disabled selected>i18n.translate("selecione")</option>
 								<option value="matriz">i18n.translate("matriz")</option>
@@ -42,40 +42,38 @@
 					</div>
 					<div class="row">
 						<div class="form-group col-md-2">
-							<label class="control-label" for="cep">i18n.translate("cep")</label>
+							<label class="control-label" for="cep">i18n.translate("cep") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="cep" class="form-control obrigatorio" type="text" name="cep" mask="00000-000">
 						</div>
 						<div class="form-group col-md-3">
-							<label class="control-label" for="logradouro">i18n.translate("logradouro")</label>
+							<label class="control-label" for="logradouro">i18n.translate("logradouro") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="logradouro" class="form-control obrigatorio" type="text" name="logradouro">
 						</div>
 						<div class="form-group col-md-3">
-							<label class="control-label" for="bairro">i18n.translate("bairro")</label>
+							<label class="control-label" for="bairro">i18n.translate("bairro") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="bairro" class="form-control obrigatorio" type="text" name="bairro">
 						</div>
 						<div class="form-group col-md-3">
-							<label class="control-label" for="localidade">i18n.translate("localidade")</label>
+							<label class="control-label" for="localidade">i18n.translate("localidade") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="localidade" class="form-control obrigatorio" type="text" name="localidade">
 						</div>
 						<div class="form-group col-md-1">
-							<label class="control-label" for="uf">i18n.translate("uf")</label>
+							<label class="control-label" for="uf">i18n.translate("uf") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="uf" class="form-control obrigatorio" type="text" name="uf" maxlength="2">
 						</div>
 					</div>
 					<div class="row">
 						<div class="form-group col-md-4">
-							<label class="control-label" for="email">i18n.translate("email")</label>
+							<label class="control-label" for="email">i18n.translate("email") <span class="text-danger"><strong>*</strong></span></label>
 							<input id="email" class="form-control obrigatorio" type="text" name="email">
 						</div>
 						<div class="form-group col-md-2">
-							<label class="control-label" for="telefone1">i18n.translate("telefone") 1</label>
-							<input id="telefone1" class="form-control obrigatorio" type="text" name="telefone1"
-								mask="(00) 90000-0000">
+							<label class="control-label" for="telefone1">i18n.translate("telefone") 1 <span class="text-danger"><strong>*</strong></span></label>
+							<input id="telefone1" class="form-control obrigatorio" type="text" name="telefone1">
 						</div>
 						<div class="form-group col-md-2">
-							<label class="control-label" for="telefone2">i18n.translate("telefone") 2 (Opcional)</label>
-							<input id="telefone2" class="form-control" type="text" name="telefone2"
-								mask="(00) 90000-0000">
+							<label class="control-label" for="telefone2">i18n.translate("telefone") 2</label>
+							<input id="telefone2" class="form-control" type="text" name="telefone2" placeholder="Opcional">
 						</div>
 					</div>
 				</div>

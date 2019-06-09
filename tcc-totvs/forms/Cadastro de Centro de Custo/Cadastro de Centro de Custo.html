@@ -20,11 +20,11 @@
 				<div class="panel-body">
 					<div class="row">
 						<div class="form-group col-md-6 validacaoZoom">
-							<label class="control-label" for="zoomEmpresa">i18n.translate("zoomEmpresa")</label>
-							<input id="zoomEmpresa" class="form-control" type="zoom" name="zoomEmpresa"
-								placeholder="Selecione uma empresa / filial" data-zoom="{
+							<label class="control-label" for="zoomEmpresa">i18n.translate("zoomEmpresa") <span class="text-danger"><strong>*</strong></span></label>
+							<input id="zoomEmpresa" class="form-control" type="zoom" name="zoomEmpresa" data-zoom="{
 									'displayKey':'nomeFantasia',
 									'datasetId':'felipe_CadastroEmpresa',
+									'placeholder':'Selecione uma empresa / filial',
 									'fields':[
 										{'field':'cnpj', 'label':'CNPJ'},
 										{'field':'razaoSocial', 'label':'Razão Social'},
@@ -32,16 +32,16 @@
 									}" />
 						</div>
 						<div class="form-group col-md-3">
-							<label class="control-label" for="nomeCentroCusto">i18n.translate("nomeCentroCusto")</label>
-							<input id="nomeCentroCusto" class="form-control obrigatorio" type="text" name="nomeCentroCusto">
+							<label class="control-label" for="nomeCentroCusto">i18n.translate("nomeCentroCusto") <span class="text-danger"><strong>*</strong></span></label>
+							<input id="nomeCentroCusto" class="form-control obrigatorio" type="text" name="nomeCentroCusto" placeholder="Informe o centro de custo">
 						</div>
 						<div class="form-group col-md-3 validacaoZoom">
-							<label class="control-label" for="zoomGestor">i18n.translate("zoomGestor")</label>
-							<input id="zoomGestor" class="form-control" type="zoom" name="zoomGestor"
-								placeholder="Selecione o gestor" data-zoom="{
+							<label class="control-label" for="zoomGestor">i18n.translate("zoomGestor") <span class="text-danger"><strong>*</strong></span></label>
+							<input id="zoomGestor" class="form-control" type="zoom" name="zoomGestor" data-zoom="{
 									'displayKey':'colleagueName',
 									'datasetId':'colleague',
 									'filterValues':'active,true',
+									'placeholder':'Selecione o gestor',
 									'fields':[
 										{'field':'colleagueName', 'label':'Nome', 'standard':'true'},
 										{'field':'login', 'label':'Login'}]

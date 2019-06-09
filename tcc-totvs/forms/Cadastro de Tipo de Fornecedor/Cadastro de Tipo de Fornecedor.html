@@ -20,11 +20,11 @@
 				  <div class="panel-body">
 						<div class="row">
 							<div class="form-group col-md-3">
-								<label class="control-label" for="ramoAtividade">i18n.translate("ramoAtividade")</label>
+								<label class="control-label" for="ramoAtividade">i18n.translate("ramoAtividade") <span class="text-danger"><strong>*</strong></span></label>
 								<input id="ramoAtividade" class="form-control obrigatorio" type="text" name="ramoAtividade">
 							</div>
 							<div class="form-group col-md-2">
-								<label class="control-label" for="possuiLimite">i18n.translate("possuiLimite")</label>
+								<label class="control-label" for="possuiLimite">i18n.translate("possuiLimite") <span class="text-danger"><strong>*</strong></span></label>
 								<select id="possuiLimite" class="form-control obrigatorio" type="text" name="possuiLimite">
 									<option value="" disabled selected>i18n.translate("selecione")</option>
 									<option value="sim">i18n.translate("sim")</option>
@@ -34,6 +34,7 @@
 							<div class="form-group col-md-2 valorLimite">
 								<label class="control-label" for="valorLimite">i18n.translate("valorLimite")</label>
 								<input id="valorLimite" class="form-control obrigatorio real" type="text" name="valorLimite" placeholder="R$ 0,00">
+								<input id="valorLimiteSemMascara" type="hidden" name="valorLimiteSemMascara">
 							</div>
 						</div>
 				  </div>

@@ -1,8 +1,7 @@
 $(document).ready(function () {
-	// Verifica o preenchimento de cada input do tipo text ou select ao 
+	// Verifica o preenchimento de cada input com a classe 'obrigatorio' e de campos zoom
 	$(document).on('blur', '.obrigatorio, .validacaoZoom .select2-search__field', function () {
-		input = $(this);
-		validarCampoVazio(input);
+		validarCampoVazio($(this));
 	});
 });
 
@@ -43,9 +42,11 @@ function validarCampoVazio(input) {
 		if (input.parent().parent()[0].innerText == null || input.parent().parent()[0].innerText == '') {
 			input.parents('div.form-group').addClass('has-error text-danger');
 			colorirElementoHtml($(input[0]).parent().parent().parent(), 'danger');
+			colorirElementoHtml($(input[0]).parent().parent().parent().find('.input-group-addon.select2-fluigicon-zoom'), 'danger');
 		} else {
 			input.parents('div.form-group').removeClass('has-error text-danger');
 			colorirElementoHtml($(input[0]).parent().parent().parent(), '');
+			colorirElementoHtml($(input[0]).parent().parent().parent().find('.input-group-addon.select2-fluigicon-zoom'), '');
 		}
 	} else {
 		if (input.val() == null || input.val() == '') {

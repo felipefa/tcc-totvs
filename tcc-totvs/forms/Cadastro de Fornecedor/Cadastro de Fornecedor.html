@@ -19,61 +19,60 @@
 				</div>
 				<div class="panel-body">
 					<div class="row">
-						<div class="form-group col-md-4 validarZoom">
-							<label class="control-label"
-								for="zoomTipoFornecedor">i18n.translate("zoomTipoFornecedor")</label>
-							<input id="zoomTipoFornecedor" class="form-control" type="zoom" name="zoomTipoFornecedor"
-								placeholder="Selecione um tipo" data-zoom="{
+						<div class="form-group col-md-5 validacaoZoom">
+							<label class="control-label" for="zoomTipoFornecedor">i18n.translate("zoomTipoFornecedor") <span class="text-danger"><strong>*</strong></span></label>
+							<input id="zoomTipoFornecedor" class="form-control" type="zoom" name="zoomTipoFornecedor" data-zoom="{
 									'displayKey':'ramoAtividade',
 									'datasetId':'felipe_CadastroTipoFornecedor',
+									'placeholder':'Selecione um tipo de fornecedor',
 									'fields':[
 										{'field':'ramoAtividade', 'label':'Ramo de Atividade', 'standard':'true'},
 										{'field':'valorLimite', 'label':'Valor Limite'}]
 									}" />
 						</div>
 						<div class="form-group col-md-2">
-							<label class="control-label" for="cnpj">i18n.translate("cnpj")</label>
-							<input id="cnpj" class="form-control obrigatorio" type="text" name="cnpj" mask="00.000.000/0000-00">
+							<label class="control-label" for="cnpj">i18n.translate("cnpj") <span class="text-danger"><strong>*</strong></span></label>
+							<input id="cnpj" class="form-control obrigatorio" type="text" name="cnpj" mask="00.000.000/0000-00" placeholder="CNPJ do fornecedor">
 						</div>
-						<div class="form-group col-md-4">
-							<label class="control-label" for="nomeFornecedor">i18n.translate("nomeFornecedor")</label>
-							<input id="nomeFornecedor" class="form-control obrigatorio" type="text" name="nomeFornecedor">
+						<div class="form-group col-md-5">
+							<label class="control-label" for="nomeFornecedor">i18n.translate("nomeFornecedor") <span class="text-danger"><strong>*</strong></span></label>
+							<input id="nomeFornecedor" class="form-control obrigatorio" type="text" name="nomeFornecedor" placeholder="Informe o nome da empresa">
 						</div>
 					</div>
 					<div class="row">
 						<div class="form-group col-md-2">
 							<label class="control-label" for="cep">i18n.translate("cep")</label>
-							<input id="cep" class="form-control obrigatorio" type="text" name="cep" mask="00000-000">
+							<input id="cep" class="form-control" type="text" placeholder="Opcional" name="cep" mask="00000-000">
 						</div>
 						<div class="form-group col-md-3">
 							<label class="control-label" for="logradouro">i18n.translate("logradouro")</label>
-							<input id="logradouro" class="form-control obrigatorio" type="text" name="logradouro">
+							<input id="logradouro" class="form-control" type="text" placeholder="Opcional" name="logradouro">
 						</div>
 						<div class="form-group col-md-3">
 							<label class="control-label" for="bairro">i18n.translate("bairro")</label>
-							<input id="bairro" class="form-control obrigatorio" type="text" name="bairro">
+							<input id="bairro" class="form-control" type="text" placeholder="Opcional" name="bairro">
 						</div>
 						<div class="form-group col-md-3">
 							<label class="control-label" for="localidade">i18n.translate("localidade")</label>
-							<input id="localidade" class="form-control obrigatorio" type="text" name="localidade">
+							<input id="localidade" class="form-control" type="text" placeholder="Opcional" name="localidade">
 						</div>
 						<div class="form-group col-md-1">
 							<label class="control-label" for="uf">i18n.translate("uf")</label>
-							<input id="uf" class="form-control obrigatorio" type="text" name="uf" maxlength="2">
+							<input id="uf" class="form-control" type="text" placeholder="Opcional" name="uf" maxlength="2">
 						</div>
 					</div>
 					<div class="row">
 						<div class="form-group col-md-4">
 							<label class="control-label" for="email">i18n.translate("email")</label>
-							<input id="email" class="form-control obrigatorio" type="text" name="email">
+							<input id="email" class="form-control" type="text" placeholder="Opcional" name="email">
 						</div>
 						<div class="form-group col-md-2">
 							<label class="control-label" for="telefone1">i18n.translate("telefone") 1</label>
-							<input id="telefone1" class="form-control obrigatorio" type="text" name="telefone1">
+							<input id="telefone1" class="form-control" type="text" placeholder="Opcional" name="telefone1">
 						</div>
 						<div class="form-group col-md-2">
-							<label class="control-label" for="telefone2">i18n.translate("telefone") 2 (Opcional)</label>
-							<input id="telefone2" class="form-control" type="text" name="telefone2">
+							<label class="control-label" for="telefone2">i18n.translate("telefone") 2</label>
+							<input id="telefone2" class="form-control" type="text" placeholder="Opcional" name="telefone2">
 						</div>
 					</div>
 				</div>
