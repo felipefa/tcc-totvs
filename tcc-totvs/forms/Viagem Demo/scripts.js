@@ -1,3 +1,5 @@
+var quantidadeIdsVoos = 1;
+
 $(document).ready(function () {
 	$('#btnNovoTrajeto').on('click', function () {
 		adicionarTrajeto();
@@ -70,6 +72,202 @@ function excluirDespesa(elemento) {
 	let quantidadeDespesas = $('[id^=despesa___]').length;
 	if (quantidadeDespesas == 0) $('.bodyDespesas').hide();
 }
+
+function adicionarVoo(elemento) {
+	let numeroIdDespesa = getPosicaoPaiFilho(elemento);
+	let fornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
+
+	// Só permite adicionar um voo se um fornecedor estiver selecionado
+	if (!estaVazio(fornecedor)) {
+		let html = `<div class="row" id="voo-${quantidadeIdsVoos}___${numeroIdDespesa}">
+						<div class="form-group col-md-1 text-right">
+							<label><br></label><br>
+							<button class="btn btn-danger" 
+								id="btnExcluirVoo-${quantidadeIdsVoos}___${numeroIdDespesa}" 
+								name="btnExcluirVoo-${quantidadeIdsVoos}___${numeroIdDespesa}"
+								onclick="excluirVoo(${numeroIdDespesa}, ${quantidadeIdsVoos})">
+								<i class="fluigicon fluigicon-trash icon-sm"></i>
+							</button>
+						</div>
+						<div class="form-group col-md-3">
+							<label class="control-label" for="aeroportoOrigem-${quantidadeIdsVoos}___${numeroIdDespesa}">Aeroporto de Origem</label>
+							<input id="aeroportoOrigem-${quantidadeIdsVoos}___${numeroIdDespesa}" class="form-control"
+								type="text" name="aeroportoOrigem-${quantidadeIdsVoos}___${numeroIdDespesa}">
+						</div>
+						<div class="form-group col-md-3">
+							<label class="control-label" for="aeroportoDestino-${quantidadeIdsVoos}___${numeroIdDespesa}">Aeroporto de Destino</label>
+							<input id="aeroportoDestino-${quantidadeIdsVoos}___${numeroIdDespesa}" class="form-control"
+								type="text" name="aeroportoDestino-${quantidadeIdsVoos}___${numeroIdDespesa}">
+						</div>
+						<div class="form-group col-md-2">
+							<label class="control-label" for="dataIdaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">Ida do Voo</label>
+							<div class="input-group" style="cursor: pointer;">
+								<input type="text"
+									class="form-control calendario"
+									placeholder="Selecione" name="dataIdaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}"
+									id="dataIdaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">
+								<span class="input-group-addon">
+									<span class="fluigicon fluigicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group col-md-2">
+							<label class="control-label"
+								for="dataChegadaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">Chegada do Voo</label>
+							<div class="input-group" style="cursor: pointer;">
+								<input type="text"
+									class="form-control calendario"
+									placeholder="Selecione"
+									name="dataChegadaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}" id="dataChegadaVoo___${numeroIdDespesa}">
+								<span class="input-group-addon">
+									<span class="fluigicon fluigicon-calendar"></span>
+								</span>
+							</div>
+						</div>
+						<div class="form-group col-md-1">
+							<label class="control-label" for="numeroVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">Voo</label>
+							<input id="numeroVoo-${quantidadeIdsVoos}___${numeroIdDespesa}" class="form-control"
+								type="text" name="numeroVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">
+						</div>
+					</div>`;
+
+		// Adiciona os campos dos dados do voo dinamicamente
+		// $('#voos___' + numeroIdDespesa).append(html);
+		FLUIGC.modal({
+			title: 'Cadastro de Voo',
+			content: html,
+			id: 'modalVoo',
+			formModal: true,
+			actions: [{
+				'label': 'Salvar',
+				'bind': 'data-open-modal',
+			}, {
+				'label': 'Cancelar',
+				'autoClose': true
+			}]
+		}, function (err, data) {
+			if (err) {
+				// do error handling
+			} else {
+				// do something with data
+			}
+		});
+
+		FLUIGC.calendar('.calendario', {
+			pickDate: true,
+			pickTime: false
+		});
+
+		quantidadeIdsVoos++;
+
+		// Desativa os campos zoom do fornecedor para evitar inconsistências
+		// desativarZoom('tipoFornecedor___'+numeroIdDespesa);
+		// desativarZoom('nomeFornecedor___'+numeroIdDespesa);
+	} else {
+		toast('Selecione um fornecedor antes de adicionar um voo.', '', 'warning');
+	}
+
+}
+
+function excluirVoo(numeroIdDespesa, numeroIdVoo) {
+	$('#voo-' + numeroIdVoo + '___' + numeroIdDespesa).remove();
+
+	// Verifica se a despesa ainda possui voos, se não possuir, ativa o zoom para a seleção de um novo tipo de fornecedor
+	// let quantidadeVoosDespesa = $('[id^=voo___'+numeroIdDespesa+'-]').length;
+	// if (quantidadeVoosDespesa == 0) {
+	// 	ativarZoom('tipoFornecedor___'+numeroIdDespesa);
+	// }
+}
+
+function renderizarVoos(numeroIdDespesa) {
+	FLUIGC.datatable('#voos___' + numeroIdDespesa, {
+		dataRequest: $('#jsonVoo___' + numeroIdDespesa).val(),
+		renderContent: ['id', 'voo', 'aeroportoOrigem', 'aeroportoDestino', 'dataIdaVoo', 'dataVoltaVoo'],
+		header: [{
+				'title': 'ID',
+				'size': 'col-md-1'
+			},
+			{
+				'title': 'Voo',
+				'size': 'col-md-1'
+			},
+			{
+				'title': 'Origem',
+				'size': 'col-md-3'
+			},
+			{
+				'title': 'Destino',
+				'size': 'col-md-3'
+			},
+			{
+				'title': 'Ida',
+				'size': 'col-md-2'
+			},
+			{
+				'title': 'Volta',
+				'size': 'col-md-2'
+			}
+		],
+		search: {
+			enabled: false,
+		},
+		navButtons: {
+			enabled: false,
+		},
+		tableStyle: 'table-condensed'
+	}, function (err, data) {
+		if (data) {
+			dataInit = data;
+		} else if (err) {
+			FLUIGC.toast({
+				message: err,
+				type: 'danger'
+			});
+		}
+	});
+	// $('[id^=jsonVoos___]').each(function () {
+	// 	let jsonVoos = $(this);
+	// 	let numeroIdDespesa = getPosicaoPaiFilho(jsonVoos);
+	// 	if (!estaVazio(jsonVoos)) {
+	// 		let html = ``;
+	// 		$('#voos___'+numeroIdDespesa).html(html);
+	// 	}
+	// });
+}
+
+function verificarAprovacao(idTipo) {
+	$('[id^=panelDespesa___]').each(function () {
+		let panelDespesa = $(this);
+		let numeroIdDespesa = getPosicaoPaiFilho(panelDespesa);
+		let aprovacao = $('#' + idTipo + numeroIdDespesa).val();
+
+		if (!estaVazio(aprovacao)) {
+			let tituloDespesa = $('#tituloDespesa___' + numeroIdDespesa);
+			let classe = 'text-success';
+			let cor = '#38cf5a';
+			let icone = 'fluigicon-check-circle-on';
+
+			if (aprovacao == 'reprovar') {
+				classe = 'text-danger';
+				cor = '#f64445';
+				icone = 'fluigicon-remove icon-sm';
+				$('#btnExcluirDespesa___' + numeroIdDespesa).prop('disabled', true);
+			} else if (aprovacao == 'ajustar') {
+				classe = 'text-warning';
+				cor = '#dfaa1e';
+				icone = 'fluigicon-warning-sign';
+			}
+
+			panelDespesa.css('border', '1px solid ' + cor);
+			tituloDespesa.css('color', cor);
+			tituloDespesa.append(' <i class="fluigicon ' + icone + ' icon-sm ' + classe + '"></i>');
+		}
+	});
+}
+
+
+
+
 
 /**
  * @deprecated
