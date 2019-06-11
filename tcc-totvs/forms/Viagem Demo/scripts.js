@@ -64,6 +64,11 @@ function adicionarDespesa() {
 		sideBySide: true
 	});
 	FLUIGC.utilities.scrollTo('#despesa___' + numeroIdDespesa, 500);
+
+	$('.real').maskMoney({
+		prefixMoney: 'R$ ',
+		placeholder: 'R$ 0,00'
+	});
 }
 
 function excluirDespesa(elemento) {
@@ -73,96 +78,78 @@ function excluirDespesa(elemento) {
 	if (quantidadeDespesas == 0) $('.bodyDespesas').hide();
 }
 
-function adicionarVoo(elemento) {
-	let numeroIdDespesa = getPosicaoPaiFilho(elemento);
+function cadastrarVoo(elemento, tipo) {
+	let numeroIdDespesa = null;
+	let numeroIdVoo = null;
+	if (tipo == 'adicionar') {
+		numeroIdDespesa = getPosicaoPaiFilho(elemento);
+	} else if (tipo == 'editar') {
+		numeroIdDespesa = elemento.numeroIdDespesa;
+		numeroIdVoo = elemento.numeroIdVoo;
+		elemento = JSON.parse($('#jsonVoos___' + numeroIdDespesa).val());
+		elemento = elemento[elemento.findIndex(voo => voo.numeroIdDespesa == numeroIdDespesa && voo.numeroIdVoo == numeroIdVoo)];
+	}
 	let fornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
 
 	// Só permite adicionar um voo se um fornecedor estiver selecionado
 	if (!estaVazio(fornecedor)) {
-		let html = `<div class="row" id="voo-${quantidadeIdsVoos}___${numeroIdDespesa}">
-						<div class="form-group col-md-1 text-right">
-							<label><br></label><br>
-							<button class="btn btn-danger" 
-								id="btnExcluirVoo-${quantidadeIdsVoos}___${numeroIdDespesa}" 
-								name="btnExcluirVoo-${quantidadeIdsVoos}___${numeroIdDespesa}"
-								onclick="excluirVoo(${numeroIdDespesa}, ${quantidadeIdsVoos})">
-								<i class="fluigicon fluigicon-trash icon-sm"></i>
-							</button>
+		let html = `<div class="row">
+						<div class="form-group col-md-4">
+							<label class="control-label" for="aeroportoOrigem">Aeroporto de Origem</label>
+							<input id="aeroportoOrigem" class="form-control"
+								type="text" name="aeroportoOrigem" value="${estaVazio(elemento.aeroportoOrigem)?'':elemento.aeroportoOrigem}">
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label" for="aeroportoDestino">Aeroporto de Destino</label>
+							<input id="aeroportoDestino" class="form-control"
+								type="text" name="aeroportoDestino" value="${estaVazio(elemento.aeroportoDestino)?'':elemento.aeroportoDestino}">
 						</div>
 						<div class="form-group col-md-3">
-							<label class="control-label" for="aeroportoOrigem-${quantidadeIdsVoos}___${numeroIdDespesa}">Aeroporto de Origem</label>
-							<input id="aeroportoOrigem-${quantidadeIdsVoos}___${numeroIdDespesa}" class="form-control"
-								type="text" name="aeroportoOrigem-${quantidadeIdsVoos}___${numeroIdDespesa}">
-						</div>
-						<div class="form-group col-md-3">
-							<label class="control-label" for="aeroportoDestino-${quantidadeIdsVoos}___${numeroIdDespesa}">Aeroporto de Destino</label>
-							<input id="aeroportoDestino-${quantidadeIdsVoos}___${numeroIdDespesa}" class="form-control"
-								type="text" name="aeroportoDestino-${quantidadeIdsVoos}___${numeroIdDespesa}">
-						</div>
-						<div class="form-group col-md-2">
-							<label class="control-label" for="dataIdaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">Ida do Voo</label>
+							<label class="control-label" for="dataHoraVoo">Data do Voo</label>
 							<div class="input-group" style="cursor: pointer;">
 								<input type="text"
-									class="form-control calendario"
-									placeholder="Selecione" name="dataIdaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}"
-									id="dataIdaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">
-								<span class="input-group-addon">
-									<span class="fluigicon fluigicon-calendar"></span>
-								</span>
-							</div>
-						</div>
-						<div class="form-group col-md-2">
-							<label class="control-label"
-								for="dataChegadaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">Chegada do Voo</label>
-							<div class="input-group" style="cursor: pointer;">
-								<input type="text"
-									class="form-control calendario"
-									placeholder="Selecione"
-									name="dataChegadaVoo-${quantidadeIdsVoos}___${numeroIdDespesa}" id="dataChegadaVoo___${numeroIdDespesa}">
+									class="form-control calendarioHora"
+									placeholder="Selecione" name="dataHoraVoo"
+									id="dataHoraVoo" value="${estaVazio(elemento.dataHoraVoo)?'':elemento.dataHoraVoo}">
 								<span class="input-group-addon">
 									<span class="fluigicon fluigicon-calendar"></span>
 								</span>
 							</div>
 						</div>
 						<div class="form-group col-md-1">
-							<label class="control-label" for="numeroVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">Voo</label>
-							<input id="numeroVoo-${quantidadeIdsVoos}___${numeroIdDespesa}" class="form-control"
-								type="text" name="numeroVoo-${quantidadeIdsVoos}___${numeroIdDespesa}">
+							<label class="control-label" for="numeroVoo">Voo</label>
+							<input id="numeroVoo" class="form-control"
+								type="text" name="numeroVoo" value="${estaVazio(elemento.numeroVoo)?'':elemento.numeroVoo}">
 						</div>
 					</div>`;
 
-		// Adiciona os campos dos dados do voo dinamicamente
-		// $('#voos___' + numeroIdDespesa).append(html);
 		FLUIGC.modal({
 			title: 'Cadastro de Voo',
 			content: html,
 			id: 'modalVoo',
-			formModal: true,
+			size: 'full',
 			actions: [{
 				'label': 'Salvar',
-				'bind': 'data-open-modal',
+				'bind': 'data-salvar-voo',
+				'autoClose': true
 			}, {
 				'label': 'Cancelar',
 				'autoClose': true
 			}]
-		}, function (err, data) {
-			if (err) {
-				// do error handling
-			} else {
-				// do something with data
-			}
 		});
 
-		FLUIGC.calendar('.calendario', {
+		FLUIGC.calendar('.calendarioHora', {
 			pickDate: true,
-			pickTime: false
+			pickTime: true,
+			sideBySide: true
 		});
 
-		quantidadeIdsVoos++;
+		$('[data-salvar-voo]').on('click', function () {
+			salvarVoo(numeroIdDespesa, (estaVazio(numeroIdVoo) ? quantidadeIdsVoos : numeroIdVoo), tipo);
+			criarTabelaVoos(numeroIdDespesa);
+			estaVazio(numeroIdVoo) ? quantidadeIdsVoos++ : null;
+		});
 
-		// Desativa os campos zoom do fornecedor para evitar inconsistências
-		// desativarZoom('tipoFornecedor___'+numeroIdDespesa);
-		// desativarZoom('nomeFornecedor___'+numeroIdDespesa);
 	} else {
 		toast('Selecione um fornecedor antes de adicionar um voo.', '', 'warning');
 	}
@@ -170,28 +157,21 @@ function adicionarVoo(elemento) {
 }
 
 function excluirVoo(numeroIdDespesa, numeroIdVoo) {
-	$('#voo-' + numeroIdVoo + '___' + numeroIdDespesa).remove();
-
-	// Verifica se a despesa ainda possui voos, se não possuir, ativa o zoom para a seleção de um novo tipo de fornecedor
-	// let quantidadeVoosDespesa = $('[id^=voo___'+numeroIdDespesa+'-]').length;
-	// if (quantidadeVoosDespesa == 0) {
-	// 	ativarZoom('tipoFornecedor___'+numeroIdDespesa);
-	// }
+	let jsonVoos = JSON.parse($('#jsonVoos___' + numeroIdDespesa).val());
+	jsonVoos.splice(jsonVoos.findIndex(voo => voo.numeroIdDespesa == numeroIdDespesa && voo.numeroIdVoo == numeroIdVoo), 1);
+	// jsonVoos = jsonVoos.filter(voo => voo.numeroIdVoo != numeroIdVoo && voo.numeroIdDespesa != numeroIdDespesa);
+	$('#jsonVoos___' + numeroIdDespesa).val(JSON.stringify(jsonVoos));
+	criarTabelaVoos(numeroIdDespesa);
 }
 
-function renderizarVoos(numeroIdDespesa) {
+function criarTabelaVoos(numeroIdDespesa) {
+	let jsonVoos = $('#jsonVoos___' + numeroIdDespesa).val();
+	jsonVoos = estaVazio(jsonVoos) ? [] : JSON.parse(jsonVoos);
+
 	FLUIGC.datatable('#voos___' + numeroIdDespesa, {
-		dataRequest: $('#jsonVoo___' + numeroIdDespesa).val(),
-		renderContent: ['id', 'voo', 'aeroportoOrigem', 'aeroportoDestino', 'dataIdaVoo', 'dataVoltaVoo'],
+		dataRequest: jsonVoos,
+		renderContent: '.tabelaVoos',
 		header: [{
-				'title': 'ID',
-				'size': 'col-md-1'
-			},
-			{
-				'title': 'Voo',
-				'size': 'col-md-1'
-			},
-			{
 				'title': 'Origem',
 				'size': 'col-md-3'
 			},
@@ -200,12 +180,16 @@ function renderizarVoos(numeroIdDespesa) {
 				'size': 'col-md-3'
 			},
 			{
-				'title': 'Ida',
-				'size': 'col-md-2'
+				'title': 'Data do Voo',
+				'size': 'col-md-3'
 			},
 			{
-				'title': 'Volta',
-				'size': 'col-md-2'
+				'title': 'Voo',
+				'size': 'col-md-1'
+			},
+			{
+				'title': 'Opções',
+				'size': 'col-md-2 opcoesVoo'
 			}
 		],
 		search: {
@@ -215,31 +199,49 @@ function renderizarVoos(numeroIdDespesa) {
 			enabled: false,
 		},
 		tableStyle: 'table-condensed'
-	}, function (err, data) {
-		if (data) {
-			dataInit = data;
-		} else if (err) {
-			FLUIGC.toast({
-				message: err,
-				type: 'danger'
-			});
-		}
 	});
-	// $('[id^=jsonVoos___]').each(function () {
-	// 	let jsonVoos = $(this);
-	// 	let numeroIdDespesa = getPosicaoPaiFilho(jsonVoos);
-	// 	if (!estaVazio(jsonVoos)) {
-	// 		let html = ``;
-	// 		$('#voos___'+numeroIdDespesa).html(html);
-	// 	}
-	// });
+
+	if (codigoAtividade != ATIVIDADE.INICIO && codigoAtividade != 0) {
+		$('.opcoesVoo').hide();
+	}
+}
+
+function salvarVoo(numeroIdDespesa, numeroIdVoo, tipo) {
+	let jsonVoos = $('#jsonVoos___' + numeroIdDespesa).val();
+	let aeroportoOrigem = $('#aeroportoOrigem').val();
+	let aeroportoDestino = $('#aeroportoDestino').val();
+	let dataHoraVoo = $('#dataHoraVoo').val();
+	let numeroVoo = $('#numeroVoo').val();
+
+	if (!estaVazio(jsonVoos)) jsonVoos = JSON.parse(jsonVoos);
+	else jsonVoos = [];
+
+	if (tipo == 'adicionar') {
+		jsonVoos.push({
+			numeroIdDespesa: parseInt(numeroIdDespesa),
+			numeroIdVoo: numeroIdVoo,
+			aeroportoOrigem: aeroportoOrigem,
+			aeroportoDestino: aeroportoDestino,
+			dataHoraVoo: dataHoraVoo,
+			numeroVoo: numeroVoo
+		});
+	} else if (tipo == 'editar') {
+		let index = jsonVoos.findIndex(voo => voo.numeroIdDespesa == numeroIdDespesa && voo.numeroIdVoo == numeroIdVoo);
+		jsonVoos[index].aeroportoOrigem = aeroportoOrigem;
+		jsonVoos[index].aeroportoDestino = aeroportoDestino;
+		jsonVoos[index].dataHoraVoo = dataHoraVoo;
+		jsonVoos[index].numeroVoo = numeroVoo;
+	}
+
+	jsonVoos = JSON.stringify(jsonVoos);
+	$('#jsonVoos___' + numeroIdDespesa).val(jsonVoos);
 }
 
 function verificarAprovacao(idTipo) {
 	$('[id^=panelDespesa___]').each(function () {
 		let panelDespesa = $(this);
 		let numeroIdDespesa = getPosicaoPaiFilho(panelDespesa);
-		let aprovacao = $('#' + idTipo + numeroIdDespesa).val();
+		let aprovacao = $('#aprovacao' + idTipo + '___' + numeroIdDespesa).val();
 
 		if (!estaVazio(aprovacao)) {
 			let tituloDespesa = $('#tituloDespesa___' + numeroIdDespesa);
@@ -263,6 +265,26 @@ function verificarAprovacao(idTipo) {
 			tituloDespesa.append(' <i class="fluigicon ' + icone + ' icon-sm ' + classe + '"></i>');
 		}
 	});
+}
+
+function calcularValorTotal(tipo) {
+	let valorTotal = 0;
+	$('[id^=valor' + tipo + 'SM___]').each(function () {
+		valorTotal += $(this).val();
+	});
+	$('#valorTotal' + tipo).val(valorTotal);
+}
+
+function salvarValorSemMascara(elemento, tipo) {
+	const numeroIdDespesa = getPosicaoPaiFilho(elemento);
+	const valor = removerMascaraReal(elemento);
+	$('#valor' + tipo + 'SM___' + numeroIdDespesa).val(valor);
+	calcularValorTotal(tipo);
+}
+
+function removerMascaraReal(elemento) {
+	const valor = $(elemento).cleanVal();
+	return parseFloat(valor.substring(0, valor.length - 2) + '.' + valor.substr(-2));
 }
 
 
