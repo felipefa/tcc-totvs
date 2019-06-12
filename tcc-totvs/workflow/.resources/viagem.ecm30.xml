@@ -4,7 +4,7 @@
       <companyId>1</companyId>
       <processId>viagem</processId>
     </processDefinitionPK>
-    <processDescription>Processo de solicitação de viagem</processDescription>
+    <processDescription>Solicitação de Viagem</processDescription>
     <instruction></instruction>
     <active>true</active>
     <publicProcess>false</publicProcess>
@@ -28,11 +28,11 @@
   <ProcessDefinitionVersion>
     <processDefinitionVersionPK>
       <companyId>1</companyId>
-      <processId>Processo de solicitação de viagem</processId>
+      <processId>Solicitação de Viagem</processId>
       <version>1</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
-    <formId>0</formId>
+    <formId>11</formId>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -44,7 +44,7 @@
     <processStates/>
     <favorito>false</favorito>
     <inheritFormSecurity>false</inheritFormSecurity>
-    <mobileReady>false</mobileReady>
+    <mobileReady>true</mobileReady>
   </ProcessDefinitionVersion>
   <list>
     <ProcessState>
@@ -112,6 +112,7 @@
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
       <engineAllocationId>Campo Formulário</engineAllocationId>
+      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;FormField&gt;loginGestor&lt;/FormField&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>false</initialState>
       <notifyAuthorityDelay>true</notifyAuthorityDelay>
@@ -127,7 +128,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>230</positionX>
-      <positionY>403</positionY>
+      <positionY>411</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -215,7 +216,8 @@
       <deadlineFieldName></deadlineFieldName>
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
-      <engineAllocationId></engineAllocationId>
+      <engineAllocationId>Executor Atividade</engineAllocationId>
+      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;BaseActivity&gt;4&lt;/BaseActivity&gt;&lt;Returns&gt;Last&lt;/Returns&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>false</initialState>
       <notifyAuthorityDelay>true</notifyAuthorityDelay>
@@ -281,8 +283,8 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>440</positionX>
-      <positionY>313</positionY>
+      <positionX>442</positionX>
+      <positionY>312</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -328,7 +330,7 @@
       <notifyAuthorityFollowUp>true</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>760</positionX>
+      <positionX>762</positionX>
       <positionY>520</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -408,7 +410,7 @@
       <subProcessId></subProcessId>
       <formFolder>0</formFolder>
       <automatic>true</automatic>
-      <positionX>427</positionX>
+      <positionX>430</positionX>
       <positionY>387</positionY>
       <inhibitTransfer>false</inhibitTransfer>
       <stateType>1</stateType>
@@ -433,8 +435,8 @@
       <subProcessId></subProcessId>
       <formFolder>0</formFolder>
       <automatic>true</automatic>
-      <positionX>747</positionX>
-      <positionY>582</positionY>
+      <positionX>749</positionX>
+      <positionY>574</positionY>
       <inhibitTransfer>false</inhibitTransfer>
       <stateType>1</stateType>
       <bpmnType>120</bpmnType>
@@ -473,7 +475,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>580</positionX>
-      <positionY>424</positionY>
+      <positionY>431</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -519,7 +521,7 @@
       <notifyAuthorityFollowUp>false</notifyAuthorityFollowUp>
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
-      <positionX>760</positionX>
+      <positionX>762</positionX>
       <positionY>710</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
@@ -594,8 +596,10 @@
         <version>1</version>
         <sequence>10</sequence>
       </conditionProcessStatePK>
-      <condition>hAPI.getCardValue(&apos;&apos;) == &apos;ajustar&apos;</condition>
+      <condition>hAPI.getCardValue(&quot;aprovacaoGestorFinal&quot;)==&quot;ajustar&quot;</condition>
       <destinationSequenceId>26</destinationSequenceId>
+      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;BaseActivity&gt;4&lt;/BaseActivity&gt;&lt;Returns&gt;Last&lt;/Returns&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
+      <engineAllocationId>Executor Atividade</engineAllocationId>
       <conditionType>0</conditionType>
     </ConditionProcessState>
     <ConditionProcessState>
@@ -606,7 +610,7 @@
         <version>1</version>
         <sequence>10</sequence>
       </conditionProcessStatePK>
-      <condition>hAPI.getCardValue(&apos;&apos;) == &apos;nao&apos;</condition>
+      <condition>hAPI.getCardValue(&quot;aprovacaoGestorFinal&quot;)==&quot;reprovar&quot;</condition>
       <destinationSequenceId>42</destinationSequenceId>
       <conditionType>0</conditionType>
     </ConditionProcessState>
@@ -618,7 +622,7 @@
         <version>1</version>
         <sequence>10</sequence>
       </conditionProcessStatePK>
-      <condition>hAPI.getCardValue(&apos;&apos;) == &apos;sim&apos;</condition>
+      <condition>hAPI.getCardValue(&quot;aprovacaoGestorFinal&quot;)==&quot;aprovar&quot;</condition>
       <destinationSequenceId>12</destinationSequenceId>
       <conditionType>0</conditionType>
     </ConditionProcessState>
@@ -630,8 +634,10 @@
         <version>1</version>
         <sequence>14</sequence>
       </conditionProcessStatePK>
-      <condition>hAPI.getCardValue(&apos;&apos;) == &apos;ajustar&apos;</condition>
+      <condition>hAPI.getCardValue(&quot;aprovacaoFinanceiroFinal&quot;) == &quot;ajustar&quot;</condition>
       <destinationSequenceId>29</destinationSequenceId>
+      <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;BaseActivity&gt;4&lt;/BaseActivity&gt;&lt;Returns&gt;Last&lt;/Returns&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
+      <engineAllocationId>Executor Atividade</engineAllocationId>
       <conditionType>0</conditionType>
     </ConditionProcessState>
     <ConditionProcessState>
@@ -642,7 +648,7 @@
         <version>1</version>
         <sequence>14</sequence>
       </conditionProcessStatePK>
-      <condition>hAPI.getCardValue(&apos;&apos;) == &apos;nao&apos;</condition>
+      <condition>hAPI.getCardValue(&quot;aprovacaoFinanceiroFinal&quot;) == &quot;reprovar&quot;</condition>
       <destinationSequenceId>43</destinationSequenceId>
       <conditionType>0</conditionType>
     </ConditionProcessState>
@@ -654,7 +660,7 @@
         <version>1</version>
         <sequence>14</sequence>
       </conditionProcessStatePK>
-      <condition>hAPI.getCardValue(&apos;&apos;) == &apos;sim&apos;</condition>
+      <condition>hAPI.getCardValue(&quot;aprovacaoFinanceiroFinal&quot;) == &quot;aprovar&quot;</condition>
       <destinationSequenceId>16</destinationSequenceId>
       <conditionType>0</conditionType>
     </ConditionProcessState>
@@ -706,7 +712,7 @@
       <initialStateSequence>10</initialStateSequence>
       <finalStateSequence>12</finalStateSequence>
       <returnLabel></returnLabel>
-      <name>Sim</name>
+      <name>Aprovar</name>
       <automaticLink>false</automaticLink>
       <defaultLink>false</defaultLink>
       <type>0</type>
@@ -740,7 +746,7 @@
       <initialStateSequence>14</initialStateSequence>
       <finalStateSequence>16</finalStateSequence>
       <returnLabel></returnLabel>
-      <name>Sim</name>
+      <name>Aprovar</name>
       <automaticLink>false</automaticLink>
       <defaultLink>false</defaultLink>
       <type>0</type>
@@ -774,7 +780,7 @@
       <initialStateSequence>10</initialStateSequence>
       <finalStateSequence>42</finalStateSequence>
       <returnLabel></returnLabel>
-      <name>Não</name>
+      <name>Reprovar</name>
       <automaticLink>false</automaticLink>
       <defaultLink>false</defaultLink>
       <type>0</type>
@@ -791,7 +797,7 @@
       <initialStateSequence>14</initialStateSequence>
       <finalStateSequence>43</finalStateSequence>
       <returnLabel></returnLabel>
-      <name>Não</name>
+      <name>Reprovar</name>
       <automaticLink>false</automaticLink>
       <defaultLink>false</defaultLink>
       <type>0</type>
@@ -894,6 +900,9 @@
       <automaticLink>false</automaticLink>
       <defaultLink>false</defaultLink>
       <type>0</type>
+      <movementTitle></movementTitle>
+      <movementDescription></movementDescription>
+      <movementAccessLinkDescription></movementAccessLinkDescription>
     </ProcessLink>
     <ProcessLink>
       <processLinkPK>
@@ -910,6 +919,9 @@
       <automaticLink>false</automaticLink>
       <defaultLink>false</defaultLink>
       <type>0</type>
+      <movementTitle></movementTitle>
+      <movementDescription></movementDescription>
+      <movementAccessLinkDescription></movementAccessLinkDescription>
     </ProcessLink>
   </list>
   <list/>
@@ -984,7 +996,7 @@
   <list>
     <ProcessComponGraf>
       <componType>1</componType>
-      <positionX>190</positionX>
+      <positionX>180</positionX>
       <positionY>60</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
@@ -992,12 +1004,12 @@
         <version>1</version>
         <componGrafSequence>37</componGrafSequence>
       </processComponGrafPK>
-      <stateName>Solicitante preenche formulário com os custos previstos na viagem.</stateName>
+      <stateName>Solicitante preenche formulário com as despesas previstas na viagem.</stateName>
     </ProcessComponGraf>
     <ProcessComponGraf>
       <componType>1</componType>
-      <positionX>654</positionX>
-      <positionY>300</positionY>
+      <positionX>667</positionX>
+      <positionY>290</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
         <processId>viagem</processId>
@@ -1008,7 +1020,7 @@
     </ProcessComponGraf>
     <ProcessComponGraf>
       <componType>1</componType>
-      <positionX>868</positionX>
+      <positionX>874</positionX>
       <positionY>60</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
@@ -1016,11 +1028,11 @@
         <version>1</version>
         <componGrafSequence>46</componGrafSequence>
       </processComponGrafPK>
-      <stateName>Solicitante confirma os dados de pagamento que foram preenchidos inicialmente.</stateName>
+      <stateName>Solicitante informa as despesas efetivas.</stateName>
     </ProcessComponGraf>
     <ProcessComponGraf>
       <componType>1</componType>
-      <positionX>177</positionX>
+      <positionX>171</positionX>
       <positionY>292</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
@@ -1093,7 +1105,7 @@
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>157</positionX>
-      <positionY>441</positionY>
+      <positionY>448</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
@@ -1103,7 +1115,7 @@
         <linkSequence>13</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
-      <positionX>457</positionX>
+      <positionX>460</positionX>
       <positionY>636</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
@@ -1153,7 +1165,35 @@
   </list>
   <list/>
   <list/>
-  <list/>
+  <list>
+    <ProcessFormField>
+      <processFormFieldPK>
+        <companyId>1</companyId>
+        <processId>viagem</processId>
+        <fieldId>centroCusto</fieldId>
+      </processFormFieldPK>
+      <fieldDescription>Centro de Custo</fieldDescription>
+      <slotId>1</slotId>
+    </ProcessFormField>
+    <ProcessFormField>
+      <processFormFieldPK>
+        <companyId>1</companyId>
+        <processId>viagem</processId>
+        <fieldId>nomeSolicitante</fieldId>
+      </processFormFieldPK>
+      <fieldDescription>Nome do Solicitante</fieldDescription>
+      <slotId>2</slotId>
+    </ProcessFormField>
+    <ProcessFormField>
+      <processFormFieldPK>
+        <companyId>1</companyId>
+        <processId>viagem</processId>
+        <fieldId>numeroSolicitacao</fieldId>
+      </processFormFieldPK>
+      <fieldDescription>Solicitação</fieldDescription>
+      <slotId>3</slotId>
+    </ProcessFormField>
+  </list>
   <list/>
   <list/>
   <list>
