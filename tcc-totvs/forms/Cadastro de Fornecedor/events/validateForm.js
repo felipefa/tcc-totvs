@@ -29,34 +29,12 @@ function validateForm(form) {
 		campos += '<br>' + i18n.translate('nomeFornecedor');
 	}
 
-	// Endereço do fornecedor
-	if (form.getValue('cep') == '') {
-		campos += '<br>' + i18n.translate('cep');
-	}
-	if (form.getValue('logradouro') == '') {
-		campos += '<br>' + i18n.translate('logradouro');
-	}
-	if (form.getValue('bairro') == '') {
-		campos += '<br>' + i18n.translate('bairro');
-	}
-	if (form.getValue('localidade') == '') {
-		campos += '<br>' + i18n.translate('localidade');
-	}
-	if (form.getValue('uf') == '') {
-		campos += '<br>' + i18n.translate('uf');
-	}
-
 	// Informações de contato
-	if (form.getValue('email') == '') {
-		campos += '<br>' + i18n.translate('email');
-	} else {
+	if (form.getValue('email') != '') {
 		var email = form.getValue('email');
 		if (email.indexOf('@') == -1 || email.indexOf('.') == -1) {
 			throw 'O e-mail informado &eacute; inv&aacute;lido.';
 		}
-	}
-	if (form.getValue('telefone1') == '') {
-		campos += '<br>' + i18n.translate('telefone') + ' 1';
 	}
 
 	if (campos != '') {
