@@ -18,5 +18,3 @@ slot.SlotUsePolicy=usepolicy
 slot.SlotMessagingNotify=socialmessagingnotify
 application.category=APPLICATION
 application.icon=icon.png
-application.resource.css.1=/resources/css/wcm_widget.css
-application.resource.js.2=/resources/js/wcm_widgets.js
