@@ -1,1 +1,12 @@
 /* Coloque aqui seu codigo CSS */
+.message{
+    margin-top: 10px;
+}
+
+body {    
+  background-image: url("/felipe_AcertoViagem/resources/images/viagem.jpg"); /* The image used */
+  background-color: #f7f7f7; /* Used if the image is unavailable */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+}
