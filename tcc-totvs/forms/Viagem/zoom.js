@@ -59,7 +59,7 @@ function setSelectedZoomItem(selectedItem) {
 	/** Início de campos zoom do painel Dados da Solicitação */
 	// Preenche os campos ocultos relacionados ao solicitante selecionado
 	if (idCampoZoom == 'nomeSolicitante') {
-		$('#loginSolicitante').val(selectedItem.nomeSolicitante);
+		$('#loginSolicitante').val(selectedItem.login);
 	}
 
 	// Preenche os campos ocultos relacionados ao centro de custo selecionado
