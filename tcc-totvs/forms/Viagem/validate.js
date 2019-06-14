@@ -6,7 +6,7 @@ var beforeSendValidate = function (numState, nextState) {
 				return false;
 			}
 
-			if (!validarCamposPanel('#panelIteracao', '.atividadeInicio')) {
+			if (!validarCamposPanel('#panelItinerario', '.atividadeInicio')) {
 				toast('Atenção!', 'Preencha todo o itinerário.', 'warning');
 				return false;
 			}
@@ -22,7 +22,7 @@ var beforeSendValidate = function (numState, nextState) {
 					if (!validarCamposPanel('#despesa___' + numeroIdDespesa, '.atividadeInicio')) valido = false;
 				});
 				if (!valido) {
-					toast('Atenção!', 'Preencha os dados das despesas.', 'warning');
+					toast('Atenção!', 'Preencha todos os dados da(s) despesa(s).', 'warning');
 					return false;
 				}
 			}
@@ -50,10 +50,42 @@ var beforeSendValidate = function (numState, nextState) {
 
 function validarCamposPanel(id, classeAtividade) {
 	let valido = true;
+
 	$(id + ' .obrigatorio' + classeAtividade + ', ' + id + ' .validacaoZoom' + classeAtividade + ' .select2-search__field').each(function () {
 		const vazio = validarCampoVazio($(this));
 		if (vazio) valido = false;
 	});
+
+	// Valida despesas na atividade início
+	if (valido && id.indexOf('despesa') != -1) {
+		const numeroIdDespesa = getPosicaoPaiFilho(id);
+		const tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val()[0];
+		switch (tipoFornecedor) {
+			case 'Aluguel de Veículos':
+				valido = !estaVazio($('#dataRetirada___' + numeroIdDespesa).val());
+				valido = valido?!estaVazio($('#dataDevolucao___' + numeroIdDespesa).val()):false;
+				break;
+			case 'Hospedagem':
+				valido = !estaVazio($('#hospedagemCheckin___' + numeroIdDespesa).val());
+				valido = valido?!estaVazio($('#hospedagemCheckout___' + numeroIdDespesa).val()):false;
+				valido = valido?!estaVazio($('#hospedagemDiarias___' + numeroIdDespesa).val()):false;
+				break;
+			case 'Próprio':
+				valido = !estaVazio($('#proprioOrigem___' + numeroIdDespesa).val());
+				valido = valido?!estaVazio($('#proprioDestino___' + numeroIdDespesa).val()):false;
+				valido = valido?!estaVazio($('#proprioData___' + numeroIdDespesa).val()):false;
+				valido = valido?!estaVazio($('#proprioDistancia___' + numeroIdDespesa).val()):false;
+				break;
+			case 'Transporte Aéreo':
+			case 'Transporte Terrestre':
+				valido = !estaVazio($('#jsonTrajetos___' + numeroIdDespesa).val());
+				break;
+			default:
+				valido = !estaVazio($('#dataPrevista___' + numeroIdDespesa).val());
+				break;
+		}
+	}
+
 	return valido;
 }
 
