@@ -17,9 +17,10 @@ function atribuirReadOnly(seletor) {
 }
 
 function atribuirTituloDespesa(numeroIdDespesa) {
-	let tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val();
-	let nomeFornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
-	let tituloDespesa = numeroIdDespesa + ' - ' + tipoFornecedor + ' - ' + nomeFornecedor;
+	const tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val();
+	const nomeFornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
+	const valorPrevisto = $('#valorPrevisto___' + numeroIdDespesa).val();
+	const tituloDespesa = `${numeroIdDespesa} - ${tipoFornecedor} - ${nomeFornecedor} - ${valorPrevisto}`;
 	$('#tituloDespesa___' + numeroIdDespesa).html(tituloDespesa);
 }
 
@@ -100,33 +101,6 @@ function esconderUltimaHr(id) {
 }
 
 /**
- * @deprecated
- * @function estanciaCalendarioFluig Estancia o calendário do fluig para cada id informado no array de ids. 
- * Usado para chamar o calendário em novos elementos do pai filho.
- * 
- * @param {Array<String>} ids Array de strings com os ids dos campos que devem receber o calendário
- * @param {Boolean} exibirHoras Default = false. True exibe o seletor de horas. 
- */
-function estanciaCalendarioFluig(ids, exibirHoras = false) {
-	let opcoes = {
-		pickDate: true,
-		pickTime: false
-	};
-
-	if (exibirHoras) {
-		opcoes = {
-			pickDate: true,
-			pickTime: true,
-			sideBySide: true
-		};
-	}
-
-	ids.forEach(id => {
-		FLUIGC.calendar('#' + id, opcoes);
-	});
-}
-
-/**
  * @function estaVazio Verifica se um valor está vazio, é nulo ou indefinido.
  * 
  * @param {*} valor Valor a ser verificado.
@@ -179,11 +153,9 @@ function controlarDetalhesTipoDespesa(ramoAtividade, numeroIdPaiFilho) {
 			alternarDetalhesTipoDespesa('tipoProprio', numeroIdPaiFilho);
 			break;
 		case 'Transporte Aéreo':
-			alternarDetalhesTipoDespesa('tipoAereo', numeroIdPaiFilho);
-			criarTabelaVoos(numeroIdPaiFilho);
-			break;
 		case 'Transporte Terrestre':
-			alternarDetalhesTipoDespesa('tipoTerrestre', numeroIdPaiFilho);
+			alternarDetalhesTipoDespesa('tipoTransporte', numeroIdPaiFilho);
+			criarTabelaTrajetos(numeroIdPaiFilho);
 			break;
 		default:
 			alternarDetalhesTipoDespesa('tipoPadrao', numeroIdPaiFilho);
@@ -198,7 +170,7 @@ function controlarDetalhesTipoDespesa(ramoAtividade, numeroIdPaiFilho) {
  * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
  */
 function alternarDetalhesTipoDespesa(exibirId, numeroIdPaiFilho) {
-	let idsTipos = ['tipoAluguelVeiculos', 'tipoHospedagem', 'tipoProprio', 'tipoAereo', 'tipoTerrestre', 'tipoPadrao'];
+	let idsTipos = ['tipoAluguelVeiculos', 'tipoHospedagem', 'tipoProprio', 'tipoTransporte', 'tipoPadrao'];
 
 	idsTipos.map(function (id) {
 		if (exibirId == id) $('#' + exibirId + '___' + numeroIdPaiFilho).show();
@@ -303,7 +275,8 @@ function validarCampos() {
  */
 function validarCampoVazio(input) {
 	if (input[0].className.indexOf('select2') != -1) {
-		if (input.parent().parent()[0].innerText == null || input.parent().parent()[0].innerText == '') {
+		// Entra aqui se for zoom
+		if (estaVazio(input.parent().parent()[0].innerText)) {
 			input.parents('div.form-group').addClass('has-error text-danger');
 			colorirElementoHtml($(input[0]).parent().parent().parent(), 'danger');
 			colorirElementoHtml($(input[0]).parent().parent().parent().find('.input-group-addon.select2-fluigicon-zoom'), 'danger');
@@ -315,15 +288,15 @@ function validarCampoVazio(input) {
 			return false;
 		}
 	} else {
-		if ((input.val() == null || input.val() == '') && !input.prop('readonly')) {
-			if (input.prop('id').indexOf('data') != -1) {
+		if (estaVazio(input.val()) && !input.prop('readonly')) {
+			if (input.hasClass('calendario') || input.hasClass('calendarioHora')) {
 				input.parent().parent().addClass('has-error');
 			} else {
 				input.parent().addClass('has-error');
 			}
 			return true;
 		} else {
-			if (input.prop('id').indexOf('data') != -1) {
+			if (input.hasClass('calendario') || input.hasClass('calendarioHora')) {
 				input.parent().parent().removeClass('has-error');
 			} else {
 				input.parent().removeClass('has-error');
