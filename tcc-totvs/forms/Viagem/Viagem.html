@@ -220,6 +220,48 @@
 											</div>
 											<div class="panel-collapse collapse in corrigirIndice" id="despesa" name="despesa">
 												<div class="panel-body">
+													<!-- Início Aprovação Gestor -->
+													<div class="row aprovacaoGestor aprovacaoFinanceiro acertoViagem" hidden>
+														<div class="form-group col-md-3">
+															<label class="control-label" for="aprovacaoGestor">Aprovação do Gestor</label>
+															<select class="form-control obrigatorio atividadeAprovacaoGestor" name="aprovacaoGestor" id="aprovacaoGestor">
+																<option value=""></option>
+																<option value="ajustar">Ajustar</option>
+																<option value="aprovar">Aprovar</option>
+																<option value="reprovar">Reprovar</option>
+															</select>
+														</div>
+														<div class="form-group col-md-9">
+															<label class="control-label" for="justificativaGestor">Justificativa do Gestor</label>
+															<textarea id="justificativaGestor" class="form-control obrigatorio atividadeAprovacaoGestor" name="justificativaGestor" rows="1" style="resize: vertical"></textarea>
+														</div>
+													</div>
+													<!-- Fim Aprovação Gestor -->
+													<!-- Início Aprovação Financeiro -->
+													<div class="row aprovacaoFinanceiro acertoViagem" hidden>
+														<div class="form-group col-md-3">
+															<label class="control-label" for="aprovadorFinanceiro">Aprovador do Financeiro</label>
+															<input id="aprovadorFinanceiro" class="form-control" type="text" name="aprovadorFinanceiro" readonly>
+														</div>
+														<div class="form-group col-md-3">
+															<label class="control-label" for="aprovacaoFinanceiro">Aprovação do Financeiro</label>
+															<select class="form-control obrigatorio atividadeAprovacaoFinanceiro" name="aprovacaoFinanceiro" id="aprovacaoFinanceiro">
+																<option value=""></option>
+																<option value="ajustar">Ajustar</option>
+																<option value="aprovar">Aprovar</option>
+																<option value="reprovar">Reprovar</option>
+															</select>
+														</div>
+														<div class="form-group col-md-6">
+															<label class="control-label" for="justificativaFinanceiro">Justificativa do Financeiro</label>
+															<textarea id="justificativaFinanceiro" class="form-control obrigatorio atividadeAprovacaoFinanceiro" name="justificativaFinanceiro" rows="1" style="resize: vertical"></textarea>
+														</div>
+														<!-- Início de Campos Ocultos da Aprovação do Financeiro -->
+														<input id="loginFinanceiro" type="hidden" name="loginFinanceiro">
+														<!-- Fim de Campos Ocultos da Aprovação do Financeiro -->
+													</div>
+													<!-- Fim Aprovação Financeiro-->
+													<!-- Início Dados do Fornecedor -->
 													<div class="row">
 														<div class="dadosFornecedor">
 															<div class="form-group col-md-3 validacaoZoom atividadeInicio">
@@ -270,23 +312,10 @@
 														<input id="cnpjFornecedor" name="cnpjFornecedor" type="hidden">
 														<!-- Fim de Campos Ocultos dos Dados do Fornecedor -->
 													</div>
+													<!-- Fim Dados do Fornecedor -->
 													<!-- Início de Detalhes da Despesa -->
 													<div class="row">
 														<div class="detalhesDespesa">
-															<div class="corrigirIndice" id="tipoAereo" name="tipoAereo" hidden>
-																<div class="col-xs-12">
-																	<div class="row">
-																		<div class="form-group col-md-2">
-																			<label>&nbsp;</label>
-																			<button id="btnAdicionarVoo" name="btnAdicionarVoo" class="btn btn-primary corrigirIndice" onclick="cadastrarVoo(this, 'adicionar')">Adicionar Voo</button>
-																			<input id="jsonVoos" name="jsonVoos" type="hidden">
-																		</div>
-																	</div>
-																	<div class="row">
-																		<div class="col-xs-12 table-reponsive corrigirIndice" id="voos" name="voos"></div>
-																	</div>
-																</div>
-															</div>
 															<div class="corrigirIndice" id="tipoAluguelVeiculos" name="tipoAluguelVeiculos" hidden>
 																<div class="form-group col-md-3">
 																	<label class="control-label" for="dataRetirada">Retirada</label>
@@ -331,22 +360,40 @@
 																	<input id="hospedagemDiarias" class="form-control" type="text" name="hospedagemDiarias">
 																</div>
 															</div>
-															<div class="corrigirIndice" id="tipoTransfer" name="tipoTransfer" hidden>
+															<div class="corrigirIndice" id="tipoProprio" name="tipoProprio" hidden>
 																<div class="form-group col-md-2">
-																	<label class="control-label" for="transferAPartirDe">A partir de</label>
-																	<input id="transferAPartirDe" class="form-control" type="text" name="transferAPartirDe">
+																	<label class="control-label" for="proprioOrigem">Origem</label>
+																	<input id="proprioOrigem" class="form-control" type="text" name="proprioOrigem">
 																</div>
 																<div class="form-group col-md-2">
-																	<label class="control-label" for="transferAte">Até</label>
-																	<input id="transferAte" class="form-control" type="text" name="transferAte">
+																	<label class="control-label" for="proprioDestino">Destino</label>
+																	<input id="proprioDestino" class="form-control" type="text" name="proprioDestino">
 																</div>
 																<div class="form-group col-md-2">
-																	<label class="control-label" for="transferDataVoo">Ida do Voo</label>
+																	<label class="control-label" for="proprioData">Data</label>
 																	<div class="input-group" style="cursor: pointer;">
-																		<input type="text" class="form-control calendario" placeholder="Selecione" name="transferDataVoo" id="transferDataVoo">
+																		<input type="text" class="form-control calendario" placeholder="Selecione" name="proprioData" id="proprioData">
 																		<span class="input-group-addon">
 																			<span class="fluigicon fluigicon-calendar"></span>
 																		</span>
+																	</div>
+																</div>
+																<div class="form-group col-md-2">
+																	<label class="control-label" for="proprioDistancia">Distância (em km)</label>
+																	<input id="proprioDistancia" class="form-control" type="text" name="proprioDistancia">
+																</div>
+															</div>
+															<div class="corrigirIndice" id="tipoTransporte" name="tipoTransporte" hidden>
+																<div class="col-xs-12">
+																	<div class="row">
+																		<div class="form-group col-md-2">
+																			<label>&nbsp;</label>
+																			<button id="btnAdicionarTrajeto" name="btnAdicionarTrajeto" class="btn btn-primary corrigirIndice" onclick="cadastrarTrajeto(this, 'adicionar')">Adicionar Trajeto</button>
+																			<input id="jsonTrajetos" name="jsonTrajetos" type="hidden">
+																		</div>
+																	</div>
+																	<div class="row">
+																		<div class="col-xs-12 table-reponsive corrigirIndice" id="trajetos" name="trajetos"></div>
 																	</div>
 																</div>
 															</div>
@@ -377,8 +424,8 @@
 																<input id="valorEfetivo" class="form-control obrigatorio atividadeAcerto real" type="text" name="valorEfetivo">
 																<input id="valorEfetivoSM" type="hidden" name="valorEfetivoSM">
 															</div>
-															<div class="form-group col-md-3">
-																<!-- TO DO: Colocar upload de anexos dentro da modal e exibir apenas o botão anexos -->
+															<!-- TO DO: Colocar upload de anexos dentro da modal e exibir apenas o botão anexos -->
+															<!-- <div class="form-group col-md-3">
 																<label class="control-label" for="anexoComprovante">Anexar Comprovante</label>
 																<div class="input-group">
 																	<input type="text" name="nomeArquivo" id="nomeArquivo" class="form-control" readonly>
@@ -389,51 +436,14 @@
 																		</label>
 																	</span>
 																</div>
-															</div>
-															<div class="form-group col-md-1">
-																<label for="btnVerAnexos">&nbsp;</label>
-																<button id="btnVerAnexos" class="form-control" type="text" name="btnVerAnexos">Anexos</h4>
+															</div> -->
+															<div class="form-group col-md-2">
+																<label for="btnAnexos"><br></label><br>
+																<button class="btn btn-primary" id="btnAnexos" name="btnAnexos" type="button">Anexos</h4>
 															</div>
 														</div>
 													</div>
 													<!-- Fim de Detalhes da Despesa -->
-													<div class="row aprovacaoGestor aprovacaoFinanceiro acertoViagem" hidden>
-														<div class="form-group col-md-3">
-															<label class="control-label" for="aprovacaoGestor">Aprovação do Gestor</label>
-															<select class="form-control obrigatorio atividadeAprovacaoGestor" name="aprovacaoGestor" id="aprovacaoGestor" style="cursor: pointer;">
-																<option value="" disabled></option>
-																<option value="ajustar">Ajustar</option>
-																<option value="aprovar">Aprovar</option>
-																<option value="reprovar">Reprovar</option>
-															</select>
-														</div>
-														<div class="form-group col-md-9">
-															<label class="control-label" for="justificativaGestor">Justificativa do Gestor</label>
-															<textarea id="justificativaGestor" class="form-control obrigatorio atividadeAprovacaoGestor" name="justificativaGestor" rows="1" style="resize: vertical"></textarea>
-														</div>
-													</div>
-													<div class="row aprovacaoFinanceiro acertoViagem" hidden>
-														<div class="form-group col-md-3">
-															<label class="control-label" for="aprovadorFinanceiro">Aprovador do Financeiro</label>
-															<input id="aprovadorFinanceiro" class="form-control" type="text" name="aprovadorFinanceiro" readonly>
-														</div>
-														<div class="form-group col-md-3">
-															<label class="control-label" for="aprovacaoFinanceiro">Aprovação do Financeiro</label>
-															<select class="form-control obrigatorio atividadeAprovacaoFinanceiro" name="aprovacaoFinanceiro" id="aprovacaoFinanceiro" style="cursor: pointer;">
-																<option value="" disabled></option>
-																<option value="ajustar">Ajustar</option>
-																<option value="aprovar">Aprovar</option>
-																<option value="reprovar">Reprovar</option>
-															</select>
-														</div>
-														<div class="form-group col-md-6">
-															<label class="control-label" for="justificativaFinanceiro">Justificativa do Financeiro</label>
-															<textarea id="justificativaFinanceiro" class="form-control obrigatorio atividadeAprovacaoFinanceiro" name="justificativaFinanceiro" rows="1" style="resize: vertical"></textarea>
-														</div>
-														<!-- Início de Campos Ocultos da Aprovação do Financeiro -->
-														<input id="loginFinanceiro" type="hidden" name="loginFinanceiro">
-														<!-- Fim de Campos Ocultos da Aprovação do Financeiro -->
-													</div>
 												</div>
 											</div>
 										</div>
@@ -472,49 +482,49 @@
 		</form>
 	</div>
 
-	<script type="text/template" class="cadastroVoo">
+	<script type="text/template" class="cadastroTrajeto">
 		<div class="row">
 			<div class="form-group col-md-4">
-				<label class="control-label" for="aeroportoOrigem">Aeroporto de Origem</label>
-				<input id="aeroportoOrigem" class="form-control obrigatorio"
-					type="text" name="aeroportoOrigem" value="{{aeroportoOrigem}}">
+				<label class="control-label" for="origem">Origem</label>
+				<input id="origem" class="form-control obrigatorio"
+					type="text" name="origem" placeholder="Local de origem" value="{{origem}}">
 			</div>
 			<div class="form-group col-md-4">
-				<label class="control-label" for="aeroportoDestino">Aeroporto de Destino</label>
-				<input id="aeroportoDestino" class="form-control obrigatorio"
-					type="text" name="aeroportoDestino" value="{{aeroportoDestino}}">
+				<label class="control-label" for="destino">Destino</label>
+				<input id="destino" class="form-control obrigatorio"
+					type="text" name="destino" placeholder="Local de destino" value="{{destino}}">
 			</div>
 			<div class="form-group col-md-3">
-				<label class="control-label" for="dataHoraVoo">Data do Voo</label>
+				<label class="control-label" for="dataHoraTrajeto">Data do Trajeto</label>
 				<div class="input-group" style="cursor: pointer;">
 					<input type="text"
 						class="form-control obrigatorio calendarioHora"
-						placeholder="Selecione" name="dataHoraVoo"
-						id="dataHoraVoo" value="{{dataHoraVoo}}">
+						placeholder="Selecione" name="dataHoraTrajeto"
+						id="dataHoraTrajeto" value="{{dataHoraTrajeto}}">
 					<span class="input-group-addon">
 						<span class="fluigicon fluigicon-calendar"></span>
 					</span>
 				</div>
 			</div>
 			<div class="form-group col-md-1">
-				<label class="control-label" for="numeroVoo">Voo</label>
-				<input id="numeroVoo" class="form-control obrigatorio"
-					type="text" name="numeroVoo" value="{{numeroVoo}}">
+				<label class="control-label" for="identificador">Identificador</label>
+				<input id="identificador" class="form-control obrigatorio"
+					type="text" name="identificador" placeholder="Nº voo" value="{{identificador}}">
 			</div>
 		</div>
 	</script>
 
-	<script type="text/template" class="tabelaVoos">
+	<script type="text/template" class="tabelaTrajetos">
 		<tr>
-			<td>{{aeroportoOrigem}}</td>
-			<td>{{aeroportoDestino}}</td>
-			<td>{{dataHoraVoo}}</td>
-			<td>{{numeroVoo}}</td>
-			<td class="opcoesVoo" style="text-align: center;">
-				<button class="btn btn-primary btn-sm" onclick="cadastrarVoo({'numeroIdDespesa':{{numeroIdDespesa}}, 'numeroIdVoo':{{numeroIdVoo}}}, 'editar')">
+			<td>{{origem}}</td>
+			<td>{{destino}}</td>
+			<td>{{dataHoraTrajeto}}</td>
+			<td>{{identificador}}</td>
+			<td class="opcoesTrajeto" style="text-align: center;">
+				<button class="btn btn-primary btn-sm" onclick="cadastrarTrajeto({'numeroIdDespesa':{{numeroIdDespesa}}, 'numeroIdTrajeto':{{numeroIdTrajeto}}}, 'editar')">
 					<i class="fluigicon fluigicon-pencil icon-sm"></i>
 				</button>
-				<button class="btn btn-danger btn-sm" onclick="excluirVoo({{numeroIdDespesa}}, {{numeroIdVoo}})">
+				<button class="btn btn-danger btn-sm" onclick="excluirTrajeto({{numeroIdDespesa}}, {{numeroIdTrajeto}})">
 					<i class="fluigicon fluigicon-trash icon-sm"></i>
 				</button>
 			</td>

@@ -1,16 +1,12 @@
-var quantidadeIdsVoos = 1;
+var quantidadeIdsTrajetos = 1;
 
 $(document).ready(function () {
-	$(document).on('blur', '.obrigatorio, .validacaoZoom .select2-search__field', function () {
-		validarCampoVazio($(this));
-	});
-
 	$('#btnAdicionarDespesa').on('click', function () {
 		adicionarDespesa();
 	});
 
 	$('#idaPrevista, #voltaPrevista').on('blur', function () {
-		let input = $(this);
+		const input = $(this);
 		let mensagem = '';
 		let idaPrevista = '';
 		let voltaPrevista = '';
@@ -26,15 +22,16 @@ $(document).ready(function () {
 		}
 
 		if (!estaVazio(idaPrevista) && !estaVazio(voltaPrevista) && !compararDatas(idaPrevista, voltaPrevista)) {
-			toast(mensagem, '', 'warning');
+			toast('Atenção!', mensagem, 'warning');
 			input.val('');
+			input.blur();
 		}
 	});
-});
 
-// APIs para busca de aeroportos:
-// https://any-api.com/?query=airport
-// http://iatacodes.org/#/get_started
+	$(document).on('blur', '.obrigatorio, .validacaoZoom .select2-search__field', function () {
+		validarCampoVazio($(this));
+	});
+});
 
 /**
  * @function adicionarDespesa Adiciona uma nova despesa no painel de despesas.
@@ -45,7 +42,6 @@ function adicionarDespesa() {
 	});
 
 	const numeroIdDespesa = wdkAddChild('despesas');
-	// let quantidadeDespesas = $('[id^=despesa___]').length;
 
 	$('#btnDetalhesDespesa___' + numeroIdDespesa).attr('href', '#despesa___' + numeroIdDespesa);
 
@@ -97,45 +93,45 @@ function excluirDespesa(elemento) {
 }
 
 /**
- * @function cadastrarVoo Adiciona ou edita um voo existente de acordo com os parâmetros informados.
+ * @function cadastrarTrajeto Adiciona ou edita um trajeto existente de acordo com os parâmetros informados.
  * 
- * @param {Object} elemento Objeto que pode ser o botão de adicionar voo do DOM ou dados contendo o numero do id da despesa e do voo, no caso de edição.
+ * @param {Object} elemento Objeto que pode ser o botão de adicionar trajeto do DOM ou dados contendo o numero do id da despesa e do trajeto, no caso de edição.
  * @param {String} tipo Aceita dois parâmetros de acordo com o que deve ser feito, sendo eles:
  * - adicionar
  * - editar
  */
-function cadastrarVoo(elemento, tipo) {
+function cadastrarTrajeto(elemento, tipo) {
 	let numeroIdDespesa = null;
-	let numeroIdVoo = null;
+	let numeroIdTrajeto = null;
 	if (tipo == 'adicionar') {
 		numeroIdDespesa = getPosicaoPaiFilho(elemento);
 	} else if (tipo == 'editar') {
 		numeroIdDespesa = elemento.numeroIdDespesa;
-		numeroIdVoo = elemento.numeroIdVoo;
-		elemento = JSON.parse($('#jsonVoos___' + numeroIdDespesa).val());
-		elemento = elemento[elemento.findIndex(voo => voo.numeroIdDespesa == numeroIdDespesa && voo.numeroIdVoo == numeroIdVoo)];
+		numeroIdTrajeto = elemento.numeroIdTrajeto;
+		elemento = JSON.parse($('#jsonTrajetos___' + numeroIdDespesa).val());
+		elemento = elemento[elemento.findIndex(trajeto => trajeto.numeroIdDespesa == numeroIdDespesa && trajeto.numeroIdTrajeto == numeroIdTrajeto)];
 	}
-	let fornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
+	const fornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
 
-	// Só permite adicionar um voo se um fornecedor estiver selecionado
+	// Só permite adicionar um trajeto se um fornecedor estiver selecionado
 	if (!estaVazio(fornecedor)) {
-		const html = $('.cadastroVoo').html();
+		const html = $('.cadastroTrajeto').html();
 		const dados = {
-			aeroportoOrigem: estaVazio(elemento.aeroportoOrigem) ? '' : elemento.aeroportoOrigem,
-			aeroportoDestino: estaVazio(elemento.aeroportoDestino) ? '' : elemento.aeroportoDestino,
-			dataHoraVoo: estaVazio(elemento.dataHoraVoo) ? '' : elemento.dataHoraVoo,
-			numeroVoo: estaVazio(elemento.numeroVoo) ? '' : elemento.numeroVoo
+			origem: estaVazio(elemento.origem) ? '' : elemento.origem,
+			destino: estaVazio(elemento.destino) ? '' : elemento.destino,
+			dataHoraTrajeto: estaVazio(elemento.dataHoraTrajeto) ? '' : elemento.dataHoraTrajeto,
+			identificador: estaVazio(elemento.identificador) ? '' : elemento.identificador
 		}
 		const template = Mustache.render(html, dados);
 
-		const modalVoo = FLUIGC.modal({
-			title: 'Cadastro de Voo',
+		const modalTrajeto = FLUIGC.modal({
+			title: 'Cadastro de Trajeto',
 			content: template,
-			id: 'modalVoo',
+			id: 'modalTrajeto',
 			size: 'full',
 			actions: [{
 				'label': 'Salvar',
-				'bind': 'data-salvar-voo'
+				'bind': 'data-salvar-trajeto'
 			}, {
 				'label': 'Cancelar',
 				'autoClose': true
@@ -148,62 +144,61 @@ function cadastrarVoo(elemento, tipo) {
 			sideBySide: true
 		});
 
-		$(document).on('blur', '#modalVoo .obrigatorio', function () {
+		$(document).on('blur', '#modalTrajeto .obrigatorio', function () {
 			validarCampoVazio($(this));
 		});
 
-		$('[data-salvar-voo]').on('click', function () {
-			const salvou = salvarVoo(numeroIdDespesa, (estaVazio(numeroIdVoo) ? quantidadeIdsVoos : numeroIdVoo), tipo);
+		$('[data-salvar-trajeto]').on('click', function () {
+			const salvou = salvarTrajeto(numeroIdDespesa, (estaVazio(numeroIdTrajeto) ? quantidadeIdsTrajetos : numeroIdTrajeto), tipo);
 			if (salvou) {
-				criarTabelaVoos(numeroIdDespesa);
-				estaVazio(numeroIdVoo) ? quantidadeIdsVoos++ : null;
-				modalVoo.remove();
-				toast('Voo salvo com sucesso.', '', 'success');
+				criarTabelaTrajetos(numeroIdDespesa);
+				estaVazio(numeroIdTrajeto) ? quantidadeIdsTrajetos++ : null;
+				modalTrajeto.remove();
+				toast('OK!', 'Trajeto salvo com sucesso.', 'success');
 			} else {
-				$('#modalVoo .obrigatorio').blur();
-				toast('Preencha os campos em vermelho.', '', 'warning');
+				$('#modalTrajeto .obrigatorio').blur();
+				toast('Atenção!', 'Preencha os campos em vermelho.', 'warning');
 			}
 		});
 	} else {
-		toast('Selecione um fornecedor antes de adicionar um voo.', '', 'warning');
+		toast('Atenção!', 'Selecione um fornecedor antes de adicionar um trajeto.', 'warning');
 	}
-
 }
 
 /**
- * @function excluirVoo Exclui um voo de acordo com os parâmetros informados.
+ * @function excluirTrajeto Exclui um trajeto de acordo com os parâmetros informados.
  * 
- * @param {Number} numeroIdDespesa Número do id da despesa ao qual o voo pertence.
- * @param {Number} numeroIdVoo Número do id do voo.
+ * @param {Number} numeroIdDespesa Número do id da despesa ao qual o trajeto pertence.
+ * @param {Number} numeroIdTrajeto Número do id do trajeto.
  */
-function excluirVoo(numeroIdDespesa, numeroIdVoo) {
+function excluirTrajeto(numeroIdDespesa, numeroIdTrajeto) {
 	FLUIGC.message.confirm({
-		message: 'Tem certeza que deseja excluir esta despesa?',
-		title: 'Excluir Despesa',
+		message: 'Tem certeza que deseja excluir este trajeto?',
+		title: 'Excluir Trajeto',
 		labelYes: 'Excluir',
 		labelNo: 'Cancelar'
 	}, function (confirmar) {
 		if (confirmar) {
-			let jsonVoos = JSON.parse($('#jsonVoos___' + numeroIdDespesa).val());
-			jsonVoos.splice(jsonVoos.findIndex(voo => voo.numeroIdDespesa == numeroIdDespesa && voo.numeroIdVoo == numeroIdVoo), 1);
-			$('#jsonVoos___' + numeroIdDespesa).val(JSON.stringify(jsonVoos));
-			criarTabelaVoos(numeroIdDespesa);
+			const jsonTrajetos = JSON.parse($('#jsonTrajetos___' + numeroIdDespesa).val());
+			jsonTrajetos.splice(jsonTrajetos.findIndex(trajeto => trajeto.numeroIdDespesa == numeroIdDespesa && trajeto.numeroIdTrajeto == numeroIdTrajeto), 1);
+			$('#jsonTrajetos___' + numeroIdDespesa).val(JSON.stringify(jsonTrajetos));
+			criarTabelaTrajetos(numeroIdDespesa);
 		}
 	});
 }
 
 /**
- * @function criarTabelaVoos Monta a tabela com os voos cadastrados pelo usuário de acordo com o que foi salvo no campo jsonVoos de uma determinada despesa.
+ * @function criarTabelaTrajetos Monta a tabela com os trajetos cadastrados pelo usuário de acordo com o que foi salvo no campo jsonTrajetos de uma determinada despesa.
  * 
  * @param {Number} numeroIdDespesa Número do id da despesa.
  */
-function criarTabelaVoos(numeroIdDespesa) {
-	let jsonVoos = $('#jsonVoos___' + numeroIdDespesa).val();
-	jsonVoos = estaVazio(jsonVoos) ? [] : JSON.parse(jsonVoos);
+function criarTabelaTrajetos(numeroIdDespesa) {
+	let jsonTrajetos = $('#jsonTrajetos___' + numeroIdDespesa).val();
+	jsonTrajetos = estaVazio(jsonTrajetos) ? [] : JSON.parse(jsonTrajetos);
 
-	FLUIGC.datatable('#voos___' + numeroIdDespesa, {
-		dataRequest: jsonVoos,
-		renderContent: '.tabelaVoos',
+	FLUIGC.datatable('#trajetos___' + numeroIdDespesa, {
+		dataRequest: jsonTrajetos,
+		renderContent: '.tabelaTrajetos',
 		header: [{
 			'title': 'Origem',
 			'size': 'col-md-3'
@@ -211,14 +206,14 @@ function criarTabelaVoos(numeroIdDespesa) {
 			'title': 'Destino',
 			'size': 'col-md-3'
 		}, {
-			'title': 'Data do Voo',
+			'title': 'Data',
 			'size': 'col-md-3'
 		}, {
-			'title': 'Voo',
+			'title': 'Identificador',
 			'size': 'col-md-1'
 		}, {
 			'title': 'Opções',
-			'size': 'col-md-2 opcoesVoo'
+			'size': 'col-md-2 opcoesTrajeto'
 		}],
 		search: {
 			enabled: false,
@@ -229,53 +224,53 @@ function criarTabelaVoos(numeroIdDespesa) {
 		tableStyle: 'table-condensed'
 	});
 
-	// Se não estiver no início, esconde as opções de editar e excluir voo
+	// Se não estiver no início, esconde as opções de editar e excluir trajeto
 	if (codigoAtividade != ATIVIDADE.INICIO && codigoAtividade != 0) {
-		$('.opcoesVoo').hide();
+		$('.opcoesTrajeto').hide();
 	}
 }
 
 /**
- * @function salvarVoo Salva um voo de acordo com os parâmetros informados.
+ * @function salvarTrajeto Salva um trajeto de acordo com os parâmetros informados.
  * 
  * @param {Number} numeroIdDespesa Número do id da despesa.
- * @param {Number} numeroIdVoo Número do id do voo.
+ * @param {Number} numeroIdTrajeto Número do id do trajeto.
  * @param {String} tipo Tipo de operação que será realizada, podendo ser:
  * - adicionar
  * - editar
  */
-function salvarVoo(numeroIdDespesa, numeroIdVoo, tipo) {
-	let jsonVoos = $('#jsonVoos___' + numeroIdDespesa).val();
-	const aeroportoOrigem = $('#aeroportoOrigem').val();
-	const aeroportoDestino = $('#aeroportoDestino').val();
-	const dataHoraVoo = $('#dataHoraVoo').val();
-	const numeroVoo = $('#numeroVoo').val();
+function salvarTrajeto(numeroIdDespesa, numeroIdTrajeto, tipo) {
+	let jsonTrajetos = $('#jsonTrajetos___' + numeroIdDespesa).val();
+	const origem = $('#origem').val();
+	const destino = $('#destino').val();
+	const dataHoraTrajeto = $('#dataHoraTrajeto').val();
+	const identificador = $('#identificador').val();
 
-	if (estaVazio(aeroportoOrigem) || estaVazio(aeroportoDestino) || estaVazio(dataHoraVoo) || estaVazio(numeroVoo)) {
+	if (estaVazio(origem) || estaVazio(destino) || estaVazio(dataHoraTrajeto)) {
 		return false;
 	} else {
-		if (!estaVazio(jsonVoos)) jsonVoos = JSON.parse(jsonVoos);
-		else jsonVoos = [];
+		if (!estaVazio(jsonTrajetos)) jsonTrajetos = JSON.parse(jsonTrajetos);
+		else jsonTrajetos = [];
 
 		if (tipo == 'adicionar') {
-			jsonVoos.push({
+			jsonTrajetos.push({
 				numeroIdDespesa: parseInt(numeroIdDespesa),
-				numeroIdVoo: numeroIdVoo,
-				aeroportoOrigem: aeroportoOrigem,
-				aeroportoDestino: aeroportoDestino,
-				dataHoraVoo: dataHoraVoo,
-				numeroVoo: numeroVoo
+				numeroIdTrajeto: parseInt(numeroIdTrajeto),
+				origem: origem,
+				destino: destino,
+				dataHoraTrajeto: dataHoraTrajeto,
+				identificador: identificador
 			});
 		} else if (tipo == 'editar') {
-			let index = jsonVoos.findIndex(voo => voo.numeroIdDespesa == numeroIdDespesa && voo.numeroIdVoo == numeroIdVoo);
-			jsonVoos[index].aeroportoOrigem = aeroportoOrigem;
-			jsonVoos[index].aeroportoDestino = aeroportoDestino;
-			jsonVoos[index].dataHoraVoo = dataHoraVoo;
-			jsonVoos[index].numeroVoo = numeroVoo;
+			const index = jsonTrajetos.findIndex(trajeto => trajeto.numeroIdDespesa == numeroIdDespesa && trajeto.numeroIdTrajeto == numeroIdTrajeto);
+			jsonTrajetos[index].origem = origem;
+			jsonTrajetos[index].destino = destino;
+			jsonTrajetos[index].dataHoraTrajeto = dataHoraTrajeto;
+			jsonTrajetos[index].identificador = identificador;
 		}
 
-		jsonVoos = JSON.stringify(jsonVoos);
-		$('#jsonVoos___' + numeroIdDespesa).val(jsonVoos);
+		jsonTrajetos = JSON.stringify(jsonTrajetos);
+		$('#jsonTrajetos___' + numeroIdDespesa).val(jsonTrajetos);
 		return true;
 	}
 }
@@ -339,9 +334,9 @@ function calcularValorTotal(tipo) {
 	$('[id^=valor' + tipo + 'SM___]').each(function () {
 		valorTotal += parseFloat($(this).val());
 	});
-	$('#total' + tipo + 'SM').val(valorTotal);
-	$('#total' + tipo).val(valorTotal);
+	$('#total' + tipo + 'SM').val(valorTotal.toFixed(2));
 	$('.real').unmask();
+	$('#total' + tipo).val(valorTotal.toFixed(2));
 	$('.real').maskMoney({
 		prefixMoney: 'R$ ',
 		placeholder: 'R$ 0,00'
@@ -361,6 +356,7 @@ function salvarValorSemMascara(elemento, tipo) {
 	const valor = removerMascaraReal(elemento);
 	$('#valor' + tipo + 'SM___' + numeroIdDespesa).val(valor);
 	calcularValorTotal(tipo);
+	if (tipo == 'Previsto') atribuirTituloDespesa(numeroIdDespesa);
 }
 
 /**
@@ -370,7 +366,7 @@ function salvarValorSemMascara(elemento, tipo) {
  */
 function removerMascaraReal(elemento) {
 	const valor = $(elemento).cleanVal();
-	return parseFloat(valor.substring(0, valor.length - 2) + '.' + valor.substr(-2));
+	return parseFloat(valor.substring(0, valor.length - 2) + '.' + valor.substr(-2)).toFixed(2);
 }
 
 
