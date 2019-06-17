@@ -1,12 +1,25 @@
-/* Coloque aqui seu codigo CSS */
-.message{
-    margin-top: 10px;
+.fluig-style-guide .nav > li > a:focus,
+.fluig-style-guide .nav > li > a:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-body {    
+body {
   background-image: url("/felipe_AcertoViagem/resources/images/viagem.jpg"); /* The image used */
   background-color: #f7f7f7; /* Used if the image is unavailable */
   background-position: center; /* Center the image */
   background-repeat: no-repeat; /* Do not repeat the image */
   background-size: cover; /* Resize the background image to cover the entire container */
+}
+
+h1,
+.navbar-text {
+  color: #eeeeee !important;
+}
+
+.navbar.logado {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  margin-top: 0px !important;
+  border-radius: 0px !important;
+  padding: 1rem 1rem 0.5rem !important;
+  box-shadow: 0 1px 5px 0 rgba(0,0,0,.03), 0 2px 3px 0 rgba(0,0,0,.06) !important;
 }

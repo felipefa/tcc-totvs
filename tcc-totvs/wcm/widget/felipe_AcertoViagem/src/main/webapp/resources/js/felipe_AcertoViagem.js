@@ -1,43 +1,26 @@
 var AcertoViagem = SuperWidget.extend({
-	//variáveis da widget
 	variavelNumerica: null,
 	variavelCaracter: null,
 
-	//método iniciado quando a widget é carregada
 	init: function () {
 		$('head').append('<meta name="viewport" content="width=device-width, initial-scale=1.0">');
-		mostrarPanel('Login');
-		$('#btnSair').hide();
-
-		const inOauth = new Object({
-			oauth1_fluig: new Object(),
-			consumer_post: new Object({
-				'public': 'post',
-				'secret': 'secret-post-app'
-			}),
-			token_post: new Object({
-				'public': '8c40af6f-4e6a-49fe-b8de-3c648c3c90da',
-				'secret': '16aed677-0530-4b09-ada1-56620a889be18d6fe5ca-6956-4119-8b03-df7b8fb5c5f3'
-			}),
-			consumer_get: new Object({
-				'public': 'get',
-				'secret': 'secret-get-app'
-			}),
-			token_get: new Object({
-				'public': 'a6afd78e-17d1-4bec-9d5f-a4ef6d6ea476',
-				'secret': '49c5882a-2aee-4a48-9bf3-8ec585f90d02122bec02-8304-4b45-88ae-7cffa2ccbf66'
-			})
-		});
+		$('.logado').hide();
+		$('#panelLogin').show();
 
 		$('#btnLogin').on('click', function () {
+			loading.show();
 			const login = $('#login').val();
-			if (validarLogin(login)) {
-				if (!entrar(login)) {
-					toast('Atenção!', 'Nenhuma solicitação de Viagem na atividade Acerto de Viagem foi encontrada.', 'warning');
-				}
-			} else {
+			if (estaVazio(login)) {
 				toast('Atenção!', 'Informe o login.', 'warning');
+			} else {
+				if (validarLogin(login)) {
+					if (mostrarSolicitacoes()) {
+						$('#panelLogin').hide();
+						$('.logado').show();
+					} else toast('Atenção!', 'Nenhuma solicitação de Viagem na atividade Acerto de Viagem foi encontrada.', 'warning');
+				} else toast('Atenção!', 'Login inválido.', 'warning');
 			}
+			loading.hide();
 		});
 
 		$('#btnSair').on('click', function () {
@@ -46,44 +29,78 @@ var AcertoViagem = SuperWidget.extend({
 
 		// Fazer login ao pressionar enter
 		$('#login').keypress(function (e) {
-			if (e.which == 13) {
-				$('#btnLogin').click();
-			}
+			if (e.which == 13) $('#btnLogin').click();
 		});
-	},
-
-	//BIND de eventos
-	bindings: {
-		local: {
-			'execute': ['click_executeAction']
-		},
-		global: {}
-	},
-
-	executeAction: function (htmlElement, event) {}
-
+	}
 });
 
-function entrar(login) {
-	if (mostrarSolicitacoes(login)) {
-		mostrarPanel('Acerto');
-		$('#btnSair').show();
-		return true;
-	}
-	return false;
-}
+var modalSolicitacao = null;
+const loading = FLUIGC.loading(window, {
+	textMessage: 'Carregando...'
+});
 
-/**
- * Função para limpar campos de INPUT login.
- */
-function limparCampos() {
-	$('.super-widget').find('input').each(function () {
-		$(this).val('');
+function abrirModalSolicitacao(numeroSolicitacao) {
+	const html = $('.modalSolicitacao').html();
+	const template = Mustache.render(html, null);
+
+	modalSolicitacao = FLUIGC.modal({
+		title: 'Solicitação de Viagem',
+		content: template,
+		id: 'modalSolicitacao',
+		size: 'full',
+		actions: [{
+			'label': 'Enviar',
+			'bind': 'data-enviar-solicitacao'
+		}, {
+			'label': 'Cancelar',
+			'bind': 'data-cancelar-modal'
+		}]
+	}, function (erro) {
+		if (erro) toast('Atenção!', 'Erro ao abrir a modal.', 'warning');
+	});
+
+	$('[data-enviar-solicitacao]').on('click', function () {
+		FLUIGC.message.confirm({
+			message: 'Tem certeza que deseja enviar a solicitação?\nAo confirmar o envio, a solicitação será finalizada.',
+			title: 'Enviar Solicitação',
+			labelYes: 'Enviar',
+			labelNo: 'Cancelar'
+		}, function (confirmar) {
+			if (confirmar) {
+				loading.show();
+				// TO DO: validar e movimentar solicitação aqui.
+				const dados = montarArrayDados();
+				const login = $('#login').val();
+				const constraintsWorkflowService = [
+					DatasetFactory.createConstraint('numeroSolicitacao', numeroSolicitacao, null, ConstraintType.MUST),
+					DatasetFactory.createConstraint('matriculaUsuario', login, null, ConstraintType.MUST),
+					DatasetFactory.createConstraint('dados', dados, null, ConstraintType.MUST)
+				];
+				const dsWorkflowService = getDatasetOAuth('dsWorkflowService', null, constraintsWorkflowService, null);
+				mostrarSolicitacoes();
+				modalSolicitacao.remove();
+				loading.hide();
+				toast('Acertô mizeravi!', '', 'success');
+			}
+		});
+	});
+
+	$('[data-cancelar-modal]').on('click', function () {
+		FLUIGC.message.confirm({
+			message: 'Tem certeza que deseja fechar a solicitação?\nTodas as alterações realizadas serão perdidas.',
+			title: 'Fechar Solicitação',
+			labelYes: 'Fechar',
+			labelNo: 'Cancelar'
+		}, function (confirmar) {
+			if (confirmar) {
+				modalSolicitacao.remove();
+			}
+		});
 	});
 }
 
 /**
- * @function estaVazio Verifica se um valor está vazio, é nulo ou indefinido.
+ * Verifica se um valor está vazio, é null ou undefined.
  * 
  * @param {*} valor Valor a ser verificado.
  * 
@@ -94,70 +111,74 @@ function estaVazio(valor) {
 	return false;
 }
 
-/**
- * Função que troca os panels.
- * 
- * @param {String} panel Ações: 'login' e 'emprestimo'
- */
-function mostrarPanel(panel) {
-	if (panel.toLowerCase() == 'login') {
-		panelLogin('show');
-		panelAcerto('hide');
-	} else {
-		panelAcerto('show');
-		panelLogin('hide');
-	}
+function montarArrayDados() {
+	const dados = [];
+	$('#modalSolicitacao').find('input, select, textarea').each(function () {
+		const elemento = $(this);
+		if (elemento.prop('name') != '') {
+			dados.push({
+				'nome': elemento.prop('name'),
+				'valor': elemento.val()
+			});
+		}
+	});
+	return JSON.stringify(dados);
 }
 
 /**
- * @function mostrarSolicitacoes Função para exibir as solicitações de acerto de viagem do usuário logado.
- * 
- * @param {String} login Login do usuário logado.
+ * Função para exibir as solicitações de acerto de viagem do usuário logado.
  */
-function mostrarSolicitacoes(login) {
+function mostrarSolicitacoes() {
+	const login = $('#login').val();
+
 	if (!estaVazio(login)) {
 		const contraintsSolicitacoes = [
 			DatasetFactory.createConstraint('loginSolicitante', login, login, ConstraintType.MUST),
-			DatasetFactory.createConstraint('codigoAtividade', 16, 16, ConstraintType.MUST)
+			DatasetFactory.createConstraint('codigoAtividade', 12, 12, ConstraintType.MUST),
+			DatasetFactory.createConstraint('aprovacaoFinanceiroFinal', 'aprovar', 'aprovar', ConstraintType.MUST)
 		];
-		const felipe_Viagem = chamaDataset('felipe_Viagem', null, contraintsSolicitacoes, null);
+		const felipe_Viagem = getDatasetOAuth('felipe_Viagem', null, contraintsSolicitacoes, null);
 
-		if (felipe_Viagem.values != undefined && felipe_Viagem.values.length > 0) {
+		if (!estaVazio(felipe_Viagem.values) && felipe_Viagem.values.length > 0) {
 			const solicitacoes = [];
 
-			// TO DO: Buscar solicitações aqui.
-			solicitacoes.push({
-				numeroSolicitacao:'0',
-				cidadeOrigem:'Teste',
-				cidadeDestino:'Testando',
-				idaPrevista:'30/06/2019',
-				voltaPrevista:'02/07/2019'
-			})
+			felipe_Viagem.values.forEach(viagem => {
+				if (!estaVazio(viagem.numeroSolicitacao)) {
+					solicitacoes.push({
+						numeroSolicitacao: viagem.numeroSolicitacao,
+						origem: viagem.cidadeOrigem + ', ' + viagem.estadoOrigem,
+						destino: viagem.cidadeDestino + ', ' + viagem.estadoDestino,
+						idaPrevista: viagem.idaPrevista,
+						voltaPrevista: viagem.voltaPrevista
+					});
+				}
+			});
 
 			$('#qtdSolicitacoes').html(solicitacoes.length);
-			const tabelaSolicitacoes = FLUIGC.datatable('#tabelaSolicitacoes', {
+
+			FLUIGC.datatable('#tabelaSolicitacoes', {
 				dataRequest: solicitacoes,
 				renderContent: '.templateTabelaSolicitacoes',
 				header: [{
-						'title': 'Solicitação',
-						'size': 'col-md-1'
-					},{
-						'title': 'Origem',
-						'size': 'col-md-3'
-					},{
-						'title': 'Destino',
-						'size': 'col-md-3'
-					},{
-						'title': 'Ida',
-						'size': 'col-md-2'
-					},{
-						'title': 'Volta',
-						'size': 'col-md-2'
-					},{
-						'title': 'Acertar',
-						'size': 'col-md-1'
-					}
-				],
+					'title': 'Solicitação',
+					'standard': true,
+					'size': 'col-md-1'
+				}, {
+					'title': 'Origem',
+					'size': 'col-md-3'
+				}, {
+					'title': 'Destino',
+					'size': 'col-md-3'
+				}, {
+					'title': 'Ida',
+					'size': 'col-md-2'
+				}, {
+					'title': 'Volta',
+					'size': 'col-md-2'
+				}, {
+					'title': 'Opções',
+					'size': 'col-md-1'
+				}],
 				search: {
 					enabled: false
 				},
@@ -174,61 +195,27 @@ function mostrarSolicitacoes(login) {
 }
 
 /**
- * Função para exibir painel de login.
- * 
- * @param {String} acao Ações: 'hide' e 'show'
- * 
- */
-function panelLogin(acao) {
-	if (acao == 'show') {
-		$('#panelLogin').show();
-		$('#btnSair').hide();
-	}
-
-	if (acao == 'hide') {
-		$('#panelLogin').hide();
-		$('#btnSair').show();
-	}
-}
-
-/**
- * Função para exibir painel com solicitações na atividade Acerto de Viagem do usuário logado.
- * 
- * @param {String} acao Ações: 'hide' e 'show'
- * 
- */
-function panelAcerto(acao) {
-	if (acao == 'show') {
-		$('#panelAcerto').show();
-	}
-
-	if (acao == 'hide') {
-		$('#panelAcerto').hide();
-	}
-}
-
-/**
- * Função para executar ações ao sair.
- * Troca os panels, limpa os cookies e recria o recaptcha com o reload da página.
+ * Função que redireciona para a página de login.
  */
 function sair() {
-	limparCampos();
-	$('#btnSair').hide();
-	mostrarPanel('Login');
+	// $('#login').val('');
+	// $('#usuario').html('Usuário');
+	// $('#qtdSolicitacoes').html(0);
+	// $('.logado').hide();
+	// $('#panelLogin').show();
+	location.reload();
 }
 
 /**
  * Função genérica para gerar toast.
  * 
- * @param {String} titulo Titulo do toast.
- * @param {String} msg Mensagem para informação do toast.
- * @param {String} tipo Tipos: 
+ * @param {String} titulo Título em negrito que aparecerá no toast.
+ * @param {String} msg Mensagem que aparecerá no toast.
+ * @param {String} tipo São aceitos: 
  * - danger
  * - info
  * - success
  * - warning
- * 
- * @returns {component} Retorna o toast sem timeout.
  */
 function toast(titulo, msg, tipo) {
 	FLUIGC.toast({
@@ -251,7 +238,14 @@ function validarLogin(login) {
 	if (estaVazio(login)) {
 		valido = false;
 		$('#inputLogin').addClass('has-error');
-	} else $('#inputLogin').removeClass('has-error');
+	} else {
+		$('#inputLogin').removeClass('has-error');
+		const constraint = [DatasetFactory.createConstraint('login', login, login, ConstraintType.MUST)];
+		const colleague = getDatasetOAuth('colleague', null, constraint, null);
+		if (!estaVazio(colleague.values) && colleague.values.length > 0) {
+			$('#usuario').html(`${colleague.values[0].colleagueName} (${login})`);
+		} else valido = false;
+	}
 
 	return valido;
 }
