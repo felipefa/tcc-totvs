@@ -33,6 +33,20 @@ function desativarZoom(id) {
 	window[id].disable(true);
 }
 
+function desativarZoomDespesa() {
+	$('[id^=despesa___]').each(function () {
+		const numeroIdDespesa = getPosicaoPaiFilho($(this));
+		const aprovacaoGestor = $('#aprovacaoGestor___' + numeroIdDespesa).val();
+		const aprovacaoFinanceiro = $('#aprovacaoFinanceiro___' + numeroIdDespesa).val();
+		if ((estaVazio(aprovacaoGestor) || (aprovacaoGestor == 'ajustar' && codigoAtividade != ATIVIDADE.INICIO)) ||
+			(estaVazio(aprovacaoFinanceiro) || (aprovacaoFinanceiro == 'ajustar' && codigoAtividade != ATIVIDADE.INICIO)) ||
+			codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
+			desativarZoom('tipoFornecedor___' + numeroIdDespesa);
+			desativarZoom('nomeFornecedor___' + numeroIdDespesa);
+		}
+	});
+}
+
 /**
  * @function limparZoom Limpa os valores de um campo zoom.
  * 
@@ -105,22 +119,25 @@ function setSelectedZoomItem(selectedItem) {
 	/** Início de campos zoom do painel Despesas da Viagem */
 	// Atualiza o zoom de fornecedores com apenas aqueles do tipo selecionado
 	if (idCampoZoom == 'tipoFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		const tituloDespesa = numeroIdPaiFilho + ' - ' + selectedItem.ramoAtividade;
-		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
+		// const tituloDespesa = numeroIdPaiFilho + ' - ' + selectedItem.ramoAtividade;
+		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
+
 		$('#possuiLimite___' + numeroIdPaiFilho).val(selectedItem.possuiLimite);
 		$('#valorLimite___' + numeroIdPaiFilho).val(selectedItem.valorLimite);
 		ativarZoom('nomeFornecedor___' + numeroIdPaiFilho);
 		atualizarZoom('nomeFornecedor___' + numeroIdPaiFilho, 'zoomTipoFornecedor', selectedItem.ramoAtividade);
 		// Exibe os detalhes da despesa
 		controlarDetalhesTipoDespesa(selectedItem.ramoAtividade, numeroIdPaiFilho);
+		atribuirTituloDespesa(numeroIdPaiFilho);
 	}
 
 	// Preenche campos ocultos com os dados do fornecedor selecionado
 	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		const tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val()[0];
-		const tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor + ' - ' + selectedItem.nomeFornecedor;
-		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
+		// const tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val()[0];
+		// const tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor + ' - ' + selectedItem.nomeFornecedor;
+		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
 		$('#cnpjFornecedor___' + numeroIdPaiFilho).val(selectedItem.cnpj);
+		atribuirTituloDespesa(numeroIdPaiFilho);
 	}
 	/** Fim de campos zoom do painel Despesas da Viagem */
 }
@@ -172,30 +189,24 @@ function removedZoomItem(removedItem) {
 	/** Início de campos zoom do painel Despesas da Viagem */
 	// Atualiza o zoom de fornecedores com apenas aqueles do tipo selecionado
 	if (idCampoZoom == 'tipoFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		FLUIGC.message.confirm({
-			message: 'Tem certeza que deseja excluir este tipo de fornecedor?',
-			title: 'Excluir Tipo de Fornecedor',
-			labelYes: 'Excluir',
-			labelNo: 'Cancelar'
-		}, function (confirmar) {
-			if (confirmar) {
-				const tituloDespesa = numeroIdPaiFilho + ' - Preencha a despesa';
-				$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
-				$('#possuiLimite___' + numeroIdPaiFilho).val('');
-				$('#valorLimite___' + numeroIdPaiFilho).val('');
-				limparZoom('nomeFornecedor___' + numeroIdPaiFilho);
-				desativarZoom('nomeFornecedor___' + numeroIdPaiFilho);
-				alternarDetalhesTipoDespesa(null, numeroIdPaiFilho);
-			}
-		});
+		// const tituloDespesa = numeroIdPaiFilho + ' - Preencha a despesa';
+		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
+		$('#possuiLimite___' + numeroIdPaiFilho).val('');
+		$('#valorLimite___' + numeroIdPaiFilho).val('');
+		limparZoom('nomeFornecedor___' + numeroIdPaiFilho);
+		desativarZoom('nomeFornecedor___' + numeroIdPaiFilho);
+		alternarDetalhesTipoDespesa(null, numeroIdPaiFilho);
+		atribuirTituloDespesa(numeroIdPaiFilho);
 	}
 
 	// Preenche campos ocultos com os dados do fornecedor selecionado
 	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		const tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val();
-		const tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor;
-		$('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
+		const tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val()[0];
+		// const tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor;
+		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
+		atualizarZoom('nomeFornecedor___' + numeroIdPaiFilho, 'zoomTipoFornecedor', tipoFornecedor);
 		$('#cnpjFornecedor___' + numeroIdPaiFilho).val('');
+		atribuirTituloDespesa(numeroIdPaiFilho);
 	}
 	/** Fim de campos zoom do painel Despesas da Viagem */
 }

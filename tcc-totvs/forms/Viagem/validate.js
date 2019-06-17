@@ -32,17 +32,61 @@ var beforeSendValidate = function (numState, nextState) {
 
 		if (numState == ATIVIDADE.APROVACAO_GESTOR) {
 			if (verificarAprovacoes('Gestor')) return true;
-			toast('Atenção!', 'Todas as despesas devem ser verificadas.', 'warning');
 			return false;
 		}
 
 		if (numState == ATIVIDADE.APROVACAO_FINANCEIRO) {
 			if (verificarAprovacoes('Financeiro')) return true;
-			toast('Atenção!', 'Todas as despesas devem ser verificadas.', 'warning');
 			return false;
 		}
 
-		if (numState == ATIVIDADE.ACERTO_VIAGEM) {}
+		if (numState == ATIVIDADE.ACERTO_VIAGEM) {
+			let valido = true;
+			let mensagem = 'Informe a data da ida efetiva.';
+			const idaEfetiva = $('#idaEfetiva');
+
+			if (validarCampoVazio(idaEfetiva)) valido = false;
+			else {
+				const voltaEfetiva = $('#voltaEfetiva');
+				if (validarCampoVazio(voltaEfetiva)) {
+					valido = false;
+					mensagem = 'Informe a data da volta efetiva.'
+				} else {
+					mensagem = 'Informe se a despesa foi efetuada.';
+					const quantidadeDespesas = $('[id^=efetuado___]').length;
+
+					$('[id^=efetuado___]').each(function () {
+						const elementoEfetuado = $(this);
+						const numeroIdDespesa = getPosicaoPaiFilho(elementoEfetuado);
+
+						if (validarCampoVazio(elementoEfetuado)) {
+							valido = false;
+							if (quantidadeDespesas == 1) mensagem = 'Informe se a despesa foi efetuada.';
+							else mensagem = 'Informe se todas as despesas foram efetuadas.';
+						} else if (elementoEfetuado.val() == 'sim') {
+							const valorEfetivo = $('#valorEfetivo___' + numeroIdDespesa);
+							if (validarCampoVazio(valorEfetivo)) {
+								valido = false;
+								if (quantidadeDespesas == 1) mensagem = 'Informe o valor efetivo da despesa.';
+								else mensagem = 'Informe os valores efetivos das despesas.';
+							} else {
+								const dataEfetiva = $('#dataEfetiva___' + numeroIdDespesa).val();
+								if (estaVazio(dataEfetiva)) {
+									validarCamposPanel('#despesa___' + numeroIdDespesa, '.atividadeAcerto');
+									valido = false;
+									if (quantidadeDespesas == 1) mensagem = 'Informe a data efetiva da despesa.';
+									else mensagem = 'Informe as datas efetivas das despesas.';
+								}
+							}
+						}
+					});
+				}
+			}
+
+			if (!valido) toast('Atenção!', mensagem, 'warning');
+
+			return valido;
+		}
 	} catch (e) {
 		throw (e.toString());
 	}
@@ -63,18 +107,18 @@ function validarCamposPanel(id, classeAtividade) {
 		switch (tipoFornecedor) {
 			case 'Aluguel de Veículos':
 				valido = !estaVazio($('#dataRetirada___' + numeroIdDespesa).val());
-				valido = valido?!estaVazio($('#dataDevolucao___' + numeroIdDespesa).val()):false;
+				valido = valido ? !estaVazio($('#dataDevolucao___' + numeroIdDespesa).val()) : false;
 				break;
 			case 'Hospedagem':
 				valido = !estaVazio($('#hospedagemCheckin___' + numeroIdDespesa).val());
-				valido = valido?!estaVazio($('#hospedagemCheckout___' + numeroIdDespesa).val()):false;
-				valido = valido?!estaVazio($('#hospedagemDiarias___' + numeroIdDespesa).val()):false;
+				valido = valido ? !estaVazio($('#hospedagemCheckout___' + numeroIdDespesa).val()) : false;
+				valido = valido ? !estaVazio($('#hospedagemDiarias___' + numeroIdDespesa).val()) : false;
 				break;
 			case 'Próprio':
 				valido = !estaVazio($('#proprioOrigem___' + numeroIdDespesa).val());
-				valido = valido?!estaVazio($('#proprioDestino___' + numeroIdDespesa).val()):false;
-				valido = valido?!estaVazio($('#proprioData___' + numeroIdDespesa).val()):false;
-				valido = valido?!estaVazio($('#proprioDistancia___' + numeroIdDespesa).val()):false;
+				valido = valido ? !estaVazio($('#proprioDestino___' + numeroIdDespesa).val()) : false;
+				valido = valido ? !estaVazio($('#proprioData___' + numeroIdDespesa).val()) : false;
+				valido = valido ? !estaVazio($('#proprioDistancia___' + numeroIdDespesa).val()) : false;
 				break;
 			case 'Transporte Aéreo':
 			case 'Transporte Terrestre':
@@ -91,19 +135,32 @@ function validarCamposPanel(id, classeAtividade) {
 
 function verificarAprovacoes(tipo) {
 	const aprovacoes = [];
+	let possuiJustificativa = true;
+	let valido = true;
 
 	$('[id^=aprovacao' + tipo + '___]').each(function () {
-		aprovacoes.push($(this).val());
+		const elementoAprovacao = $(this);
+		const numeroIdDespesa = getPosicaoPaiFilho(elementoAprovacao);
+		const justificativa = $('#justificativa' + tipo + '___' + numeroIdDespesa).val();
+		aprovacoes.push(elementoAprovacao.val());
+		if (estaVazio(justificativa) && elementoAprovacao.val() != 'aprovar') possuiJustificativa = false;
 	});
 
 	if (aprovacoes.indexOf('') != -1 || aprovacoes.indexOf(null) != -1) {
-		return false;
-	} else if (aprovacoes.indexOf('ajustar') != -1) {
-		$('#aprovacao' + tipo + 'Final').val('ajustar');
-	} else if (aprovacoes.indexOf('aprovar') != -1) {
-		$('#aprovacao' + tipo + 'Final').val('aprovar');
+		valido = false;
+		toast('Atenção!', 'Todas as despesas devem ser verificadas.', 'warning');
+	} else if (possuiJustificativa) {
+		if (aprovacoes.indexOf('ajustar') != -1) {
+			$('#aprovacao' + tipo + 'Final').val('ajustar');
+		} else if (aprovacoes.indexOf('aprovar') != -1) {
+			$('#aprovacao' + tipo + 'Final').val('aprovar');
+		} else {
+			$('#aprovacao' + tipo + 'Final').val('reprovar');
+		}
 	} else {
-		$('#aprovacao' + tipo + 'Final').val('reprovar');
+		valido = false;
+		toast('Atenção!', 'É necessário informar uma justificativa para despesas não aprovadas.', 'warning');
 	}
-	return true;
+
+	return valido;
 }
