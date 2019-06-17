@@ -1,16 +1,150 @@
 /**
+ * Função para abrir documento dentro do fluig.
+ * 
+ * @param {String} docId - id do documento.
+ * @param {String} urlDoc - endereço do documento.
+ * @param {String} docVersao - versão do documento (default: 1000).
+ * @param {String} titulo - tipo do visualizador de documento (default: 'Visualizador de Documentos').
+ * @param {Boolean} maximizado - true para maximizado e false visualização comum (default: true).
+ */
+function abrirDocumento(docId, docVersao = 1000, titulo = 'Visualizador de Documentos', maximizado = true) {
+	let parentOBJ;
+
+	if (window.opener) {
+		parentOBJ = window.opener.parent;
+	} else {
+		parentOBJ = parent;
+	}
+
+	const cfg = {
+		url: '/ecm_documentview/documentView.ftl',
+		maximized: maximizado,
+		title: titulo,
+		callBack: function () {
+			parentOBJ.ECM.documentView.getDocument(docId, docVersao);
+		},
+		customButtons: []
+	};
+
+	parentOBJ.ECM.documentView.panel = parentOBJ.WCMC.panel(cfg);
+}
+
+/**
+ * @authors Autímio, Felipe, Murilo e Gabriel
+ * 
+ * @param {String} funcao - Valor referente ao comportamento que a função irá assumir.
+ * - criarPasta -> Cria uma pasta
+ * - listarDocumentos -> Lista os documentos da pasta
+ * - remover -> Remove um documento ou pasta
+ * - alterar -> Alterar uma pasta
+ * @param {String} dadosJson JSON em formato String com os dados da requisição.
+ * 
+ * @returns Dados obtidos na resposta do ajax.
+ */
+function ajaxApi(funcao, dadosJson) {
+	const restApiEcm = 'api/public/ecm/document';
+	let url;
+	let msgSucesso;
+	let metodo = 'POST';
+	let assincrono = false;
+	let resultado = null;
+
+	switch (funcao) {
+		case 'criarArquivo':
+			url = `/${restApiEcm}/createDocument`;
+			msgSucesso = 'Documento inserido com sucesso!';
+			break;
+		case 'criarPasta':
+			// url = `/${restApiEcm}/createFolder`;
+			url = `/api/public/2.0/folderdocuments/create`;
+			msgSucesso = 'Pasta criada com sucesso!';
+			break;
+		case 'listarDocumentos':
+			url = `/${restApiEcm}/listDocument/${dadosJson}`;
+			metodo = 'GET';
+			msgSucesso = 'Listagem realizada com sucesso!';
+			break;
+		case 'remover':
+			url = `/${restApiEcm}/remove`;
+			msgSucesso = 'Remoção realizada com sucesso!';
+			break;
+		case 'alterar':
+			url = `/${restApiEcm}/updateDocumentFolder`;
+			msgSucesso = 'Documento alterado com sucesso!';
+			break;
+		default:
+			toast('Erro!', 'Função não encontrada.', 'danger', 4000);
+			console.log('Função ajax não encontrada.');
+			return null;
+	}
+
+	$.ajax({
+		async: assincrono,
+		url: url,
+		type: metodo,
+		data: dadosJson,
+		contentType: 'application/json',
+		success: function (dados) {
+			// console.log('Sucesso na requisição ajax!', msgSucesso);
+			resultado = dados;
+		},
+		error: function (objErro, status, msg) {
+			console.log(`Erro: ${msg}`);
+			resultado = objErro;
+		}
+	});
+
+	return resultado;
+}
+
+/**
  * @function atribuirReadOnly Atribui readonly para os campos encontrados dentro do seletor.
  * 
  * @param {String} seletor String com o(s) seletor(es) usado(s) no JQuery.
  */
-function atribuirReadOnly(seletor) {
-	$(seletor).find('input, select, textarea').each(function () {
-		let elemento = $(this);
-		elemento.attr('readonly', true);
-		if (elemento.prop("tagName") == 'SELECT') {
-			elemento.css({
-				'pointer-events': 'none',
-				'touch-action': 'none'
+function atribuirReadOnly(seletor, seletorNegacao = '') {
+	$(seletor).find('input, select, textarea').not(seletorNegacao).each(function () {
+		const elemento = $(this);
+		if (elemento[0].hasAttribute('data-zoom') && elemento[0].id !== 'tipoFornecedor' && elemento[0].id !== 'nomeFornecedor') {
+			desativarZoom(elemento[0].id);
+		} else {
+			elemento.attr('readonly', true);
+			if (elemento.prop("tagName") == 'SELECT') {
+				elemento.css({
+					'pointer-events': 'none',
+					'touch-action': 'none'
+				});
+			}
+		}
+	});
+}
+
+/**
+ * @function atribuirReadOnlyAposAprovacao Atribui readonly para os campos de uma despesa de acordo com a aprovação do tipo informado.
+ * 
+ * @param {String} tipo String com o tipo da aprovação, são aceitos:
+ * - Gestor
+ * - Financeiro
+ */
+function atribuirReadOnlyAposAprovacao(tipo) {
+	$('[id^=aprovacao' + tipo + '___]').each(function () {
+		const elementoAprovacao = $(this);
+		const numeroIdDespesa = getPosicaoPaiFilho(elementoAprovacao);
+		const aprovacao = elementoAprovacao.val();
+		if (aprovacao != 'ajustar' && !estaVazio(aprovacao)) {
+			$('#btnExcluirDespesa___' + numeroIdDespesa).prop('disabled', true);
+			$('#btnAdicionarTrajeto___' + numeroIdDespesa).prop('disabled', true);
+			let seletorNot = '.atividadeAcerto';
+			atribuirReadOnly('#despesa___' + numeroIdDespesa, seletorNot);
+		}
+		if (aprovacao == 'reprovar') {
+			if (tipo == 'Financeiro') $('#efetuado___' + numeroIdDespesa).val('nao');
+			$('#btnAnexos___' + numeroIdDespesa).parent().hide();
+			atribuirReadOnly('#despesa___' + numeroIdDespesa);
+		} else if (aprovacao == 'aprovar') {
+			FLUIGC.calendar('#dataEfetiva___' + numeroIdDespesa, {
+				pickDate: true,
+				pickTime: false
 			});
 		}
 	});
@@ -20,7 +154,10 @@ function atribuirTituloDespesa(numeroIdDespesa) {
 	const tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val();
 	const nomeFornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
 	const valorPrevisto = $('#valorPrevisto___' + numeroIdDespesa).val();
-	const tituloDespesa = `${numeroIdDespesa} - ${tipoFornecedor} - ${nomeFornecedor} - ${valorPrevisto}`;
+	let tituloDespesa = 'Preencha a despesa';
+	if (!estaVazio(tipoFornecedor) && !estaVazio(nomeFornecedor) && !estaVazio(valorPrevisto)) {
+		tituloDespesa = `${numeroIdDespesa} - ${tipoFornecedor} - ${nomeFornecedor} - ${valorPrevisto}`;
+	}
 	$('#tituloDespesa___' + numeroIdDespesa).html(tituloDespesa);
 }
 
@@ -142,6 +279,7 @@ function confirmarAcao(dados) {
  * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
  */
 function controlarDetalhesTipoDespesa(ramoAtividade, numeroIdPaiFilho) {
+	if (ramoAtividade.length == 1) ramoAtividade = ramoAtividade[0];
 	switch (ramoAtividade) {
 		case 'Aluguel de Veículos':
 			alternarDetalhesTipoDespesa('tipoAluguelVeiculos', numeroIdPaiFilho);

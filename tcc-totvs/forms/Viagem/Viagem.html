@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="scripts.js" charset="utf-8"></script>
 	<script type="text/javascript" src="view.js" charset="utf-8"></script>
 	<script type="text/javascript" src="validate.js" charset="utf-8"></script>
-	<!-- importar moment.js para cálculos de diferenças entre datas -->
+	<script type="text/javascript" src="jquery.fileupload.js" charset="utf-8"></script>
 </head>
 
 <body>
@@ -205,7 +205,7 @@
 												<h4 class="panel-title">
 													<div class="row">
 														<div class="col-xs-9">
-															<h5 class="panel-title corrigirIndice" style="margin-top: .3rem;" id="tituloDespesa" name="tituloDespesa">Preencha a Despesa</h5>
+															<h5 class="panel-title corrigirIndice" style="margin-top: .3rem;" id="tituloDespesa" name="tituloDespesa">Preencha a despesa</h5>
 														</div>
 														<div class="col-xs-3 text-right">
 															<a class="btn btn-info btn-sm corrigirIndice" data-toggle="collapse" id="btnDetalhesDespesa" name="btnDetalhesDespesa" data-parent="#accordion" href="#despesa" role="button">
@@ -370,7 +370,7 @@
 																	<input id="proprioDestino" class="form-control" type="text" name="proprioDestino">
 																</div>
 																<div class="form-group col-md-2">
-																	<label class="control-label" for="proprioData">Data</label>
+																	<label class="control-label" for="proprioData">Data Prevista</label>
 																	<div class="input-group" style="cursor: pointer;">
 																		<input type="text" class="form-control calendario" placeholder="Selecione" name="proprioData" id="proprioData">
 																		<span class="input-group-addon">
@@ -378,8 +378,8 @@
 																		</span>
 																	</div>
 																</div>
-																<div class="form-group col-md-2">
-																	<label class="control-label" for="proprioDistancia">Distância (em km)</label>
+																<div class="form-group col-md-1">
+																	<label class="control-label" for="proprioDistancia">Distância</label>
 																	<input id="proprioDistancia" class="form-control" type="text" name="proprioDistancia">
 																</div>
 															</div>
@@ -411,6 +411,11 @@
 														</div>
 														<div class="acertoViagem corrigirIndice" id="comprovante" name="comprovante" hidden>
 															<div class="form-group col-md-2">
+																<label class="control-label" for="valorEfetivo">Valor Efetivo</label>
+																<input id="valorEfetivo" class="form-control obrigatorio atividadeAcerto real" type="text" name="valorEfetivo" onblur="salvarValorSemMascara(this,'Efetivo')">
+																<input id="valorEfetivoSM" type="hidden" name="valorEfetivoSM">
+															</div>
+															<div class="form-group col-md-2">
 																<label class="control-label" for="dataEfetiva">Data Efetiva</label>
 																<div class="input-group" style="cursor: pointer;">
 																	<input type="text" class="form-control calendario obrigatorio atividadeAcerto" placeholder="Selecione" name="dataEfetiva" id="dataEfetiva">
@@ -418,11 +423,6 @@
 																		<span class="fluigicon fluigicon-calendar"></span>
 																	</span>
 																</div>
-															</div>
-															<div class="form-group col-md-2">
-																<label class="control-label" for="valorEfetivo">Valor Efetivo</label>
-																<input id="valorEfetivo" class="form-control obrigatorio atividadeAcerto real" type="text" name="valorEfetivo">
-																<input id="valorEfetivoSM" type="hidden" name="valorEfetivoSM">
 															</div>
 															<!-- TO DO: Colocar upload de anexos dentro da modal e exibir apenas o botão anexos -->
 															<!-- <div class="form-group col-md-3">
@@ -437,9 +437,10 @@
 																	</span>
 																</div>
 															</div> -->
-															<div class="form-group col-md-2">
+															<div class="form-group col-md-1">
 																<label for="btnAnexos"><br></label><br>
-																<button class="btn btn-primary" id="btnAnexos" name="btnAnexos" type="button">Anexos</h4>
+																<button class="btn btn-primary corrigirIndice" id="btnAnexos" name="btnAnexos" type="button" onclick="abrirModalAnexos(this)">Anexos</h4>
+																<input id="jsonAnexos" name="jsonAnexos" type="hidden">
 															</div>
 														</div>
 													</div>
@@ -525,6 +526,35 @@
 					<i class="fluigicon fluigicon-pencil icon-sm"></i>
 				</button>
 				<button class="btn btn-danger btn-sm" onclick="excluirTrajeto({{numeroIdDespesa}}, {{numeroIdTrajeto}})">
+					<i class="fluigicon fluigicon-trash icon-sm"></i>
+				</button>
+			</td>
+		</tr>
+	</script>
+
+	<script type="text/template" class="modalAnexos">
+		<div class="row">
+			<div class="col-xs-12">
+				<label class="file-input-wrapper btn btn-primary">
+					Adicionar Arquivo(s)
+					<input type="file" id="files" name="files" data-url="/ecm/upload" multiple onclick="anexarComprovantes(this, {{numeroIdDespesa}})">
+				</label>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-xs-12 divTabelaAnexos table-reponsive"></div>
+		</div>
+	</script>
+
+	<script type="text/template" class="tabelaAnexos">
+		<tr>
+			<td>{{codigo}}</td>
+			<td>{{descricao}}</td>
+			<td>
+				<button class="btn btn-primary btn-sm" onclick="abrirDocumento({{codigo}})">
+					<i class="fluigicon fluigicon-eye-open icon-sm"></i>
+				</button>
+				<button class="btn btn-danger btn-sm" onclick="removerArquivoPasta({{numeroIdDespesa}}, {{codigo}})">
 					<i class="fluigicon fluigicon-trash icon-sm"></i>
 				</button>
 			</td>

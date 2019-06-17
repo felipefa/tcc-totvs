@@ -1,27 +1,28 @@
-var quantidadeIdsTrajetos = 1;
-
 $(document).ready(function () {
 	$('#btnAdicionarDespesa').on('click', function () {
 		adicionarDespesa();
 	});
 
-	$('#idaPrevista, #voltaPrevista').on('blur', function () {
+	$('#idaPrevista, #voltaPrevista, #idaEfetiva, #voltaEfetiva').on('blur', function () {
 		const input = $(this);
+		const inputId = input.prop('id');
 		let mensagem = '';
-		let idaPrevista = '';
-		let voltaPrevista = '';
+		let ida = '';
+		let volta = '';
 
-		if (input.prop('id') == 'idaPrevista') {
-			idaPrevista = input.val();
-			voltaPrevista = $('#voltaPrevista').val();
-			mensagem = 'A data da ida deve ser anterior ou igual a volta prevista.';
-		} else if (input.prop('id') == 'voltaPrevista') {
-			idaPrevista = $('#idaPrevista').val();
-			voltaPrevista = input.val();
-			mensagem = 'A data da volta deve ser posterior ou igual a ida prevista.'
+		if (inputId.indexOf('ida') != -1) {
+			ida = input.val();
+			if (inputId.indexOf('Prevista') != -1) volta = $('#voltaPrevista').val();
+			else volta = $('#voltaEfetiva').val();
+			mensagem = 'A ida deve ser anterior ou no mesmo dia da volta.';
+		} else if (inputId.indexOf('volta') != -1) {
+			volta = input.val();
+			if (inputId.indexOf('Prevista') != -1) ida = $('#idaPrevista').val();
+			else ida = $('#idaEfetiva').val();
+			mensagem = 'A volta deve ser no mesmo dia ou posterior a ida.'
 		}
 
-		if (!estaVazio(idaPrevista) && !estaVazio(voltaPrevista) && !compararDatas(idaPrevista, voltaPrevista)) {
+		if (!estaVazio(ida) && !estaVazio(volta) && !compararDatas(ida, volta)) {
 			toast('Atenção!', mensagem, 'warning');
 			input.val('');
 			input.blur();
@@ -32,6 +33,46 @@ $(document).ready(function () {
 		validarCampoVazio($(this));
 	});
 });
+
+const loading = FLUIGC.loading(window, {
+	textMessage: 'Carregando...'
+});
+var quantidadeIdsTrajetos = 1;
+
+/**
+ * 
+ * @param {Object} elemento 
+ */
+function abrirModalAnexos(elemento) {
+	const numeroIdDespesa = getPosicaoPaiFilho(elemento);
+	const despesaEfetuada = $('#efetuado___' + numeroIdDespesa).val()
+
+	if (estaVazio(despesaEfetuada)) {
+		toast('Atenção!', 'Informe se a despesa foi efetuada ou não.', 'warning');
+	} else if (despesaEfetuada == 'sim') {
+		const html = $('.modalAnexos').html();
+		const template = Mustache.render(html, {
+			numeroIdDespesa: numeroIdDespesa
+		});
+
+		const modalAnexos = FLUIGC.modal({
+			title: 'Anexo de Comprovantes',
+			content: template,
+			id: 'modalAnexos',
+			size: 'full',
+			actions: [{
+				'label': 'Fechar',
+				'autoClose': true
+			}]
+		}, function (erro) {
+			if (erro) {
+				toast('Ops...', 'Erro ao abrir modal de anexos.', 'warning');
+			} else {
+				criarTabelaAnexos(numeroIdDespesa);
+			}
+		});
+	}
+}
 
 /**
  * @function adicionarDespesa Adiciona uma nova despesa no painel de despesas.
@@ -47,6 +88,13 @@ function adicionarDespesa() {
 
 	if (codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
 		$('#despesaPrevista___' + numeroIdDespesa).val('nao');
+		const despesaEfetuada = $('#efetuado___' + numeroIdDespesa);
+		despesaEfetuada.val('sim');
+		despesaEfetuada.attr('readonly', true);
+		despesaEfetuada.css({
+			'pointer-events': 'none',
+			'touch-action': 'none'
+		});
 	}
 
 	$('.bodyDespesas').show();
@@ -62,7 +110,7 @@ function adicionarDespesa() {
 		pickTime: true,
 		sideBySide: true
 	});
-	FLUIGC.utilities.scrollTo('#despesa___' + numeroIdDespesa, 500);
+	FLUIGC.utilities.scrollTo('#panelDespesa___' + numeroIdDespesa, 500);
 
 	$('.real').unmask();
 	$('.real').maskMoney({
@@ -72,24 +120,65 @@ function adicionarDespesa() {
 }
 
 /**
- * @function excluirDespesa Exclui uma despesa do painel de despesas.
+ * Função para anexar documentos na página através do diretório /ecm/upload.
  * 
- * @param {Object} elemento Elemento do DOM clicado para realizar a remoção da despesa.
+ * @param {Object} elemento 
+ * @param {String} numeroIdDespesa 
  */
-function excluirDespesa(elemento) {
-	FLUIGC.message.confirm({
-		message: 'Tem certeza que deseja excluir esta despesa?',
-		title: 'Excluir Despesa',
-		labelYes: 'Excluir',
-		labelNo: 'Cancelar'
-	}, function (confirmar) {
-		if (confirmar) {
-			fnWdkRemoveChild(elemento);
+function anexarComprovantes(elemento, numeroIdDespesa) {
+	$(function () {
+		$(elemento).fileupload({
+			dataType: 'json',
+			send: function (e, data) {
+				loading.show();
+			},
+			done: function (e, data) {
+				const codigoPastaDespesa = verificarCriarPasta(numeroIdDespesa);
+				$.each(data.result.files, function (index, file) {
+					gravarArquivo(codigoPastaDespesa, file.name);
+				});
+				criarTabelaAnexos(numeroIdDespesa);
+				loading.hide();
+			}
+		});
+	});
+}
 
-			const quantidadeDespesas = $('[id^=despesa___]').length;
-			if (quantidadeDespesas == 0) $('.bodyDespesas').hide();
+/**
+ * 
+ * @param {String} numeroIdDespesa 
+ */
+function buscarArquivos(numeroIdDespesa) {
+	const codigoPastaDespesa = verificarCriarPasta(numeroIdDespesa);
+	const arquivos = ajaxApi('listarDocumentos', codigoPastaDespesa);
+	return arquivos.content;
+}
+
+/**
+ * Função que busca uma pasta específica através da descrição à partir de uma pasta pai.
+ * 
+ * @param {string} codigoPastaPai Código da pasta pai no fluig 
+ * @param {string} codItemBuscado Código do item buscado. Podendo ser:
+ * - Número de uma solicitação
+ * - Número do id de uma despesa
+ * @param {string} descricaoItemBuscado descrição (nome) do item buscado. Podendo ser:
+ * - Nome do solicitante
+ * - Nome do fornecedor
+ * 
+ * @return {string} Retorna o código da pasta encontrada ou null caso não exista.
+ */
+function buscarPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado) {
+	const listaDePastasFilhas = ajaxApi('listarDocumentos', codigoPastaPai);
+	const descricaoPasta = `${codItemBuscado} - ${descricaoItemBuscado}`;
+	let idPasta = null;
+
+	listaDePastasFilhas.content.forEach(pasta => {
+		if (pasta.description == descricaoPasta) {
+			idPasta = pasta.id;
 		}
 	});
+
+	return idPasta;
 }
 
 /**
@@ -166,24 +255,87 @@ function cadastrarTrajeto(elemento, tipo) {
 }
 
 /**
- * @function excluirTrajeto Exclui um trajeto de acordo com os parâmetros informados.
+ * @function calcularValorTotal Calcula o valor total das despesas de acordo com o tipo informado.
  * 
- * @param {Number} numeroIdDespesa Número do id da despesa ao qual o trajeto pertence.
- * @param {Number} numeroIdTrajeto Número do id do trajeto.
+ * @param {String} tipo  Tipo de valor calculado, podendo ser:
+ * - Previsto
+ * - Efetivo
  */
-function excluirTrajeto(numeroIdDespesa, numeroIdTrajeto) {
-	FLUIGC.message.confirm({
-		message: 'Tem certeza que deseja excluir este trajeto?',
-		title: 'Excluir Trajeto',
-		labelYes: 'Excluir',
-		labelNo: 'Cancelar'
-	}, function (confirmar) {
-		if (confirmar) {
-			const jsonTrajetos = JSON.parse($('#jsonTrajetos___' + numeroIdDespesa).val());
-			jsonTrajetos.splice(jsonTrajetos.findIndex(trajeto => trajeto.numeroIdDespesa == numeroIdDespesa && trajeto.numeroIdTrajeto == numeroIdTrajeto), 1);
-			$('#jsonTrajetos___' + numeroIdDespesa).val(JSON.stringify(jsonTrajetos));
-			criarTabelaTrajetos(numeroIdDespesa);
+function calcularValorTotal(tipo) {
+	let valorTotal = 0;
+	$('[id^=valor' + tipo + 'SM___]').each(function () {
+		const elementoValorSM = $(this);
+		const numeroIdDespesa = getPosicaoPaiFilho(elementoValorSM);
+		const aprovacaoGestor = $('#aprovacaoGestor___' + numeroIdDespesa).val();
+		const aprovacaoFinanceiro = $('#aprovacaoFinanceiro___' + numeroIdDespesa).val();
+		if ((aprovacaoGestor == 'aprovar' || aprovacaoGestor == '') ||
+			(aprovacaoFinanceiro == 'aprovar' || aprovacaoFinanceiro == '')) {
+			valorTotal += parseFloat(elementoValorSM.val());
 		}
+	});
+	$('#total' + tipo + 'SM').val(valorTotal.toFixed(2));
+	$('.real').unmask();
+	$('#total' + tipo).val(valorTotal.toFixed(2));
+	$('.real').maskMoney({
+		prefixMoney: 'R$ ',
+		placeholder: 'R$ 0,00'
+	});
+}
+
+/**
+ * Função que cria pasta utilizando a API 2.0
+ * 
+ * @param {string} codigoPastaPai Código da pasta pai no fluig 
+ * @param {string} codItemBuscado Código do item buscado. Podendo ser:
+ * - Número de uma solicitação
+ * - Número do id de uma despesa
+ * @param {string} descricaoItemBuscado descrição (nome) do item buscado. Podendo ser:
+ * - Nome do solicitante
+ * - Nome do fornecedor
+ * 
+ * @return {string} Retorna o código da pasta criada.
+ */
+function criaPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado) {
+	const dados = montarDadosPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado);
+	return ajaxApi('criarPasta', JSON.stringify(dados));
+}
+
+/**
+ * 
+ * @param {String} numeroIdDespesa 
+ */
+function criarTabelaAnexos(numeroIdDespesa) {
+	const anexos = buscarArquivos(numeroIdDespesa);
+	const linhas = [];
+
+	anexos.forEach(anexo => {
+		linhas.push({
+			codigo: anexo.id,
+			descricao: anexo.description,
+			numeroIdDespesa: numeroIdDespesa
+		});
+	});
+
+	FLUIGC.datatable('.divTabelaAnexos', {
+		dataRequest: linhas,
+		renderContent: '.tabelaAnexos',
+		header: [{
+			'title': 'Código',
+			'size': 'col-md-1'
+		}, {
+			'title': 'Descrição',
+			'size': 'col-md-9'
+		}, {
+			'title': 'Opções',
+			'size': 'col-md-2'
+		}],
+		search: {
+			enabled: false,
+		},
+		navButtons: {
+			enabled: false,
+		},
+		tableStyle: 'table-condensed'
 	});
 }
 
@@ -228,6 +380,133 @@ function criarTabelaTrajetos(numeroIdDespesa) {
 	if (codigoAtividade != ATIVIDADE.INICIO && codigoAtividade != 0) {
 		$('.opcoesTrajeto').hide();
 	}
+}
+
+/**
+ * @function excluirDespesa Exclui uma despesa do painel de despesas.
+ * 
+ * @param {Object} elemento Elemento do DOM clicado para realizar a remoção da despesa.
+ */
+function excluirDespesa(elemento) {
+	FLUIGC.message.confirm({
+		message: 'Tem certeza que deseja excluir esta despesa?',
+		title: 'Excluir Despesa',
+		labelYes: 'Excluir',
+		labelNo: 'Cancelar'
+	}, function (confirmar) {
+		if (confirmar) {
+			fnWdkRemoveChild(elemento);
+
+			const quantidadeDespesas = $('[id^=despesa___]').length;
+			if (quantidadeDespesas == 0) $('.bodyDespesas').hide();
+		}
+	});
+}
+
+/**
+ * @function excluirTrajeto Exclui um trajeto de acordo com os parâmetros informados.
+ * 
+ * @param {Number} numeroIdDespesa Número do id da despesa ao qual o trajeto pertence.
+ * @param {Number} numeroIdTrajeto Número do id do trajeto.
+ */
+function excluirTrajeto(numeroIdDespesa, numeroIdTrajeto) {
+	FLUIGC.message.confirm({
+		message: 'Tem certeza que deseja excluir este trajeto?',
+		title: 'Excluir Trajeto',
+		labelYes: 'Excluir',
+		labelNo: 'Cancelar'
+	}, function (confirmar) {
+		if (confirmar) {
+			const jsonTrajetos = JSON.parse($('#jsonTrajetos___' + numeroIdDespesa).val());
+			jsonTrajetos.splice(jsonTrajetos.findIndex(trajeto => trajeto.numeroIdDespesa == numeroIdDespesa && trajeto.numeroIdTrajeto == numeroIdTrajeto), 1);
+			$('#jsonTrajetos___' + numeroIdDespesa).val(JSON.stringify(jsonTrajetos));
+			criarTabelaTrajetos(numeroIdDespesa);
+		}
+	});
+}
+
+/**
+ * Função usada para gravar um arquivo no ECM.
+ * 
+ * @param {string} codigoPasta Id da pasta onde o arquivo deve ser gravado.
+ * @param {string} nomeArquivo Descrição do arquivo no ECM.
+ * 
+ * @returns O resultado da requisição ajax.
+ */
+function gravarArquivo(codigoPasta, nomeArquivo) {
+	const dados = JSON.stringify({
+		'description': nomeArquivo,
+		'parentId': codigoPasta,
+		'activeVersion': true,
+		'attachments': [{
+			'fileName': nomeArquivo,
+			'principal': true
+		}],
+	});
+
+	return ajaxApi('criarArquivo', dados);
+}
+
+/**
+ * Função que monta os dados para criação de uma pasta em um JSON.
+ * 
+ * @param {string} codigoPastaPai Código da pasta pai no fluig 
+ * @param {string} codItemBuscado Código do item buscado. Podendo ser:
+ * - Número de uma solicitação
+ * - Número do id de uma despesa
+ * @param {string} descricaoItemBuscado descrição (nome) do item buscado. Podendo ser:
+ * - Nome do solicitante
+ * - Nome do fornecedor
+ * 
+ * @return {Object} Retorna JSON com os dados que serão enviados na requisição.
+ */
+function montarDadosPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado) {
+	return {
+		'publisherId': 'admin',
+		'documentDescription': `${codItemBuscado} - ${descricaoItemBuscado}`,
+		'parentFolderId': codigoPastaPai,
+		'publisherId': 'admin',
+		'additionalComments': 'Pasta criada automaticamente pelo fluig.',
+		'inheritSecurity': true,
+		'permissionType': 12345,
+		'restrictionType': 12345
+	};
+}
+
+/**
+ * Função para remover arquivo ou pasta de acordo com o id informado.
+ * 
+ * @param {string} codigo Código do arquivo/pasta do fluig que deve ser removido.
+ * 
+ * @returns O retorno do método ajax de remoção de arquivo ou pasta.
+ */
+function removerArquivoPasta(numeroIdDespesa, codigo) {
+	FLUIGC.message.confirm({
+		message: 'Tem certeza que deseja excluir este arquivo?',
+		title: 'Excluir Arquivo',
+		labelYes: 'Excluir',
+		labelNo: 'Cancelar'
+	}, function (confirmar) {
+		if (confirmar) {
+			loading.show();
+			const dado = JSON.stringify({
+				'id': codigo
+			});
+			ajaxApi('remover', dado);
+			criarTabelaAnexos(numeroIdDespesa);
+			loading.hide();
+		}
+	});
+}
+
+/**
+ * @function removerMascaraReal Remove a máscara de reais sobre o valor de um campo especificado por parâmetro.
+ * 
+ * @param {Object} elemento Campo do DOM que contém o valor em reais com máscara.
+ */
+function removerMascaraReal(elemento) {
+	const valor = $(elemento).cleanVal();
+	return parseFloat(valor.substring(0, valor.length - 2) + '.' + valor.substr(-2)).toFixed(2);
 }
 
 /**
@@ -276,6 +555,22 @@ function salvarTrajeto(numeroIdDespesa, numeroIdTrajeto, tipo) {
 }
 
 /**
+ * @function salvarValorSemMascara Salva o valor em reais digitado em um campo com máscara em outro campo escondido sem máscara.
+ * 
+ * @param {Object} elemento Objeto do DOM que contém o valor em reais com máscara.
+ * @param {String} tipo Tipo de valor calculado, podendo ser:
+ * - Previsto
+ * - Efetivo
+ */
+function salvarValorSemMascara(elemento, tipo) {
+	const numeroIdDespesa = getPosicaoPaiFilho(elemento);
+	const valor = removerMascaraReal(elemento);
+	$('#valor' + tipo + 'SM___' + numeroIdDespesa).val(valor);
+	calcularValorTotal(tipo);
+	if (tipo == 'Previsto') atribuirTituloDespesa(numeroIdDespesa);
+}
+
+/**
  * @function verificarAprovacao Verifica aprovação do gestor ou do financeiro por despesa e adiciona um layout conforme seu status.
  * 
  * @param {String} idTipo Tipo de aprovação a ser verificada, podendo ser:
@@ -290,15 +585,6 @@ function verificarAprovacao(idTipo) {
 		const aprovacao = elementoAprovacao.val();
 
 		if (!estaVazio(aprovacao)) {
-			if (codigoAtividade == ATIVIDADE.INICIO || codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
-				elementoAprovacao.attr('readonly', true);
-				if (elementoAprovacao.prop("tagName") == 'SELECT') {
-					elementoAprovacao.css({
-						'pointer-events': 'none',
-						'touch-action': 'none'
-					});
-				}
-			}
 			const tituloDespesa = $('#tituloDespesa___' + numeroIdDespesa);
 			let classe = 'text-success';
 			let cor = '#38cf5a';
@@ -323,174 +609,28 @@ function verificarAprovacao(idTipo) {
 }
 
 /**
- * @function calcularValorTotal Calcula o valor total das despesas de acordo com o tipo informado.
+ * Função à ser executada antes de salvar arquivos. 
+ * Busca e cria pastas no ECM de acordo com o número da solicitação e o nome do solicitante, sendo que cada despesa também possui sua pasta.
  * 
- * @param {String} tipo  Tipo de valor calculado, podendo ser:
- * - Previsto
- * - Efetivo
- */
-function calcularValorTotal(tipo) {
-	let valorTotal = 0;
-	$('[id^=valor' + tipo + 'SM___]').each(function () {
-		valorTotal += parseFloat($(this).val());
-	});
-	$('#total' + tipo + 'SM').val(valorTotal.toFixed(2));
-	$('.real').unmask();
-	$('#total' + tipo).val(valorTotal.toFixed(2));
-	$('.real').maskMoney({
-		prefixMoney: 'R$ ',
-		placeholder: 'R$ 0,00'
-	});
-}
-
-/**
- * @function salvarValorSemMascara Salva o valor em reais digitado em um campo com máscara em outro campo escondido sem máscara.
+ * @param {String} numeroIdDespesa
  * 
- * @param {Object} elemento Objeto do DOM que contém o valor em reais com máscara.
- * @param {String} tipo Tipo de valor calculado, podendo ser:
- * - Previsto
- * - Efetivo
+ * @return {string} Código da pasta existente ou já criada para os comprovantes da solicitação.
  */
-function salvarValorSemMascara(elemento, tipo) {
-	const numeroIdDespesa = getPosicaoPaiFilho(elemento);
-	const valor = removerMascaraReal(elemento);
-	$('#valor' + tipo + 'SM___' + numeroIdDespesa).val(valor);
-	calcularValorTotal(tipo);
-	if (tipo == 'Previsto') atribuirTituloDespesa(numeroIdDespesa);
+function verificarCriarPasta(numeroIdDespesa) {
+	const codigoAnexosComprovantes = '44'; //44 no fluig local
+	const numeroSolicitacao = $('#numeroSolicitacao').val();
+	const nomeSolicitante = $('#nomeSolicitante').val();
+	const nomeFornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
+
+	let codigoPastaSolicitacao = buscarPasta(codigoAnexosComprovantes, numeroSolicitacao, nomeSolicitante);
+	if (estaVazio(codigoPastaSolicitacao)) {
+		codigoPastaSolicitacao = (criaPasta(codigoAnexosComprovantes, numeroSolicitacao, nomeSolicitante)).content.documentId;
+	}
+
+	let codigoPastaDespesa = buscarPasta(codigoPastaSolicitacao, numeroIdDespesa, nomeFornecedor);
+	if (estaVazio(codigoPastaDespesa)) {
+		codigoPastaDespesa = (criaPasta(codigoPastaSolicitacao, numeroIdDespesa, nomeFornecedor)).content.documentId;
+	}
+
+	return codigoPastaDespesa;
 }
-
-/**
- * @function removerMascaraReal Remove a máscara de reais sobre o valor de um campo especificado por parâmetro.
- * 
- * @param {Object} elemento Campo do DOM que contém o valor em reais com máscara.
- */
-function removerMascaraReal(elemento) {
-	const valor = $(elemento).cleanVal();
-	return parseFloat(valor.substring(0, valor.length - 2) + '.' + valor.substr(-2)).toFixed(2);
-}
-
-
-
-
-
-// /**
-//  * @deprecated
-//  * @function adicionarDespesa_OLD Adiciona um novo filho no painel Despesas da Viagem.
-//  * 
-//  * @param {Object} elemento Objeto do JQuery com o botão de adicionar despesa clicado.
-//  */
-// function adicionarDespesa_OLD(elemento) {
-// 	let trajeto = $(elemento).prop('id').split('___')[1];
-// 	let campoVazioTrajeto = [];
-
-// 	$('#trTrajeto___' + trajeto).find('input').each(function () {
-// 		campoVazioTrajeto.push(validarCampoVazio($(this)));
-// 	});
-
-// 	if (campoVazioTrajeto.includes(true)) {
-// 		toast('Preencha todos os campos do trajeto ' + trajeto + '.', '', 'warning');
-// 	} else {
-// 		let numeroIdDespesa = wdkAddChild('despesasViagem');
-
-// 		FLUIGC.calendar('.calendario', {
-// 			pickDate: true,
-// 			pickTime: false
-// 		});
-// 		FLUIGC.calendar('.calendarioHora', {
-// 			pickDate: true,
-// 			pickTime: true,
-// 			sideBySide: true
-// 		});
-
-// 		if (codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
-// 			$('#despesaPrevista___' + numeroIdDespesa).val('nao');
-// 		}
-// 		$('#numeroTrajetoDespesa___' + numeroIdDespesa).val(trajeto);
-// 		let cidadeOrigem = $('#cidadeOrigem___' + trajeto).val();
-// 		let cidadeDestino = $('#cidadeDestino___' + trajeto).val();
-// 		let origemDestino = cidadeOrigem + ' > ' + cidadeDestino;
-// 		$('#origemDestino___' + numeroIdDespesa).html(origemDestino);
-// 		desativarZoom('nomeFornecedor___' + numeroIdDespesa);
-
-// 		$('#panelDespesasViagem').show();
-// 		FLUIGC.utilities.scrollTo('#numeroTrajetoDespesa___' + numeroIdDespesa, 500);
-
-// 		esconderUltimaHr('hrDespesa___');
-// 		$('#panelDespesasViagem').show();
-// 		atualizarZoom('fornecedor___' + numeroIdDespesa);
-// 		atualizarZoom('tipoFornecedor___' + numeroIdDespesa);
-
-// 		$('.real').maskMoney({
-// 			prefixMoney: 'R$ ',
-// 			placeholder: 'R$ 0,00'
-// 		});
-// 	}
-// }
-
-// /**
-//  * @deprecated
-//  * @function adicionarTrajeto Adiciona um novo trajeto ao pai filho do painel de itinerário caso as datas previstas da viagem estejam preenchidas.
-//  */
-// function adicionarTrajeto() {
-// 	let idaPrevista = $('#idaPrevista').val();
-// 	let voltaPrevista = $('#voltaPrevista').val();
-
-// 	if (!estaVazio(idaPrevista) && !estaVazio(voltaPrevista)) {
-// 		let trajeto = wdkAddChild('itinerario');
-// 		$('.trajetos').show();
-// 		$('#trajeto___' + trajeto).val(trajeto);
-
-// 		atualizarZoom('cidadeOrigem___' + trajeto);
-// 		atualizarZoom('cidadeDestino___' + trajeto);
-
-// 		esconderUltimaHr('hrTrajeto___');
-
-// 		FLUIGC.calendar('.calendario', {
-// 			pickDate: true,
-// 			pickTime: false
-// 		});
-// 		$('.trajetos').show();
-// 		FLUIGC.utilities.scrollTo('#trajeto___' + trajeto, 500);
-// 	} else {
-// 		if (idaPrevista == '') {
-// 			toast('A ida prevista da viagem deve estar preenchida.', '', 'warning');
-// 		} else if (voltaPrevista == '') {
-// 			toast('A volta prevista da viagem deve estar preenchida.', '', 'warning');
-// 		}
-// 	}
-// }
-
-// /**
-//  * @deprecated
-//  * @function excluirDespesa Exclui uma despesa do pai filho.
-//  * 
-//  * @param {Object} elemento Objeto do JQuery que é acionado ao excluir uma despesa.
-//  */
-// function excluirDespesa_OLD(elemento) {
-// 	fnWdkRemoveChild(elemento);
-// 	let quantidadeDespesas = $('[id^=numeroTrajetoDespesa___]').length;
-// 	if (quantidadeDespesas == 0) $('#panelDespesasViagem').hide();
-// 	else esconderUltimaHr('hrDespesa___');
-// }
-
-// /**
-//  * @deprecated
-//  * @function excluirTrajeto Exclui um trajeto do pai filho do painel de Itinerário se ele não tiver despesas associadas.
-//  * 
-//  * @param {Object} elemento Objeto do JQuery que é acionado ao excluir um trajeto.
-//  */
-// function excluirTrajeto(elemento) {
-// 	let numeroIdTrajeto = getPosicaoPaiFilho(elemento);
-// 	let existeDespesa = false;
-
-// 	$('[id^=numeroTrajetoDespesa___]').each(function () {
-// 		if ($(this).val() == numeroIdTrajeto) existeDespesa = true;
-// 	});
-
-// 	if (!existeDespesa) {
-// 		fnWdkRemoveChild(elemento);
-// 		let quantidadeTrajetos = $('[id^=trajeto___]').length;
-// 		if (quantidadeTrajetos == 0) $('.trajetos').hide();
-// 		else esconderUltimaHr('hrTrajetos___');
-// 	} else toast('É necessário excluir todas as despesas deste trajeto antes de removê-lo.', '', 'warning');
-// }
