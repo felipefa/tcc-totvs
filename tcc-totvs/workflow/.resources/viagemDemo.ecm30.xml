@@ -2,7 +2,7 @@
   <ProcessDefinition>
     <processDefinitionPK>
       <companyId>1</companyId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
     </processDefinitionPK>
     <processDescription>Solicitação de Viagem</processDescription>
     <instruction></instruction>
@@ -10,7 +10,8 @@
     <publicProcess>false</publicProcess>
     <volumeId>Default</volumeId>
     <categoryId>Viagem</categoryId>
-    <managerEngineAllocationId></managerEngineAllocationId>
+    <managerEngineAllocationId>Grupo</managerEngineAllocationId>
+    <managerEngineAllocationConfiguration>&lt;AssignmentController&gt;&lt;Group&gt;Financeiro&lt;/Group&gt;&lt;/AssignmentController&gt;</managerEngineAllocationConfiguration>
     <snapshotFrequency>0</snapshotFrequency>
     <baseDay>0</baseDay>
     <baseMonth>0</baseMonth>
@@ -31,7 +32,7 @@
       <version>2</version>
     </processDefinitionVersionPK>
     <versionDescription></versionDescription>
-    <formId>2207</formId>
+    <formId>32</formId>
     <editionMode>true</editionMode>
     <updateAttachmentsVersion>false</updateAttachmentsVersion>
     <controlsAttachmentsSecurity>false</controlsAttachmentsSecurity>
@@ -49,7 +50,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>4</sequence>
       </processStatePK>
@@ -99,7 +100,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>5</sequence>
       </processStatePK>
@@ -127,7 +128,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>230</positionX>
-      <positionY>403</positionY>
+      <positionY>411</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -151,7 +152,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>12</sequence>
       </processStatePK>
@@ -162,7 +163,7 @@
       <deadlineFieldName></deadlineFieldName>
       <joint>false</joint>
       <agreementPercentage>0</agreementPercentage>
-      <engineAllocationId>Pool Grupo</engineAllocationId>
+      <engineAllocationId>Grupo</engineAllocationId>
       <engineAllocationConfiguration>&lt;AssignmentController&gt;&lt;Group&gt;Financeiro&lt;/Group&gt;&lt;/AssignmentController&gt;</engineAllocationConfiguration>
       <selectColleague>1</selectColleague>
       <initialState>false</initialState>
@@ -203,7 +204,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>16</sequence>
       </processStatePK>
@@ -256,7 +257,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>26</sequence>
       </processStatePK>
@@ -303,7 +304,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>29</sequence>
       </processStatePK>
@@ -350,7 +351,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>32</sequence>
       </processStatePK>
@@ -397,7 +398,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>10</sequence>
       </processStatePK>
@@ -422,7 +423,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>14</sequence>
       </processStatePK>
@@ -447,7 +448,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>42</sequence>
       </processStatePK>
@@ -474,7 +475,7 @@
       <notifyRequisitionerFollowUp>false</notifyRequisitionerFollowUp>
       <automatic>false</automatic>
       <positionX>580</positionX>
-      <positionY>423</positionY>
+      <positionY>431</positionY>
       <forecastedEffortType>0</forecastedEffortType>
       <forecastedEffort>0</forecastedEffort>
       <notifyManagerFollowUp>false</notifyManagerFollowUp>
@@ -494,7 +495,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>43</sequence>
       </processStatePK>
@@ -541,7 +542,7 @@
     <ProcessState>
       <processStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>45</sequence>
       </processStatePK>
@@ -590,7 +591,7 @@
     <ConditionProcessState>
       <conditionProcessStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <expressionOrder>1</expressionOrder>
         <version>2</version>
         <sequence>10</sequence>
@@ -604,7 +605,7 @@
     <ConditionProcessState>
       <conditionProcessStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <expressionOrder>2</expressionOrder>
         <version>2</version>
         <sequence>10</sequence>
@@ -616,7 +617,7 @@
     <ConditionProcessState>
       <conditionProcessStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <expressionOrder>3</expressionOrder>
         <version>2</version>
         <sequence>10</sequence>
@@ -628,7 +629,7 @@
     <ConditionProcessState>
       <conditionProcessStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <expressionOrder>1</expressionOrder>
         <version>2</version>
         <sequence>14</sequence>
@@ -642,7 +643,7 @@
     <ConditionProcessState>
       <conditionProcessStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <expressionOrder>2</expressionOrder>
         <version>2</version>
         <sequence>14</sequence>
@@ -654,7 +655,7 @@
     <ConditionProcessState>
       <conditionProcessStatePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <expressionOrder>3</expressionOrder>
         <version>2</version>
         <sequence>14</sequence>
@@ -668,7 +669,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>6</linkSequence>
       </processLinkPK>
@@ -685,7 +686,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>11</linkSequence>
       </processLinkPK>
@@ -702,7 +703,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>13</linkSequence>
       </processLinkPK>
@@ -719,7 +720,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>15</linkSequence>
       </processLinkPK>
@@ -736,7 +737,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>17</linkSequence>
       </processLinkPK>
@@ -753,7 +754,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>19</linkSequence>
       </processLinkPK>
@@ -770,7 +771,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>21</linkSequence>
       </processLinkPK>
@@ -787,7 +788,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>23</linkSequence>
       </processLinkPK>
@@ -804,7 +805,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>25</linkSequence>
       </processLinkPK>
@@ -821,7 +822,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>28</linkSequence>
       </processLinkPK>
@@ -838,7 +839,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>36</linkSequence>
       </processLinkPK>
@@ -855,7 +856,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>50</linkSequence>
       </processLinkPK>
@@ -871,7 +872,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>51</linkSequence>
       </processLinkPK>
@@ -887,7 +888,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>52</linkSequence>
       </processLinkPK>
@@ -906,7 +907,7 @@
     <ProcessLink>
       <processLinkPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>53</linkSequence>
       </processLinkPK>
@@ -924,7 +925,19 @@
     </ProcessLink>
   </list>
   <list/>
-  <list/>
+  <list>
+    <WorkflowProcessEvent>
+      <workflowProcessEventPK>
+        <companyId>1</companyId>
+        <eventId>afterStateEntry</eventId>
+        <processId>viagem</processId>
+        <version>1</version>
+      </workflowProcessEventPK>
+      <eventDescription>function afterStateEntry(sequenceId) {&#xd;
+	hAPI.setCardValue(&apos;codigoAtividade&apos;, sequenceId);&#xd;
+}</eventDescription>
+    </WorkflowProcessEvent>
+  </list>
   <list/>
   <list>
     <SwimLane>
@@ -938,7 +951,7 @@
       <parentSequence>0</parentSequence>
       <swimLanePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>1</sequence>
       </swimLanePK>
@@ -954,7 +967,7 @@
       <parentSequence>1</parentSequence>
       <swimLanePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>2</sequence>
       </swimLanePK>
@@ -970,7 +983,7 @@
       <parentSequence>1</parentSequence>
       <swimLanePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>3</sequence>
       </swimLanePK>
@@ -986,7 +999,7 @@
       <parentSequence>1</parentSequence>
       <swimLanePK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <sequence>4</sequence>
       </swimLanePK>
@@ -999,7 +1012,7 @@
       <positionY>60</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <componGrafSequence>37</componGrafSequence>
       </processComponGrafPK>
@@ -1011,7 +1024,7 @@
       <positionY>290</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <componGrafSequence>39</componGrafSequence>
       </processComponGrafPK>
@@ -1023,7 +1036,7 @@
       <positionY>60</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <componGrafSequence>46</componGrafSequence>
       </processComponGrafPK>
@@ -1035,7 +1048,7 @@
       <positionY>292</positionY>
       <processComponGrafPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <componGrafSequence>48</componGrafSequence>
       </processComponGrafPK>
@@ -1046,7 +1059,7 @@
     <ProcessLinkAssoc>
       <processLinkAssocPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>38</linkSequence>
       </processLinkAssocPK>
@@ -1056,7 +1069,7 @@
     <ProcessLinkAssoc>
       <processLinkAssocPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>40</linkSequence>
       </processLinkAssocPK>
@@ -1066,7 +1079,7 @@
     <ProcessLinkAssoc>
       <processLinkAssocPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>41</linkSequence>
       </processLinkAssocPK>
@@ -1076,7 +1089,7 @@
     <ProcessLinkAssoc>
       <processLinkAssocPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>47</linkSequence>
       </processLinkAssocPK>
@@ -1086,7 +1099,7 @@
     <ProcessLinkAssoc>
       <processLinkAssocPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>1</version>
         <linkSequence>49</linkSequence>
       </processLinkAssocPK>
@@ -1098,18 +1111,18 @@
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>2</version>
         <linkSequence>6</linkSequence>
         <bendSequence>1</bendSequence>
       </processLinkBendPK>
       <positionX>157</positionX>
-      <positionY>441</positionY>
+      <positionY>448</positionY>
     </ProcessLinkBend>
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>2</version>
         <linkSequence>13</linkSequence>
         <bendSequence>1</bendSequence>
@@ -1120,7 +1133,7 @@
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>2</version>
         <linkSequence>17</linkSequence>
         <bendSequence>1</bendSequence>
@@ -1131,7 +1144,7 @@
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>2</version>
         <linkSequence>17</linkSequence>
         <bendSequence>2</bendSequence>
@@ -1142,7 +1155,7 @@
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>2</version>
         <linkSequence>17</linkSequence>
         <bendSequence>3</bendSequence>
@@ -1153,7 +1166,7 @@
     <ProcessLinkBend>
       <processLinkBendPK>
         <companyId>1</companyId>
-        <processId>viagemDemo</processId>
+        <processId>viagem</processId>
         <version>2</version>
         <linkSequence>38</linkSequence>
         <bendSequence>1</bendSequence>
@@ -1164,42 +1177,14 @@
   </list>
   <list/>
   <list/>
-  <list>
-    <ProcessFormField>
-      <processFormFieldPK>
-        <companyId>1</companyId>
-        <processId>viagemDemo</processId>
-        <fieldId>centroCusto</fieldId>
-      </processFormFieldPK>
-      <fieldDescription>Centro de Custo</fieldDescription>
-      <slotId>1</slotId>
-    </ProcessFormField>
-    <ProcessFormField>
-      <processFormFieldPK>
-        <companyId>1</companyId>
-        <processId>viagemDemo</processId>
-        <fieldId>nomeSolicitante</fieldId>
-      </processFormFieldPK>
-      <fieldDescription>Nome do Solicitante</fieldDescription>
-      <slotId>2</slotId>
-    </ProcessFormField>
-    <ProcessFormField>
-      <processFormFieldPK>
-        <companyId>1</companyId>
-        <processId>viagemDemo</processId>
-        <fieldId>numeroSolicitacao</fieldId>
-      </processFormFieldPK>
-      <fieldDescription>Solicitação</fieldDescription>
-      <slotId>3</slotId>
-    </ProcessFormField>
-  </list>
+  <list/>
   <list/>
   <list/>
   <list>
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>5</stateSequence>
       <appKey>approval</appKey>
@@ -1209,7 +1194,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>5</stateSequence>
       <appKey>approval</appKey>
@@ -1219,7 +1204,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>5</stateSequence>
       <appKey>approval</appKey>
@@ -1229,7 +1214,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>5</stateSequence>
       <appKey>approval</appKey>
@@ -1239,7 +1224,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>5</stateSequence>
       <appKey>approval</appKey>
@@ -1249,7 +1234,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>12</stateSequence>
       <appKey>approval</appKey>
@@ -1259,7 +1244,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>12</stateSequence>
       <appKey>approval</appKey>
@@ -1269,7 +1254,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>12</stateSequence>
       <appKey>approval</appKey>
@@ -1279,7 +1264,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>12</stateSequence>
       <appKey>approval</appKey>
@@ -1289,7 +1274,7 @@
     <ProcessAppConfiguration>
       <id>0</id>
       <tenantId>0</tenantId>
-      <processId>viagemDemo</processId>
+      <processId>viagem</processId>
       <processVersion>2</processVersion>
       <stateSequence>12</stateSequence>
       <appKey>approval</appKey>
