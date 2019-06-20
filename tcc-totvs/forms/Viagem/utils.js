@@ -98,7 +98,22 @@ function ajaxApi(funcao, dadosJson) {
 }
 
 /**
- * @function atribuirReadOnly Atribui readonly para os campos encontrados dentro do seletor.
+ * Exibe os elementos relacionados ao tipo de fornecedor informado e oculta os outros não relacionados.
+ * 
+ * @param {String} exibirId Prefixo do id do grupo de elementos que devem ser exibidos.
+ * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
+ */
+function alternarDetalhesTipoDespesa(exibirId, numeroIdPaiFilho) {
+	let idsTipos = ['tipoAluguelVeiculos', 'tipoHospedagem', 'tipoProprio', 'tipoTransporte', 'tipoPadrao'];
+
+	idsTipos.map(function (id) {
+		if (exibirId == id) $('#' + exibirId + '___' + numeroIdPaiFilho).show();
+		else $('#' + id + '___' + numeroIdPaiFilho).hide();
+	});
+}
+
+/**
+ * Atribui readonly para os campos encontrados dentro do seletor.
  * 
  * @param {String} seletor String com o(s) seletor(es) usado(s) no JQuery.
  */
@@ -120,7 +135,7 @@ function atribuirReadOnly(seletor, seletorNegacao = '') {
 }
 
 /**
- * @function atribuirReadOnlyAposAprovacao Atribui readonly para os campos de uma despesa de acordo com a aprovação do tipo informado.
+ * Atribui readonly para os campos de uma despesa de acordo com a aprovação do tipo informado.
  * 
  * @param {String} tipo String com o tipo da aprovação, são aceitos:
  * - Gestor
@@ -138,7 +153,7 @@ function atribuirReadOnlyAposAprovacao(tipo) {
 			atribuirReadOnly('#despesa___' + numeroIdDespesa, seletorNot);
 		}
 		if (aprovacao == 'reprovar') {
-			if (tipo == 'Financeiro') $('#efetuado___' + numeroIdDespesa).val('nao');
+			if (tipo == 'Financeiro') $('#despesaEfetuada___' + numeroIdDespesa).val('nao');
 			$('#btnAnexos___' + numeroIdDespesa).parent().hide();
 			atribuirReadOnly('#despesa___' + numeroIdDespesa);
 		} else if (aprovacao == 'aprovar') {
@@ -162,7 +177,7 @@ function atribuirTituloDespesa(numeroIdDespesa) {
 }
 
 /**
- * @function colorirElementoHtml Função para colorir inputs no html.
+ * Função para colorir inputs no html.
  * 
  * @param {Object} elemento Elemento do JQuery que deve ser colorido.
  * @param {String} cor Cor do elemento podendo ser: danger, warning, info, success ou null.
@@ -182,7 +197,7 @@ function colorirElementoHtml(elemento, cor) {
 }
 
 /**
- * @function compararDatas Pode ser executada de duas formas:
+ * Pode ser executada de duas formas:
  * - Quando chamada passando apenas data inicial e final, verifica se a primeira é anterior a segunda.
  * - Quando os todos os parâmetro são informados, verifica se a terceira data está entre as duas anteriores.
  * 
@@ -194,78 +209,20 @@ function colorirElementoHtml(elemento, cor) {
  */
 function compararDatas(dataInicial, dataFinal, dataIntervalar = null) {
 	if (!estaVazio(dataInicial) && !estaVazio(dataFinal)) {
-		let timestampDataInicial = transformaTimestamp(dataInicial);
-		let timestampDataFinal = transformaTimestamp(dataFinal);
+		const timestampDataInicial = transformarEmTimestamp(dataInicial);
+		const timestampDataFinal = transformarEmTimestamp(dataFinal);
 		if (estaVazio(dataIntervalar)) {
 			if (timestampDataInicial <= timestampDataFinal) return true;
 		} else {
-			let timestampDataIntervalar = transformaTimestamp(dataIntervalar);
+			const timestampDataIntervalar = transformarEmTimestamp(dataIntervalar);
 			if (timestampDataInicial <= timestampDataIntervalar && timestampDataIntervalar <= timestampDataFinal) return true;
 		}
 	}
 	return false;
 }
 
-function corrigirIndicesPaiFilho() {
-	$('[id^=trDespesa___]').each(function () {
-		const despesa = $(this);
-		const numeroIdDespesa = getPosicaoPaiFilho(despesa);
-		despesa.find('.corrigirIndice').each(function () {
-			const elemento = $(this);
-			const id = elemento.prop('id');
-			if (id.indexOf('___') == -1) {
-				elemento.attr('id', id + '___' + numeroIdDespesa);
-				elemento.attr('name', id + '___' + numeroIdDespesa);
-				if (id == 'btnDetalhesDespesa') elemento.attr('href', '#despesa___' + numeroIdDespesa);
-			}
-		});
-		atribuirTituloDespesa(numeroIdDespesa);
-		controlarDetalhesTipoDespesa($('#tipoFornecedor___' + numeroIdDespesa).val(), numeroIdDespesa);
-	});
-}
-
 /**
- * @function esconderUltimaHr Esconde o último elemento hr do pai filho.
- * 
- * @param {String} id Id da tag hr no pai filho com underscore sem a posição. Exemplo: 'hrDespesa___'.
- * @param {String} ultimaPosicao Última posição do pai filho.
- */
-function esconderUltimaHr(id) {
-	$('[id^=' + id + ']').each(function () {
-		$(this).show();
-	});
-	$('[id^=' + id + ']:last').hide();
-}
-
-/**
- * @function estaVazio Verifica se um valor está vazio, é nulo ou indefinido.
- * 
- * @param {*} valor Valor a ser verificado.
- * 
- * @returns {Boolean} True se estiver vazio.
- */
-function estaVazio(valor) {
-	if (valor == '' || valor == null || valor == undefined || valor == []) return true;
-	return false;
-}
-
-function confirmarAcao(dados) {
-	let resultado = false;
-
-	FLUIGC.message.confirm({
-		message: dados.mensagem,
-		title: dados.titulo,
-		labelYes: estaVazio(dados.btnSim) ? 'Confirmar' : dados.btnSim,
-		labelNo: estaVazio(dados.btnNao) ? 'Cancelar' : dados.btnNao
-	}, function (confirmar) {
-		resultado = confirmar;
-	});
-
-	return resultado;
-}
-
-/**
- * @function controlarDetalhesTipoDespesa Faz o controle de qual grupo de elementos deve ser exibido conforme o tipo de fornecedor selecionado.
+ * Faz o controle de qual grupo de elementos deve ser exibido conforme o tipo de fornecedor selecionado.
  * Os seguintes tipos de fornecedores possuem grupos específicos:
  * - Aluguel de Veículos;
  * - Hospedagem;
@@ -301,23 +258,51 @@ function controlarDetalhesTipoDespesa(ramoAtividade, numeroIdPaiFilho) {
 	}
 }
 
-/**
- * @function alternarDetalhesTipoDespesa Exibe os elementos relacionados ao tipo de fornecedor informado e oculta os outros não relacionados.
- * 
- * @param {String} exibirId Prefixo do id do grupo de elementos que devem ser exibidos.
- * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
- */
-function alternarDetalhesTipoDespesa(exibirId, numeroIdPaiFilho) {
-	let idsTipos = ['tipoAluguelVeiculos', 'tipoHospedagem', 'tipoProprio', 'tipoTransporte', 'tipoPadrao'];
-
-	idsTipos.map(function (id) {
-		if (exibirId == id) $('#' + exibirId + '___' + numeroIdPaiFilho).show();
-		else $('#' + id + '___' + numeroIdPaiFilho).hide();
+function corrigirIndicesPaiFilho() {
+	$('[id^=trDespesa___]').each(function () {
+		const despesa = $(this);
+		const numeroIdDespesa = getPosicaoPaiFilho(despesa);
+		despesa.find('.corrigirIndice').each(function () {
+			const elemento = $(this);
+			const id = elemento.prop('id');
+			if (id.indexOf('___') == -1) {
+				elemento.attr('id', id + '___' + numeroIdDespesa);
+				elemento.attr('name', id + '___' + numeroIdDespesa);
+				if (id == 'btnDetalhesDespesa') elemento.attr('href', '#despesa___' + numeroIdDespesa);
+			}
+		});
+		atribuirTituloDespesa(numeroIdDespesa);
+		controlarDetalhesTipoDespesa($('#tipoFornecedor___' + numeroIdDespesa).val(), numeroIdDespesa);
 	});
 }
 
 /**
- * @function getPosicaoPaiFilho Busca o número do id de um elemento em um pai filho.
+ * @function esconderUltimaHr Esconde o último elemento hr do pai filho.
+ * 
+ * @param {String} id Id da tag hr no pai filho com underscore sem a posição. Exemplo: 'hrDespesa___'.
+ * @param {String} ultimaPosicao Última posição do pai filho.
+ */
+function esconderUltimaHr(id) {
+	$('[id^=' + id + ']').each(function () {
+		$(this).show();
+	});
+	$('[id^=' + id + ']:last').hide();
+}
+
+/**
+ * Verifica se um valor está vazio, é nulo ou indefinido.
+ * 
+ * @param {*} valor Valor a ser verificado.
+ * 
+ * @returns {Boolean} True se estiver vazio.
+ */
+function estaVazio(valor) {
+	if (valor == '' || valor == null || valor == undefined || valor == []) return true;
+	return false;
+}
+
+/**
+ * Busca o número do id de um elemento em um pai filho.
  * 
  * @param {Object} elemento Objeto do JQuery que contém um elemento do pai filho.
  * 
@@ -331,7 +316,7 @@ function getPosicaoPaiFilho(elemento) {
 }
 
 /**
- * @function getDataHoje Cria uma string com a data de hoje no formato DD/MM/AAAA.
+ * Cria uma string com a data de hoje no formato DD/MM/AAAA.
  * 
  * @returns {String} Uma string com a data de hoje.
  */
@@ -345,7 +330,7 @@ function getDataHoje() {
 }
 
 /**
- * @function pad Função para pegar adicionar 0 nas datas que contém o dia ou mês < 10.
+ * Função para pegar adicionar 0 nas datas que contém o dia ou mês < 10.
  * Ex.: 1 -> 01;
  * 
  * @param {Number} n - Número do dia ou mês.
@@ -357,7 +342,7 @@ function pad(n) {
 }
 
 /**
- * @function toast Função genérica para gerar toast.
+ * Função genérica para gerar toast.
  * 
  * @param {String} titulo Título do toast.
  * @param {String} msg Mensagem para informação do toast.
@@ -374,7 +359,7 @@ function toast(titulo, msg, tipo, timeout = 4000) {
 }
 
 /**
- * @function transformarDias Converte um timestamp para sua respectiva quantidade de dias.
+ * Converte um timestamp para sua respectiva quantidade de dias.
  * 
  * @param {Number} dataTimestamp Data em timestamp.
  * 
@@ -385,27 +370,27 @@ function transformarDias(dataTimestamp) {
 }
 
 /**
- * @function transformaTimestamp Converte uma data em string no formato DD/MM/AAAA em timestamp.
+ * Converte uma data em string no formato DD/MM/AAAA em timestamp.
  * 
  * @param {String} data String com data no formato DD/MM/AAAA.
  * 
  * @return {Number} Timestamp da data convertida.
  */
-function transformaTimestamp(data) {
+function transformarEmTimestamp(data) {
 	let dataSplit = data.split('/');
 	let novaData = dataSplit[1] + '/' + dataSplit[0] + '/' + dataSplit[2];
 	return new Date(novaData).getTime();
 }
 
 /**
- * @function validarCampos Função que força a execução do evento blur dos campos obrigatórios para validação visual.
+ * Função que força a execução do evento blur dos campos obrigatórios para validação visual.
  */
 function validarCampos() {
 	$('.obrigatorio, .validacaoZoom .select2-search__field').blur();
 }
 
 /**
- * @function validarCampoVazio Altera a borda e label do campo vazio para vermelhas.
+ * Altera a borda e label do campo vazio para vermelhas.
  * 
  * @param {Object} input Elemento do DOM que deve ser validado.
  * 
@@ -442,4 +427,94 @@ function validarCampoVazio(input) {
 			return false;
 		}
 	}
+}
+
+function verificarDataEmPaiFilho(elemento) {
+	const elementoData = $(elemento);
+	const numeroIdDespesa = getPosicaoPaiFilho(elementoData);
+	const despesaPrevista = $('#despesaPrevista___' + numeroIdDespesa).val();
+	let ida = null;
+	let volta = null;
+
+	if (despesaPrevista == 'nao') {
+		// verificar datas efetivas da viagem
+		ida = $('#idaEfetiva').val();
+		volta = $('#voltaEfetiva').val();
+	} else {
+		// verificar datas previstas da viagem
+		ida = $('#idaPrevista').val();
+		volta = $('#voltaPrevista').val();
+	}
+
+	if (!estaVazio(ida) && !estaVazio(volta) && !compararDatas(ida, volta, elementoData.val().split(' ')[0])) {
+		elementoData.val('');
+		toast('Atenção!', 'A data deve estar entre o período ida e volta da viagem.', 'warning');
+		return false;
+	} else if (estaVazio(ida) || estaVazio(volta)) {
+		elementoData.val('');
+		toast('Atenção!', 'Informe o período de ida e volta da viagem.', 'warning');
+		return false;
+	}
+
+	const idData = elementoData.prop('id');
+
+	if (idData.indexOf('hospedagemCheckout') != -1) {
+		const dataCheckin = $('#hospedagemCheckin___' + numeroIdDespesa).val();
+		if (!estaVazio(dataCheckin)) {
+			if (dataCheckin != elementoData.val() && compararDatas(dataCheckin, elementoData.val())) {
+				// Calcular diárias após check-in preenchido
+				const diarias = calcularDiarias(dataCheckin, elementoData.val());
+				$('#hospedagemDiarias___' + numeroIdDespesa).val(diarias);
+			} else {
+				toast('Atenção!', 'A data de checkout deve ser posterior ao check-in.', 'warning');
+				elementoData.val('');
+			}
+		}
+	} else if (idData.indexOf('hospedagemCheckin') != -1) {
+		const dataCheckout = $('#hospedagemCheckout___' + numeroIdDespesa).val();
+		if (!estaVazio(dataCheckout)) {
+			if (dataCheckout != elementoData.val() && compararDatas(elementoData.val(), dataCheckout)) {
+				// Calcular diárias após checkout preenchido
+				const diarias = calcularDiarias(elementoData.val(), dataCheckout);
+				$('#hospedagemDiarias___' + numeroIdDespesa).val(diarias);
+			} else {
+				toast('Atenção!', 'A data de checkin deve ser anterior ao checkout.', 'warning');
+				elementoData.val('');
+			}
+		}
+	} else if (idData.indexOf('dataDevolucao') != -1) {
+		const dataRetirada = $('#dataRetirada___' + numeroIdDespesa).val();
+		if (!estaVazio(dataRetirada)) {
+			if (compararDatas(dataRetirada, elementoData.val())) {
+				// Calcular diárias após data de devolução preenchida
+				let diarias = calcularDiarias(dataRetirada, elementoData.val());
+				if (diarias == 0 && elementoData.val().split(' ')[0] == dataRetirada.split(' ')[0]) {
+					diarias = 1;
+				}
+				$('#diariasAluguel___' + numeroIdDespesa).val(diarias);
+			} else {
+				toast('Atenção!', 'A data de devolução do veículo deve ser posterior a retirada.', 'warning');
+				elementoData.val('');
+			}
+		}
+	} else if (idData.indexOf('dataRetirada') != -1) {
+		const dataDevolucao = $('#dataDevolucao___' + numeroIdDespesa).val();
+		if (!estaVazio(dataDevolucao)) {
+			if (compararDatas(elementoData.val(), dataDevolucao)) {
+				// Calcular diárias após checkout preenchido
+				let diarias = calcularDiarias(elementoData.val(), dataDevolucao);
+				if (diarias == 0 && elementoData.val().split(' ')[0] == dataDevolucao.split(' ')[0]) {
+					diarias = 1;
+				}
+				$('#diariasAluguel___' + numeroIdDespesa).val(diarias);
+			} else {
+				toast('Atenção!', 'A data de retirada do veículo deve ser anterior a devolução.', 'warning');
+				elementoData.val('');
+			}
+		}
+	}
+}
+
+function calcularDiarias(dataInicial, dataFinal) {
+	return transformarDias(transformarEmTimestamp(dataFinal) - transformarEmTimestamp(dataInicial));
 }
