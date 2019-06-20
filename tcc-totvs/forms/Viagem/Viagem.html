@@ -199,6 +199,7 @@
 							</thead>
 							<tbody>
 								<tr id="trDespesa" name="trDespesa">
+									<input type="hidden" id="numeroIdDespesa" name="numeroIdDespesa">
 									<td>
 										<div class="panel panel-default corrigirIndice" id="panelDespesa" name="panelDespesa" style="border-radius: 2rem;">
 											<div class="panel-heading">
@@ -295,21 +296,22 @@
 															<div class="form-group col-md-2">
 																<label class="control-label" for="valorPrevisto">Valor Previsto</label>
 																<input class="form-control obrigatorio atividadeInicio real" id="valorPrevisto" name="valorPrevisto" type="text" onblur="salvarValorSemMascara(this,'Previsto')">
-																<input id="valorPrevistoSM" name="valorPrevistoSM" type="hidden">
 															</div>
 														</div>
 														<div class="form-group col-md-2 acertoViagem" hidden>
-															<label class="control-label" for="efetuado">Despesa Efetuada?</label>
-															<select class="form-control obrigatorio atividadeAcerto" id="efetuado" name="efetuado" style="cursor: pointer;">
+															<label class="control-label" for="despesaEfetuada">Despesa Efetuada?</label>
+															<select class="form-control obrigatorio atividadeAcerto" id="despesaEfetuada" name="despesaEfetuada" style="cursor: pointer;">
 																<option value="" disabled></option>
 																<option value="sim">Sim</option>
 																<option value="nao">Não</option>
 															</select>
 														</div>
 														<!-- Início de Campos Ocultos dos Dados do Fornecedor -->
+														<input id="cnpjFornecedor" name="cnpjFornecedor" type="hidden">
 														<input id="despesaPrevista" name="despesaPrevista" type="hidden" value="sim">
 														<input id="possuiLimite" name="possuiLimite" type="hidden">
-														<input id="cnpjFornecedor" name="cnpjFornecedor" type="hidden">
+														<input id="valorLimiteSM" name="valorLimiteSM" type="hidden">
+														<input id="valorPrevistoSM" name="valorPrevistoSM" type="hidden">
 														<!-- Fim de Campos Ocultos dos Dados do Fornecedor -->
 													</div>
 													<!-- Fim Dados do Fornecedor -->
@@ -317,10 +319,11 @@
 													<div class="row">
 														<div class="detalhesDespesa">
 															<div class="corrigirIndice" id="tipoAluguelVeiculos" name="tipoAluguelVeiculos" hidden>
+																<input id="diariasAluguel" name="diariasAluguel" type="hidden">
 																<div class="form-group col-md-3">
 																	<label class="control-label" for="dataRetirada">Retirada</label>
 																	<div class="input-group" style="cursor: pointer;">
-																		<input class="form-control calendarioHora" id="dataRetirada" name="dataRetirada" type="text" placeholder="Selecione">
+																		<input class="form-control calendarioHora" id="dataRetirada" name="dataRetirada" type="text" placeholder="Selecione" onblur="verificarDataEmPaiFilho(this)">
 																		<span class="input-group-addon">
 																			<span class="fluigicon fluigicon-calendar"></span>
 																		</span>
@@ -329,7 +332,7 @@
 																<div class="form-group col-md-3">
 																	<label class="control-label" for="dataDevolucao">Devolução</label>
 																	<div class="input-group" style="cursor: pointer;">
-																		<input class="form-control calendarioHora" id="dataDevolucao" name="dataDevolucao" type="text" placeholder="Selecione">
+																		<input class="form-control calendarioHora" id="dataDevolucao" name="dataDevolucao" type="text" placeholder="Selecione" onblur="verificarDataEmPaiFilho(this)">
 																		<span class="input-group-addon">
 																			<span class="fluigicon fluigicon-calendar"></span>
 																		</span>
@@ -340,7 +343,7 @@
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="hospedagemCheckin">Check-in</label>
 																	<div class="input-group" style="cursor: pointer;">
-																		<input class="form-control calendario" id="hospedagemCheckin" name="hospedagemCheckin" type="text" placeholder="Selecione">
+																		<input class="form-control calendario" id="hospedagemCheckin" name="hospedagemCheckin" type="text" placeholder="Selecione" onblur="verificarDataEmPaiFilho(this)">
 																		<span class="input-group-addon">
 																			<span class="fluigicon fluigicon-calendar"></span>
 																		</span>
@@ -349,7 +352,7 @@
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="hospedagemCheckout">Checkout</label>
 																	<div class="input-group" style="cursor: pointer;">
-																		<input type="text" class="form-control calendario" placeholder="Selecione" name="hospedagemCheckout" id="hospedagemCheckout">
+																		<input type="text" class="form-control calendario" placeholder="Selecione" name="hospedagemCheckout" id="hospedagemCheckout" onblur="verificarDataEmPaiFilho(this)">
 																		<span class="input-group-addon">
 																			<span class="fluigicon fluigicon-calendar"></span>
 																		</span>
@@ -357,7 +360,7 @@
 																</div>
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="hospedagemDiarias">Diárias</label>
-																	<input id="hospedagemDiarias" class="form-control" type="text" name="hospedagemDiarias">
+																	<input id="hospedagemDiarias" class="form-control" type="text" name="hospedagemDiarias" readonly>
 																</div>
 															</div>
 															<div class="corrigirIndice" id="tipoProprio" name="tipoProprio" hidden>
@@ -372,7 +375,7 @@
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="proprioData">Data Prevista</label>
 																	<div class="input-group" style="cursor: pointer;">
-																		<input type="text" class="form-control calendario" placeholder="Selecione" name="proprioData" id="proprioData">
+																		<input type="text" class="form-control calendario" placeholder="Selecione" name="proprioData" id="proprioData" onblur="verificarDataEmPaiFilho(this)">
 																		<span class="input-group-addon">
 																			<span class="fluigicon fluigicon-calendar"></span>
 																		</span>
@@ -401,7 +404,7 @@
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="dataPrevista">Data Prevista</label>
 																	<div class="input-group" style="cursor: pointer;">
-																		<input type="text" class="form-control calendario" placeholder="Selecione" name="dataPrevista" id="dataPrevista">
+																		<input type="text" class="form-control calendario" placeholder="Selecione" name="dataPrevista" id="dataPrevista" onblur="verificarDataEmPaiFilho(this)">
 																		<span class="input-group-addon">
 																			<span class="fluigicon fluigicon-calendar"></span>
 																		</span>
@@ -418,29 +421,15 @@
 															<div class="form-group col-md-2">
 																<label class="control-label" for="dataEfetiva">Data Efetiva</label>
 																<div class="input-group" style="cursor: pointer;">
-																	<input type="text" class="form-control calendario obrigatorio atividadeAcerto" placeholder="Selecione" name="dataEfetiva" id="dataEfetiva">
+																	<input type="text" class="form-control calendario obrigatorio atividadeAcerto" placeholder="Selecione" name="dataEfetiva" id="dataEfetiva" onblur="verificarDataEmPaiFilho(this)">
 																	<span class="input-group-addon">
 																		<span class="fluigicon fluigicon-calendar"></span>
 																	</span>
 																</div>
 															</div>
-															<!-- TO DO: Colocar upload de anexos dentro da modal e exibir apenas o botão anexos -->
-															<!-- <div class="form-group col-md-3">
-																<label class="control-label" for="anexoComprovante">Anexar Comprovante</label>
-																<div class="input-group">
-																	<input type="text" name="nomeArquivo" id="nomeArquivo" class="form-control" readonly>
-																	<span class="input-group-btn">
-																		<label class="file-input-wrapper btn btn-primary">
-																			Buscar
-																			<input type="file" id="files" name="files" data-url="/ecm/upload" data-toggle="tooltip" data-placement="bottom" title="Buscar arquivos" multiple onclick="anexarComprovantes(this)">
-																		</label>
-																	</span>
-																</div>
-															</div> -->
 															<div class="form-group col-md-1">
 																<label for="btnAnexos"><br></label><br>
 																<button class="btn btn-primary corrigirIndice" id="btnAnexos" name="btnAnexos" type="button" onclick="abrirModalAnexos(this)">Anexos</h4>
-																<input id="jsonAnexos" name="jsonAnexos" type="hidden">
 															</div>
 														</div>
 													</div>

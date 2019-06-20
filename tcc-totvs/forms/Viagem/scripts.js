@@ -45,7 +45,7 @@ var quantidadeIdsTrajetos = 1;
  */
 function abrirModalAnexos(elemento) {
 	const numeroIdDespesa = getPosicaoPaiFilho(elemento);
-	const despesaEfetuada = $('#efetuado___' + numeroIdDespesa).val()
+	const despesaEfetuada = $('#despesaEfetuada___' + numeroIdDespesa).val()
 
 	if (estaVazio(despesaEfetuada)) {
 		toast('Atenção!', 'Informe se a despesa foi efetuada ou não.', 'warning');
@@ -85,10 +85,11 @@ function adicionarDespesa() {
 	const numeroIdDespesa = wdkAddChild('despesas');
 
 	$('#btnDetalhesDespesa___' + numeroIdDespesa).attr('href', '#despesa___' + numeroIdDespesa);
+	$('#numeroIdDespesa___' + numeroIdDespesa).val(numeroIdDespesa);
 
 	if (codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
 		$('#despesaPrevista___' + numeroIdDespesa).val('nao');
-		const despesaEfetuada = $('#efetuado___' + numeroIdDespesa);
+		const despesaEfetuada = $('#despesaEfetuada___' + numeroIdDespesa);
 		despesaEfetuada.val('sim');
 		despesaEfetuada.attr('readonly', true);
 		despesaEfetuada.css({
