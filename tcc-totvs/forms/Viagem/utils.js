@@ -1,8 +1,7 @@
 /**
- * Função para abrir documento dentro do fluig.
+ * Função para abrir o visualizador de documento no formulário.
  * 
  * @param {String} docId - id do documento.
- * @param {String} urlDoc - endereço do documento.
  * @param {String} docVersao - versão do documento (default: 1000).
  * @param {String} titulo - tipo do visualizador de documento (default: 'Visualizador de Documentos').
  * @param {Boolean} maximizado - true para maximizado e false visualização comum (default: true).
@@ -39,7 +38,7 @@ function abrirDocumento(docId, docVersao = 1000, titulo = 'Visualizador de Docum
  * - alterar -> Alterar uma pasta
  * @param {String} dadosJson JSON em formato String com os dados da requisição.
  * 
- * @returns Dados obtidos na resposta do ajax.
+ * @returns {Object} Dados obtidos na resposta do ajax.
  */
 function ajaxApi(funcao, dadosJson) {
 	const restApiEcm = 'api/public/ecm/document';
@@ -104,11 +103,20 @@ function ajaxApi(funcao, dadosJson) {
  * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
  */
 function alternarDetalhesTipoDespesa(exibirId, numeroIdPaiFilho) {
-	let idsTipos = ['tipoAluguelVeiculos', 'tipoHospedagem', 'tipoProprio', 'tipoTransporte', 'tipoPadrao'];
+	let idsTipos = ['tipoAluguelVeiculos', 'tipoHospedagem', 'tipoCombustivel', 'tipoTransporte', 'tipoPadrao'];
 
 	idsTipos.map(function (id) {
-		if (exibirId == id) $('#' + exibirId + '___' + numeroIdPaiFilho).show();
-		else $('#' + id + '___' + numeroIdPaiFilho).hide();
+		if (exibirId == id) {
+			let seletor = '#' + exibirId + '___' + numeroIdPaiFilho;
+			$(seletor).show();
+			if (codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
+				$(seletor).find('input').each(function () {
+					$(this).attr('readonly', false);
+				});
+				$('#valorPrevisto___' + numeroIdPaiFilho).attr('readonly', true);
+				$('#btnAdicionarTrajeto___' + numeroIdPaiFilho).attr('disabled', false);
+			}
+		} else $('#' + id + '___' + numeroIdPaiFilho).hide();
 	});
 }
 
@@ -116,6 +124,7 @@ function alternarDetalhesTipoDespesa(exibirId, numeroIdPaiFilho) {
  * Atribui readonly para os campos encontrados dentro do seletor.
  * 
  * @param {String} seletor String com o(s) seletor(es) usado(s) no JQuery.
+ * @param {String} seletorNegacao String com o(s) seletor(es) do JQuery que não devem ser verificados.
  */
 function atribuirReadOnly(seletor, seletorNegacao = '') {
 	$(seletor).find('input, select, textarea').not(seletorNegacao).each(function () {
@@ -124,7 +133,7 @@ function atribuirReadOnly(seletor, seletorNegacao = '') {
 			desativarZoom(elemento[0].id);
 		} else {
 			elemento.attr('readonly', true);
-			if (elemento.prop("tagName") == 'SELECT') {
+			if (elemento.prop('tagName') == 'SELECT') {
 				elemento.css({
 					'pointer-events': 'none',
 					'touch-action': 'none'
@@ -165,15 +174,35 @@ function atribuirReadOnlyAposAprovacao(tipo) {
 	});
 }
 
+/**
+ * Atribui o título ao painel da despesa de acordo com seu tipo, fornecedor e valor total previsto.
+ * 
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
+ */
 function atribuirTituloDespesa(numeroIdDespesa) {
 	const tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val();
 	const nomeFornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
-	const valorPrevisto = $('#valorPrevisto___' + numeroIdDespesa).val();
+	const valorPrevisto = $('#valorTotalPrevisto___' + numeroIdDespesa).val();
 	let tituloDespesa = 'Preencha a despesa';
-	if (!estaVazio(tipoFornecedor) && !estaVazio(nomeFornecedor) && !estaVazio(valorPrevisto)) {
-		tituloDespesa = `${numeroIdDespesa} - ${tipoFornecedor} - ${nomeFornecedor} - ${valorPrevisto}`;
+	if (!estaVazio(tipoFornecedor) && !estaVazio(nomeFornecedor)) {
+		tituloDespesa = `${numeroIdDespesa} - ${tipoFornecedor} - ${nomeFornecedor}`;
+		if (!estaVazio(valorPrevisto)) {
+			tituloDespesa += ' - ' + valorPrevisto;
+		}
 	}
 	$('#tituloDespesa___' + numeroIdDespesa).html(tituloDespesa);
+}
+
+/**
+ * Calcula a quantidade de dias entre uma data inicial e uma final.
+ * 
+ * @param {String} dataInicial String com a data inicial no formato DD/MM/AAAA.
+ * @param {String} dataFinal String com a data final no formato DD/MM/AAAA.
+ * 
+ * @returns {Number} Quantidade de dias entre a data inicial e a final.
+ */
+function calcularDiarias(dataInicial, dataFinal) {
+	return transformarDias(transformarEmTimestamp(dataFinal) - transformarEmTimestamp(dataInicial));
 }
 
 /**
@@ -226,7 +255,7 @@ function compararDatas(dataInicial, dataFinal, dataIntervalar = null) {
  * Os seguintes tipos de fornecedores possuem grupos específicos:
  * - Aluguel de Veículos;
  * - Hospedagem;
- * - Próprio;
+ * - Km Rodado;
  * - Transporte Aéreo;
  * - Transporte Terrestre;
  * 
@@ -236,16 +265,15 @@ function compararDatas(dataInicial, dataFinal, dataIntervalar = null) {
  * @param {String} numeroIdPaiFilho Número contido no id do elemento no pai filho.
  */
 function controlarDetalhesTipoDespesa(ramoAtividade, numeroIdPaiFilho) {
-	if (ramoAtividade.length == 1) ramoAtividade = ramoAtividade[0];
 	switch (ramoAtividade) {
 		case 'Aluguel de Veículos':
 			alternarDetalhesTipoDespesa('tipoAluguelVeiculos', numeroIdPaiFilho);
 			break;
+		case 'Km Rodado':
+			alternarDetalhesTipoDespesa('tipoCombustivel', numeroIdPaiFilho);
+			break;
 		case 'Hospedagem':
 			alternarDetalhesTipoDespesa('tipoHospedagem', numeroIdPaiFilho);
-			break;
-		case 'Próprio':
-			alternarDetalhesTipoDespesa('tipoProprio', numeroIdPaiFilho);
 			break;
 		case 'Transporte Aéreo':
 		case 'Transporte Terrestre':
@@ -258,6 +286,9 @@ function controlarDetalhesTipoDespesa(ramoAtividade, numeroIdPaiFilho) {
 	}
 }
 
+/**
+ * Corrige os índices dos elementos no pai x filho que são perdidos ao mudar de atividade.
+ */
 function corrigirIndicesPaiFilho() {
 	$('[id^=trDespesa___]').each(function () {
 		const despesa = $(this);
@@ -277,7 +308,7 @@ function corrigirIndicesPaiFilho() {
 }
 
 /**
- * @function esconderUltimaHr Esconde o último elemento hr do pai filho.
+ * Esconde o último elemento hr do pai filho.
  * 
  * @param {String} id Id da tag hr no pai filho com underscore sem a posição. Exemplo: 'hrDespesa___'.
  * @param {String} ultimaPosicao Última posição do pai filho.
@@ -290,7 +321,7 @@ function esconderUltimaHr(id) {
 }
 
 /**
- * Verifica se um valor está vazio, é nulo ou indefinido.
+ * Verifica se um valor está vazio, é null ou undefined.
  * 
  * @param {*} valor Valor a ser verificado.
  * 
@@ -309,10 +340,8 @@ function estaVazio(valor) {
  * @returns {String} String com o número contido no id do elemento do pai filho.
  */
 function getPosicaoPaiFilho(elemento) {
-	let id = $(elemento).prop('id');
-	if (elemento.className == 'fluigicon fluigicon-trash fluigicon-md')
-		id = $(elemento).closest('tr').prop('id');
-	return id.split('___')[1];
+	const posicao = $(elemento).prop('id').split('___')[1];
+	return $('#numeroIdDespesa___' + posicao).val();
 }
 
 /**
@@ -342,11 +371,15 @@ function pad(n) {
 }
 
 /**
- * Função genérica para gerar toast.
+ * Gera um toast na tela de acordo com os parâmetros informados.
  * 
- * @param {String} titulo Título do toast.
- * @param {String} msg Mensagem para informação do toast.
- * @param {String} tipo Tipos: 'success', 'warning', 'info' e 'danger'.
+ * @param {String} titulo Título em negrito que aparecerá no toast.
+ * @param {String} msg Mensagem que aparecerá no toast.
+ * @param {String} tipo São aceitos: 
+ * - danger
+ * - info
+ * - success
+ * - warning
  * @param {Number} timeout Tempo de duração do Toast. Valor padrão: 4000.
  */
 function toast(titulo, msg, tipo, timeout = 4000) {
@@ -429,9 +462,14 @@ function validarCampoVazio(input) {
 	}
 }
 
-function verificarDataEmPaiFilho(elemento) {
+/**
+ * Verifica se os campos de datas dentro de um pai x filho foram preenchidos corretamente conforme a ida e a volta da viagem.
+ * 
+ * @param {Object} elemento Input que será verificado.
+ */
+function verificarDataEmPaiFilho(elemento, numeroIdDespesa = null) {
 	const elementoData = $(elemento);
-	const numeroIdDespesa = getPosicaoPaiFilho(elementoData);
+	numeroIdDespesa = estaVazio(numeroIdDespesa) ? getPosicaoPaiFilho(elementoData) : numeroIdDespesa;
 	const despesaPrevista = $('#despesaPrevista___' + numeroIdDespesa).val();
 	let ida = null;
 	let volta = null;
@@ -513,8 +551,7 @@ function verificarDataEmPaiFilho(elemento) {
 			}
 		}
 	}
-}
 
-function calcularDiarias(dataInicial, dataFinal) {
-	return transformarDias(transformarEmTimestamp(dataFinal) - transformarEmTimestamp(dataInicial));
+	calcularValorTotalPrevistoDespesa(numeroIdDespesa);
+	return true;
 }

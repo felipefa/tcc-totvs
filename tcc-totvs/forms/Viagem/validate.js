@@ -53,9 +53,9 @@ var beforeSendValidate = function (numState, nextState) {
 					mensagem = 'Informe a data da volta efetiva.'
 				} else {
 					mensagem = 'Informe se a despesa foi efetuada.';
-					const quantidadeDespesas = $('[id^=efetuado___]').length;
+					const quantidadeDespesas = $('[id^=despesaEfetuada___]').length;
 
-					$('[id^=efetuado___]').each(function () {
+					$('[id^=despesaEfetuada___]').each(function () {
 						const elementoEfetuado = $(this);
 						const numeroIdDespesa = getPosicaoPaiFilho(elementoEfetuado);
 
@@ -92,6 +92,12 @@ var beforeSendValidate = function (numState, nextState) {
 	}
 }
 
+/**
+ * Valida os campos de um painel.
+ * 
+ * @param {String} id Id do painel que deve ser verificado.
+ * @param {String} classeAtividade Classe com o nome da atividade que será verificada.
+ */
 function validarCamposPanel(id, classeAtividade) {
 	let valido = true;
 
@@ -103,7 +109,7 @@ function validarCamposPanel(id, classeAtividade) {
 	// Valida despesas na atividade início
 	if (valido && id.indexOf('despesa') != -1) {
 		const numeroIdDespesa = getPosicaoPaiFilho(id);
-		const tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val()[0];
+		const tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val();
 		switch (tipoFornecedor) {
 			case 'Aluguel de Veículos':
 				valido = !estaVazio($('#dataRetirada___' + numeroIdDespesa).val());
@@ -114,7 +120,7 @@ function validarCamposPanel(id, classeAtividade) {
 				valido = valido ? !estaVazio($('#hospedagemCheckout___' + numeroIdDespesa).val()) : false;
 				valido = valido ? !estaVazio($('#hospedagemDiarias___' + numeroIdDespesa).val()) : false;
 				break;
-			case 'Próprio':
+			case 'Km Rodado':
 				valido = !estaVazio($('#proprioOrigem___' + numeroIdDespesa).val());
 				valido = valido ? !estaVazio($('#proprioDestino___' + numeroIdDespesa).val()) : false;
 				valido = valido ? !estaVazio($('#proprioData___' + numeroIdDespesa).val()) : false;
@@ -133,6 +139,13 @@ function validarCamposPanel(id, classeAtividade) {
 	return valido;
 }
 
+/**
+ * Verifica as aprovações das despesas para determinar a próxima atividade.
+ * 
+ * @param {String} tipo Tipo de aprovação. São aceitos: 
+ * - Gestor
+ * - Financeiro
+ */
 function verificarAprovacoes(tipo) {
 	const aprovacoes = [];
 	let possuiJustificativa = true;
