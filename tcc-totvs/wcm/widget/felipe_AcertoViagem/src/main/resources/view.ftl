@@ -13,6 +13,7 @@
 			</ul>
 		</div>
 	</div>
+
 	<div class="container">
 		<div class="panel panel-default" id="panelLogin" style="margin: auto; width: 100%; max-width: 350px; margin-top: 15%;">
 			<div class="panel-heading">
@@ -163,15 +164,15 @@
 				<div class="row">
 					<div class="form-group col-md-2">
 						<label class="control-label" for="totalPrevisto">Despesa Total Prevista</label>
-						<input class="form-control real" id="totalPrevisto" type="text" value="{{totalPrevisto}}" readonly>
+						<input class="form-control real" id="totalPrevisto" placeholder="R$ 0,00" type="text" value="{{totalPrevisto}}" readonly>
 					</div>
 					<div class="form-group col-md-2">
 						<label class="control-label" for="totalEfetivo">Despesa Total Efetiva</label>
-						<input class="form-control real" id="totalEfetivo" name="totalEfetivo" type="text" value="{{totalEfetivo}}" readonly>
+						<input class="form-control real" id="totalEfetivo" name="totalEfetivo" placeholder="R$ 0,00" type="text" value="{{totalEfetivo}}" readonly>
 					</div>
 					<!-- Início de Campos Ocultos do Resumo da Viagem -->
-					<input type="hidden" id="totalPrevistoSM" name="totalPrevistoSM">
-					<input type="hidden" id="totalEfetivoSM" name="totalEfetivoSM">
+					<input type="text" id="totalPrevistoSM" name="totalPrevistoSM" hidden>
+					<input type="text" id="totalEfetivoSM" name="totalEfetivoSM" hidden>
 					<!-- Fim de Campos Ocultos do Resumo da Viagem -->
 				</div>
 			</div>
@@ -187,10 +188,10 @@
 						<h4 class="panel-title">
 							<div class="row">
 								<div class="col-xs-9">
-									<h5 class="panel-title" style="margin-top: .3rem; color: {{cor}}">{{numeroIdDespesa}} - {{tipoFornecedor}} - {{nomeFornecedor}} - {{valorPrevisto}} {{^valorPrevisto}}Despesa não prevista{{/valorPrevisto}} {{{icone}}}</h5>
+									<h5 class="panel-title" style="margin-top: .3rem; color: {{cor}}">{{numeroIdDespesa}} - {{tipoFornecedor}} - {{nomeFornecedor}} - {{valorTotalPrevisto}} {{^valorTotalPrevisto}}Despesa não prevista{{/valorTotalPrevisto}} {{{icone}}}</h5>
 								</div>
 								<div class="col-xs-3 text-right">
-									<a class="btn btn-info btn-sm" data-toggle="collapse" data-parent="#accordion" href="#despesa___{{numeroIdDespesa}}" role="button">
+									<a class="btn btn-info btn-sm" data-toggle="collapse" data-parent="#accordion" href="#despesa___{{numeroIdDespesa}}" role="button" aria-expanded="false">
 										<i class="fluigicon fluigicon-eye-open icon-sm"></i>
 									</a>
 									<button class="btn btn-danger btn-sm" disabled>
@@ -237,35 +238,39 @@
 										<label class="control-label" for="tipoFornecedor___{{numeroIdDespesa}}">Tipo</label>
 										<input class="form-control" name="tipoFornecedor___{{numeroIdDespesa}}" type="text" readonly value="{{tipoFornecedor}}">
 									</div>
-									<div class="form-group col-md-3 validacaoZoom atividadeInicio">
+									<div class="form-group col-md-3">
 										<label class="control-label" for="nomeFornecedor___{{numeroIdDespesa}}">Fornecedor</label>
 										<input class="form-control" name="nomeFornecedor___{{numeroIdDespesa}}" type="text" readonly value="{{nomeFornecedor}}">
 									</div>
 									<div class="form-group col-md-2">
-										<label class="control-label" for="valorLimite___{{numeroIdDespesa}}">Valor Limite</label>
-										<input class="form-control real" name="valorLimite___{{numeroIdDespesa}}" type="text" readonly value="{{valorLimite}}">
+										<label class="control-label" for="valorPrevisto___{{numeroIdDespesa}}" id="labelValorPrevisto___{{numeroIdDespesa}}">Valor Previsto / Unidade</label>
+										<input class="form-control real" name="valorPrevisto___{{numeroIdDespesa}}" type="text" readonly value="{{valorPrevisto}}">
 									</div>
 									<div class="form-group col-md-2">
-										<label class="control-label" for="valorPrevisto___{{numeroIdDespesa}}">Valor Previsto</label>
-										<input class="form-control real" id="valorPrevisto___{{numeroIdDespesa}}" name="valorPrevisto___{{numeroIdDespesa}}" type="text" readonly value="{{valorPrevisto}}">
-										<input id="valorPrevistoSM___{{numeroIdDespesa}}" name="valorPrevistoSM___{{numeroIdDespesa}}" type="hidden" value="{{valorPrevistoSM}}">
+										<label class="control-label" for="valorTotalPrevisto___{{numeroIdDespesa}}">Valor Total Previsto</label>
+										<input class="form-control real" id="valorTotalPrevisto___{{numeroIdDespesa}}" name="valorTotalPrevisto___{{numeroIdDespesa}}" type="text" readonly value="{{valorTotalPrevisto}}">
 									</div>
 								</div>
 								<div class="form-group col-md-2">
 									<label class="control-label" for="despesaEfetuada___{{numeroIdDespesa}}">Despesa Efetuada?</label>
-									<select class="form-control obrigatorio atividadeAcerto" id="despesaEfetuada___{{numeroIdDespesa}}" name="despesaEfetuada___{{numeroIdDespesa}}" style="cursor: pointer;">
+									<select class="form-control obrigatorio atividadeAcerto" id="despesaEfetuada___{{numeroIdDespesa}}" name="despesaEfetuada___{{numeroIdDespesa}}" style="cursor: pointer;" onchange="alternarDetalhesDespesaEfetuada({{numeroIdDespesa}})">
 										<option value="" disabled></option>
 										<option value="sim">Sim</option>
 										<option value="nao">Não</option>
 									</select>
 								</div>
+								<input id="limitePor___{{numeroIdDespesa}}" name="limitePor___{{numeroIdDespesa}}" type="hidden" value="{{limitePor}}">
+								<input id="valorLimiteSM___{{numeroIdDespesa}}" name="valorLimiteSM___{{numeroIdDespesa}}" type="hidden" value="{{valorLimiteSM}}">
+								<input id="valorPrevistoSM___{{numeroIdDespesa}}" name="valorPrevistoSM___{{numeroIdDespesa}}" type="hidden" value="{{valorPrevistoSM}}">
+								<input id="valorTotalPrevistoSM___{{numeroIdDespesa}}" name="valorTotalPrevistoSM___{{numeroIdDespesa}}" type="hidden" value="{{valorTotalPrevistoSM}}">
 							</div>
 							<!-- Fim Dados do Fornecedor -->
 							<!-- Início de Detalhes da Despesa -->
 							<div class="row">
 								<div class="detalhesDespesa">
 									{{#dataRetirada}}{{#dataDevolucao}}
-									<!-- Início Aluguel de Veículos -->
+									<!-- Início Aluguel de Veículos -->									
+									<input name="diariasAluguel___{{numeroIdDespesa}}" type="hidden" value="{{diariasAluguel}}">
 									<div class="form-group col-md-3">
 										<label class="control-label" for="dataRetirada___{{numeroIdDespesa}}">Retirada</label>
 										<div class="input-group">
@@ -313,7 +318,7 @@
 									<!-- Fim Hospedagem -->
 									{{/hospedagemDiarias}}{{/hospedagemCheckout}}{{/hospedagemCheckin}}
 									{{#proprioOrigem}}{{#proprioDestino}}{{#proprioData}}{{#proprioDistancia}}
-									<!-- Início Próprio -->
+									<!-- Início Combustível (Km Rodado) -->
 									<div class="form-group col-md-2">
 										<label class="control-label" for="proprioOrigem___{{numeroIdDespesa}}">Origem</label>
 										<input class="form-control" name="proprioOrigem___{{numeroIdDespesa}}" readonly type="text" value="{{proprioOrigem}}">
@@ -335,7 +340,7 @@
 										<label class="control-label" for="proprioDistancia___{{numeroIdDespesa}}">Distância</label>
 										<input class="form-control" name="proprioDistancia___{{numeroIdDespesa}}" readonly type="text" value="{{proprioDistancia}}">
 									</div>
-									<!-- Fim Próprio -->
+									<!-- Fim Combustível (Km Rodado) -->
 									{{/proprioDistancia}}{{/proprioData}}{{/proprioDestino}}{{/proprioOrigem}}
 									{{#jsonTrajetos}}
 									<!-- Início Transporte -->
@@ -363,14 +368,14 @@
 								</div>
 								<div class="acertoViagem" id="comprovante___{{numeroIdDespesa}}">
 									<div class="form-group col-md-2">
-										<label class="control-label" for="valorEfetivo___{{numeroIdDespesa}}">Valor Efetivo</label>
+										<label class="control-label" for="valorEfetivo___{{numeroIdDespesa}}">Valor Total Efetivo</label>
 										<input id="valorEfetivo___{{numeroIdDespesa}}" class="form-control obrigatorio atividadeAcerto real" type="text" name="valorEfetivo___{{numeroIdDespesa}}" onblur="salvarValorSemMascara(this,'Efetivo')" value="{{valorEfetivo}}">
 										<input id="valorEfetivoSM___{{numeroIdDespesa}}" type="hidden" name="valorEfetivoSM___{{numeroIdDespesa}}" value="{{valorEfetivoSM}}">
 									</div>
 									<div class="form-group col-md-2">
 										<label class="control-label" for="dataEfetiva___{{numeroIdDespesa}}">Data Efetiva</label>
 										<div class="input-group" style="cursor: pointer;">
-											<input type="text" class="form-control calendario obrigatorio atividadeAcerto" placeholder="Selecione" name="dataEfetiva___{{numeroIdDespesa}}" id="dataEfetiva___{{numeroIdDespesa}}" value="{{dataEfetiva}}">
+											<input type="text" class="form-control calendario obrigatorio atividadeAcerto" placeholder="Selecione" name="dataEfetiva___{{numeroIdDespesa}}" id="dataEfetiva___{{numeroIdDespesa}}" value="{{dataEfetiva}}" onblur="verificarDataEfetiva(this)">
 											<span class="input-group-addon">
 												<span class="fluigicon fluigicon-calendar"></span>
 											</span>
@@ -402,7 +407,7 @@
 									<h5 class="panel-title" style="margin-top: .3rem;" id="tituloDespesa___{{numeroIdDespesa}}">Preencha a despesa</h5>
 								</div>
 								<div class="col-xs-3 text-right">
-									<a class="btn btn-info btn-sm" data-toggle="collapse" id="btnDetalhesDespesa___{{numeroIdDespesa}}" data-parent="#accordion" href="#despesa___{{numeroIdDespesa}}" role="button">
+									<a class="btn btn-info btn-sm" data-toggle="collapse" id="btnDetalhesDespesa___{{numeroIdDespesa}}" data-parent="#accordion" href="#despesa___{{numeroIdDespesa}}" role="button" aria-expanded="true">
 										<i class="fluigicon fluigicon-eye-open icon-sm"></i>
 									</a>
 									<button class="btn btn-danger btn-sm" id="btnExcluirDespesa___{{numeroIdDespesa}}" onclick="excluirDespesa({{numeroIdDespesa}})">
@@ -417,22 +422,21 @@
 							<!-- Início Dados do Fornecedor -->
 							<div class="row">
 								<div class="dadosFornecedor">
-									<div class="form-group col-md-3 validacaoZoom atividadeInicio">
-										<label class="control-label" for="tipoFornecedor___{{numeroIdDespesa}}">Tipo</label>
-										<input class="form-control obrigatorio" id="tipoFornecedor___{{numeroIdDespesa}}" name="tipoFornecedor___{{numeroIdDespesa}}" placeholder="Selecione ou digite um tipo" type="text">
+									<div class="form-group col-md-3">
+										<label class="control-label" for="tipoFornecedor___{{numeroIdDespesa}}">Tipo de Fornecedor</label>
+										<input class="form-control obrigatorio" id="tipoFornecedor___{{numeroIdDespesa}}" name="tipoFornecedor___{{numeroIdDespesa}}" placeholder="Informe um tipo de fornecedor" type="text">
 									</div>
-									<div class="form-group col-md-3 validacaoZoom atividadeInicio">
+									<div class="form-group col-md-3">
 										<label class="control-label" for="nomeFornecedor___{{numeroIdDespesa}}">Fornecedor</label>
-										<input class="form-control obrigatorio" id="nomeFornecedor___{{numeroIdDespesa}}" name="nomeFornecedor___{{numeroIdDespesa}}" placeholder="Selecione ou digite um fornecedor" type="text" readonly>
+										<input class="form-control obrigatorio" id="nomeFornecedor___{{numeroIdDespesa}}" name="nomeFornecedor___{{numeroIdDespesa}}" placeholder="Informe um fornecedor" type="text" readonly>
 									</div>
 									<div class="form-group col-md-2">
-										<label class="control-label" for="valorLimite___{{numeroIdDespesa}}">Valor Limite</label>
-										<input class="form-control real" id="valorLimite___{{numeroIdDespesa}}" name="valorLimite___{{numeroIdDespesa}}" type="text" readonly>
+										<label class="control-label" for="valorPrevisto___{{numeroIdDespesa}}" id="labelValorPrevisto___{{numeroIdDespesa}}">Valor Previsto / Unidade</label>
+										<input class="form-control real" id="valorPrevisto___{{numeroIdDespesa}}" name="valorPrevisto___{{numeroIdDespesa}}" type="text" readonly>
 									</div>
 									<div class="form-group col-md-2">
-										<label class="control-label" for="valorPrevisto___{{numeroIdDespesa}}">Valor Previsto</label>
-										<input class="form-control real" id="valorPrevisto___{{numeroIdDespesa}}" name="valorPrevisto___{{numeroIdDespesa}}" type="text" readonly value="R$ 0,00">
-										<input id="valorPrevistoSM___{{numeroIdDespesa}}" name="valorPrevistoSM___{{numeroIdDespesa}}" type="hidden" value="0.00">
+										<label class="control-label" for="valorTotalPrevisto___{{numeroIdDespesa}}">Valor Total Previsto</label>
+										<input class="form-control real" id="valorTotalPrevisto___{{numeroIdDespesa}}" name="valorTotalPrevisto___{{numeroIdDespesa}}" type="text" readonly value="R$ 0,00">
 									</div>
 								</div>
 								<div class="form-group col-md-2 acertoViagem">
@@ -445,6 +449,10 @@
 								<input id="despesaPrevista___{{numeroIdDespesa}}" name="despesaPrevista___{{numeroIdDespesa}}" type="hidden" value="nao">
 								<input id="possuiLimite___{{numeroIdDespesa}}" name="possuiLimite___{{numeroIdDespesa}}" type="hidden">
 								<input id="cnpjFornecedor___{{numeroIdDespesa}}" name="cnpjFornecedor___{{numeroIdDespesa}}" type="hidden">
+								<input id="limitePor___{{numeroIdDespesa}}" name="limitePor___{{numeroIdDespesa}}" type="hidden">
+								<input id="valorLimiteSM___{{numeroIdDespesa}}" name="valorLimiteSM___{{numeroIdDespesa}}" type="hidden">
+								<input id="valorPrevistoSM___{{numeroIdDespesa}}" name="valorPrevistoSM___{{numeroIdDespesa}}" type="hidden">
+								<input id="valorTotalPrevistoSM___{{numeroIdDespesa}}" name="valorTotalPrevistoSM___{{numeroIdDespesa}}" type="hidden">
 								<!-- Fim de Campos Ocultos dos Dados do Fornecedor -->
 							</div>
 							<!-- Fim Dados do Fornecedor -->
@@ -452,10 +460,11 @@
 							<div class="row">
 								<div class="detalhesDespesa">
 									<div id="tipoAluguelVeiculos___{{numeroIdDespesa}}" hidden>
+										<input id="diariasAluguel___{{numeroIdDespesa}}" name="diariasAluguel___{{numeroIdDespesa}}" type="hidden">
 										<div class="form-group col-md-3">
 											<label class="control-label" for="dataRetirada___{{numeroIdDespesa}}">Retirada</label>
 											<div class="input-group" style="cursor: pointer;">
-												<input class="form-control calendarioHora" id="dataRetirada___{{numeroIdDespesa}}" name="dataRetirada___{{numeroIdDespesa}}" type="text" placeholder="Selecione">
+												<input class="form-control calendarioHora" id="dataRetirada___{{numeroIdDespesa}}" name="dataRetirada___{{numeroIdDespesa}}" type="text" placeholder="Selecione" onblur="verificarDataEmPaiFilho(this, {{numeroIdDespesa}})">
 												<span class="input-group-addon">
 													<span class="fluigicon fluigicon-calendar"></span>
 												</span>
@@ -464,7 +473,7 @@
 										<div class="form-group col-md-3">
 											<label class="control-label" for="dataDevolucao___{{numeroIdDespesa}}">Devolução</label>
 											<div class="input-group" style="cursor: pointer;">
-												<input class="form-control calendarioHora" id="dataDevolucao___{{numeroIdDespesa}}" name="dataDevolucao___{{numeroIdDespesa}}" type="text" placeholder="Selecione">
+												<input class="form-control calendarioHora" id="dataDevolucao___{{numeroIdDespesa}}" name="dataDevolucao___{{numeroIdDespesa}}" type="text" placeholder="Selecione" onblur="verificarDataEmPaiFilho(this, {{numeroIdDespesa}})">
 												<span class="input-group-addon">
 													<span class="fluigicon fluigicon-calendar"></span>
 												</span>
@@ -475,7 +484,7 @@
 										<div class="form-group col-md-2">
 											<label class="control-label" for="hospedagemCheckin___{{numeroIdDespesa}}">Check-in</label>
 											<div class="input-group" style="cursor: pointer;">
-												<input class="form-control calendario" id="hospedagemCheckin___{{numeroIdDespesa}}" name="hospedagemCheckin___{{numeroIdDespesa}}" type="text" placeholder="Selecione">
+												<input class="form-control calendario" id="hospedagemCheckin___{{numeroIdDespesa}}" name="hospedagemCheckin___{{numeroIdDespesa}}" type="text" placeholder="Selecione" onblur="verificarDataEmPaiFilho(this, {{numeroIdDespesa}})">
 												<span class="input-group-addon">
 													<span class="fluigicon fluigicon-calendar"></span>
 												</span>
@@ -484,7 +493,7 @@
 										<div class="form-group col-md-2">
 											<label class="control-label" for="hospedagemCheckout___{{numeroIdDespesa}}">Checkout</label>
 											<div class="input-group" style="cursor: pointer;">
-												<input type="text" class="form-control calendario" placeholder="Selecione" name="hospedagemCheckout___{{numeroIdDespesa}}" id="hospedagemCheckout___{{numeroIdDespesa}}">
+												<input type="text" class="form-control calendario" placeholder="Selecione" name="hospedagemCheckout___{{numeroIdDespesa}}" id="hospedagemCheckout___{{numeroIdDespesa}}" onblur="verificarDataEmPaiFilho(this, {{numeroIdDespesa}})">
 												<span class="input-group-addon">
 													<span class="fluigicon fluigicon-calendar"></span>
 												</span>
@@ -495,7 +504,7 @@
 											<input id="hospedagemDiarias___{{numeroIdDespesa}}" class="form-control" type="text" name="hospedagemDiarias___{{numeroIdDespesa}}">
 										</div>
 									</div>
-									<div id="tipoProprio___{{numeroIdDespesa}}" hidden>
+									<div id="tipoCombustivel___{{numeroIdDespesa}}" hidden>
 										<div class="form-group col-md-2">
 											<label class="control-label" for="proprioOrigem___{{numeroIdDespesa}}">Origem</label>
 											<input id="proprioOrigem___{{numeroIdDespesa}}" class="form-control" type="text" name="proprioOrigem___{{numeroIdDespesa}}">
@@ -536,7 +545,7 @@
 										<div class="form-group col-md-2">
 											<label class="control-label" for="dataPrevista___{{numeroIdDespesa}}">Data Prevista</label>
 											<div class="input-group" style="cursor: pointer;">
-												<input type="text" class="form-control calendario" placeholder="Selecione" name="dataPrevista___{{numeroIdDespesa}}" id="dataPrevista___{{numeroIdDespesa}}" readonly>
+												<input type="text" class="form-control" placeholder="Não prevista" name="dataPrevista___{{numeroIdDespesa}}" id="dataPrevista___{{numeroIdDespesa}}" readonly>
 												<span class="input-group-addon">
 													<span class="fluigicon fluigicon-calendar"></span>
 												</span>
@@ -546,14 +555,14 @@
 								</div>
 								<div class="acertoViagem" id="comprovante___{{numeroIdDespesa}}">
 									<div class="form-group col-md-2">
-										<label class="control-label" for="valorEfetivo___{{numeroIdDespesa}}">Valor Efetivo</label>
+										<label class="control-label" for="valorEfetivo___{{numeroIdDespesa}}">Valor Total Efetivo</label>
 										<input id="valorEfetivo___{{numeroIdDespesa}}" class="form-control obrigatorio atividadeAcerto real" type="text" name="valorEfetivo___{{numeroIdDespesa}}" onblur="salvarValorSemMascara(this,'Efetivo')">
 										<input id="valorEfetivoSM___{{numeroIdDespesa}}" type="hidden" name="valorEfetivoSM___{{numeroIdDespesa}}">
 									</div>
 									<div class="form-group col-md-2">
 										<label class="control-label" for="dataEfetiva___{{numeroIdDespesa}}">Data Efetiva</label>
 										<div class="input-group" style="cursor: pointer;">
-											<input type="text" class="form-control calendario obrigatorio atividadeAcerto" placeholder="Selecione" name="dataEfetiva___{{numeroIdDespesa}}" id="dataEfetiva___{{numeroIdDespesa}}">
+											<input type="text" class="form-control calendario obrigatorio atividadeAcerto" placeholder="Selecione" name="dataEfetiva___{{numeroIdDespesa}}" id="dataEfetiva___{{numeroIdDespesa}}" onblur="verificarDataEfetiva(this)">
 											<span class="input-group-addon">
 												<span class="fluigicon fluigicon-calendar"></span>
 											</span>
@@ -579,12 +588,12 @@
 			<td>{{destino}}</td>
 			<td>{{dataHoraTrajeto}}</td>
 			<td>{{identificador}}</td>
-			<td class="opcoesTrajeto" style="text-align: center;">
-				<button class="btn btn-primary btn-sm" id="btnCadastrarTrajeto___{{numeroIdDespesa}}" disabled onclick="cadastrarTrajeto({'numeroIdDespesa':{{numeroIdDespesa}}, 'numeroIdTrajeto':{{numeroIdTrajeto}}}, 'editar')">
-					<i class="fluigicon fluigicon-pencil icon-sm"></i>
+			<td class="opcoesTrajeto">
+				<button class="btn btn-primary btn-xs" id="btnCadastrarTrajeto___{{numeroIdDespesa}}" disabled onclick="cadastrarTrajeto({'numeroIdDespesa':{{numeroIdDespesa}}, 'numeroIdTrajeto':{{numeroIdTrajeto}}}, 'editar')">
+					<i class="fluigicon fluigicon-pencil icon-xs"></i>
 				</button>
-				<button class="btn btn-danger btn-sm" id="btnExcluirTrajeto___{{numeroIdDespesa}}" disabled onclick="excluirTrajeto({{numeroIdDespesa}}, {{numeroIdTrajeto}})">
-					<i class="fluigicon fluigicon-trash icon-sm"></i>
+				<button class="btn btn-danger btn-xs" id="btnExcluirTrajeto___{{numeroIdDespesa}}" disabled onclick="excluirTrajeto({{numeroIdDespesa}}, {{numeroIdTrajeto}})">
+					<i class="fluigicon fluigicon-trash icon-xs"></i>
 				</button>
 			</td>
 		</tr>
@@ -641,11 +650,11 @@
 			<td>{{codigo}}</td>
 			<td>{{descricao}}</td>
 			<td>
-				<a class="btn btn-primary btn-sm" href="{{fileURL}}" target="_blank">
-					<i class="fluigicon fluigicon-eye-open icon-sm"></i>
+				<a class="btn btn-primary btn-xs" href="{{fileURL}}" target="_blank">
+					<i class="fluigicon fluigicon-eye-open icon-xs"></i>
 				</a>
-				<button class="btn btn-danger btn-sm" onclick="removerArquivoPasta({{numeroIdDespesa}}, {{codigo}})">
-					<i class="fluigicon fluigicon-trash icon-sm"></i>
+				<button class="btn btn-danger btn-xs" onclick="removerArquivoPasta({{numeroIdDespesa}}, {{codigo}})">
+					<i class="fluigicon fluigicon-trash icon-xs"></i>
 				</button>
 			</td>
 		</tr>
