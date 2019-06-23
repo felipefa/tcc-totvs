@@ -10,6 +10,9 @@ function validateForm(form) {
 		if (form.getValue('valorLimite') == '') {
 			campos += '<br>' + i18n.translate('valorLimite');
 		}
+		if (form.getValue('limitePor') == '') {
+			campos += '<br>' + i18n.translate('limitePor');
+		}
 	}
 
 	if (campos != '') {

@@ -25,16 +25,27 @@
 							</div>
 							<div class="form-group col-md-2">
 								<label class="control-label" for="possuiLimite">i18n.translate("possuiLimite") <span class="text-danger"><strong>*</strong></span></label>
-								<select id="possuiLimite" class="form-control obrigatorio" type="text" name="possuiLimite">
+								<select id="possuiLimite" class="form-control obrigatorio" name="possuiLimite">
 									<option value="" disabled selected>i18n.translate("selecione")</option>
 									<option value="sim">i18n.translate("sim")</option>
 									<option value="nao">i18n.translate("nao")</option>
 								</select>
 							</div>
 							<div class="form-group col-md-2 valorLimite">
-								<label class="control-label" for="valorLimite">i18n.translate("valorLimite")</label>
+								<label class="control-label" for="valorLimite">i18n.translate("valorLimite") <span class="text-danger"><strong>*</strong></span></label>
 								<input id="valorLimite" class="form-control obrigatorio real" type="text" name="valorLimite" placeholder="R$ 0,00">
 								<input id="valorLimiteSemMascara" type="hidden" name="valorLimiteSemMascara">
+							</div>
+							<div class="form-group col-md-2 valorLimite">
+								<label class="control-label" for="limitePor">i18n.translate("limitePor") <span class="text-danger"><strong>*</strong></span></label>
+								<select id="limitePor" class="form-control obrigatorio" name="limitePor">
+									<option value="" disabled selected>i18n.translate("selecione")</option>
+									<option value="Dia">i18n.translate("dia")</option>
+									<option value="Hora">i18n.translate("hora")</option>
+									<option value="Litro">i18n.translate("litro")</option>
+									<option value="Km">i18n.translate("quilometro")</option>
+									<option value="Unidade">i18n.translate("unidade")</option>
+								</select>
 							</div>
 						</div>
 				  </div>

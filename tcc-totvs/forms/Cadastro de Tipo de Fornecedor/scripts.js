@@ -14,6 +14,7 @@ $(document).ready(function () {
 			$('.valorLimite').show();
 		} else {
 			$('.valorLimite').hide();
+			$('#limitePor').val('');
 			$('#valorLimite').val('');
 		}
 	});
