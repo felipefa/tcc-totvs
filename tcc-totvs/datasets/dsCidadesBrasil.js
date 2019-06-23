@@ -10,10 +10,10 @@ function createDataset(fields, constraints, sortFields) {
 		if (constraints !== null) {
 			for (var indexConstraints = 0; indexConstraints < constraints.length; indexConstraints++) {
 				if (constraints[indexConstraints].fieldName == 'cidade') {
-					buscarCidade = constraints[indexConstraints].initialValue.toLowerCase();
+					buscarCidade = removerAcentos(constraints[indexConstraints].initialValue);
 				}
 				if (constraints[indexConstraints].fieldName == 'estado') {
-					buscarEstado = constraints[indexConstraints].initialValue.toLowerCase();
+					buscarEstado = removerAcentos(constraints[indexConstraints].initialValue);
 				}
 				if (constraints[indexConstraints].fieldName == 'uf') {
 					buscarUf = constraints[indexConstraints].initialValue.toLowerCase();
@@ -29,11 +29,12 @@ function createDataset(fields, constraints, sortFields) {
 
 		var dados = getDados();
 		var quantidadeLinhas = dados.length;
+		dsCidadesBrasil.addColumn('tipo');
+		dsCidadesBrasil.addColumn('estado');
+		dsCidadesBrasil.addColumn('uf');
+		dsCidadesBrasil.addColumn('cidade');
 
 		if (tipo == 'estados') {
-			dsCidadesBrasil.addColumn('estado');
-			dsCidadesBrasil.addColumn('uf');
-			dsCidadesBrasil.addColumn('tipo');
 
 			if (sqlLimit != 0 && sqlLimit <= quantidadeLinhas) {
 				quantidadeLinhas = sqlLimit;
@@ -41,19 +42,15 @@ function createDataset(fields, constraints, sortFields) {
 
 			for (var indexEstados = 0; indexEstados < quantidadeLinhas; indexEstados++) {
 				var estado = dados[indexEstados];
-				var nome = estado.nome.toLowerCase();
+				var nome = removerAcentos(estado.nome);
 				var sigla = estado.sigla.toLowerCase();
 
-				if ((buscarEstado != '' && nome.indexOf(buscarEstado) != -1 || buscarEstado == '') &&
-					(buscarUf != '' && sigla.indexOf(buscarUf) != -1 || buscarUf == '')) {
-					dsCidadesBrasil.addRow([estado.nome, estado.sigla, tipo]);
+				if ((buscarEstado != '' && nome.indexOf(buscarEstado) == 0 || buscarEstado == '') &&
+					(buscarUf != '' && sigla.indexOf(buscarUf) == 0 || buscarUf == '')) {
+					dsCidadesBrasil.addRow([tipo, estado.nome, estado.sigla, null]);
 				}
 			}
 		} else if (tipo == 'cidades') {
-			dsCidadesBrasil.addColumn('cidade');
-			dsCidadesBrasil.addColumn('estado');
-			dsCidadesBrasil.addColumn('uf');
-			dsCidadesBrasil.addColumn('tipo');
 
 			if (sqlLimit == 0) {
 				quantidadeLinhas = 5;
@@ -63,17 +60,17 @@ function createDataset(fields, constraints, sortFields) {
 
 			for (var indexEstados = 0; indexEstados < dados.length && quantidadeLinhas > 0; indexEstados++) {
 				var estado = dados[indexEstados];
-				var nomeEstado = estado.nome.toLowerCase();
+				var nomeEstado = removerAcentos(estado.nome);
 				var siglaEstado = estado.sigla.toLowerCase();
 				var cidades = estado.cidades;
 
-				if ((buscarEstado != '' && nomeEstado.indexOf(buscarEstado) != -1 || buscarEstado == '') &&
-					(buscarUf != '' && siglaEstado.indexOf(buscarUf) != -1 || buscarUf == '')) {
+				if ((buscarEstado != '' && nomeEstado.indexOf(buscarEstado) == 0 || buscarEstado == '') &&
+					(buscarUf != '' && siglaEstado.indexOf(buscarUf) == 0 || buscarUf == '')) {
 					for (var indexCidades = 0; indexCidades < cidades.length && quantidadeLinhas > 0; indexCidades++) {
 						var cidade = cidades[indexCidades];
 
-						if (buscarCidade != '' && cidade.toLowerCase().indexOf(buscarCidade) != -1 || buscarCidade == '') {
-							dsCidadesBrasil.addRow([cidade, estado.nome, estado.sigla, tipo]);
+						if (buscarCidade != '' && removerAcentos(cidade).indexOf(buscarCidade) == 0 || buscarCidade == '') {
+							dsCidadesBrasil.addRow([tipo, estado.nome, estado.sigla, cidade]);
 							quantidadeLinhas--;
 						}
 					}
@@ -82,8 +79,7 @@ function createDataset(fields, constraints, sortFields) {
 		} else {
 			dsCidadesBrasil.addColumn('erro');
 			dsCidadesBrasil.addColumn('mensagem');
-			dsCidadesBrasil.addColumn('tipo');
-			dsCidadesBrasil.addRow(['true', 'Tipo de dados inválido, escolha entre cidades ou estados', tipo]);
+			dsCidadesBrasil.addRow([tipo, null, null, null, 'true', 'Tipo de dados inválido, escolha entre cidades ou estados']);
 		}
 
 		return dsCidadesBrasil;
@@ -92,9 +88,33 @@ function createDataset(fields, constraints, sortFields) {
 		var dataset = DatasetBuilder.newDataset();
 		dataset.addColumn('Erro');
 		dataset.addColumn('Linha');
-		dataset.addRow(new Array(e, e.lineNumber));
+		dataset.addRow([e, e.lineNumber]);
 		return dataset;
 	}
+}
+
+function removerAcentos(textoAcentuado) {
+	var textoSemAcento = textoAcentuado.toLowerCase();
+	var mapaAcentosHex = {
+		a: /[\xE0-\xE6]/g,
+		e: /[\xE8-\xEB]/g,
+		i: /[\xEC-\xEF]/g,
+		o: /[\xF2-\xF6]/g,
+		u: /[\xF9-\xFC]/g,
+		c: /\xE7/g,
+		n: /\xF1/g
+	};
+
+	for (var letra in mapaAcentosHex) {
+		var expressaoRegular = mapaAcentosHex[letra];
+		var letraEncontrada = textoSemAcento.match(expressaoRegular);
+		if (letraEncontrada != null) {
+			textoSemAcento = textoSemAcento.replace(letraEncontrada[0], letra[0]);
+			if (letraEncontrada.length > 1) removerAcentos(textoSemAcento);
+		}
+	}
+
+	return textoSemAcento;
 }
 
 function getDados() {
