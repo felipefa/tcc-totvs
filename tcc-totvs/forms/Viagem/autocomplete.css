@@ -1,0 +1,94 @@
+.ui-menu .ui-state-focus,
+.ui-menu .ui-state-active {
+	margin: -1px;
+}
+
+.ui-state-hover,
+.ui-widget-content .ui-state-hover,
+.ui-widget-header .ui-state-hover,
+.ui-state-focus,
+.ui-widget-content .ui-state-focus,
+.ui-widget-header .ui-state-focus {
+	border: 1px solid #999;
+	background: #dadada 50% 50% repeat-x;
+	font-weight: normal;
+	color: #212121;
+}
+
+.ui-helper-hidden-accessible {
+	border: 0;
+	clip: rect(0 0 0 0);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute;
+	width: 1px;
+}
+
+.ui-menu .ui-menu-item {
+	position: relative;
+	margin: 0;
+	padding: 3px 1em 3px .4em;
+	cursor: pointer;
+	min-height: 0;
+}
+
+.ui-autocomplete .ui-menu-item {
+	border-color: #e5e5e5 !important;
+	border-style: solid !important;
+	border-width: 0px 0px 1px 0px !important;
+	padding: 14px 14px 14px 26px;
+	color: #757575;
+}
+
+.ui-autocomplete .ui-menu-item:hover {
+	background-color: #fbfbfb !important;
+}
+
+.ui-menu {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: block;
+	outline: 0;
+}
+
+.ui-widget {
+	font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
+	font-size: 1em;
+}
+
+.ui-front {
+	z-index: 1070;
+}
+
+.ui-widget-content {
+	border: 1px solid #aaa;
+	background: #fff 50% 50% repeat-x;
+	color: #222;
+}
+
+.ui-autocomplete {
+	-webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+	font-family: "Helvetica Neue" !important;
+	border-radius: 4px !important;
+	border: none !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	cursor: default;
+}
+
+.ui-widget-content {
+	color: #222;
+	border: 1px solid rgba(0, 0, 0, .2);
+	border-radius: 6px;
+}
+
+.fluig-style-guide ol,
+.fluig-style-guide ul {
+	margin-top: 0;
+	margin-bottom: 10px;
+}

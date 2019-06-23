@@ -19,15 +19,18 @@ $(document).ready(function () {
 			corrigirIndicesPaiFilho();
 			calcularValorTotal('Previsto');
 			$('.bodyDespesas').show();
+			
+			$('[id^=despesa___]').each(function () {
+				const numeroIdDespesa = getPosicaoPaiFilho($(this));
+				atualizarLabelValorPrevistoPor(numeroIdDespesa);
+			});
 
-			setTimeout(function () {
-				desativarZoom('nomeSolicitante');
-				desativarZoom('centroCusto');
-				desativarZoom('estadoOrigem');
-				desativarZoom('cidadeOrigem');
-				desativarZoom('estadoDestino');
-				desativarZoom('cidadeDestino');
-			}, 500);
+			desativarZoom('nomeSolicitante');
+			desativarZoom('centroCusto');
+			desativarZoom('estadoOrigem');
+			desativarZoom('cidadeOrigem');
+			desativarZoom('estadoDestino');
+			desativarZoom('cidadeDestino');
 
 			$('#idaPrevista').attr('readonly', true);
 			$('#voltaPrevista').attr('readonly', true);
@@ -37,7 +40,17 @@ $(document).ready(function () {
 		if (codigoAtividade == ATIVIDADE.INICIO) {
 			let aprovacaoFinanceiroPreenchida = false;
 			$('[id^=aprovacaoFinanceiro___]').each(function () {
-				if (!estaVazio($(this).val())) aprovacaoFinanceiroPreenchida = true;
+				const elementoAprovacao = $(this);
+				const numeroIdDespesa = getPosicaoPaiFilho(elementoAprovacao);
+				if (!estaVazio(elementoAprovacao.val())) {
+					aprovacaoFinanceiroPreenchida = true;
+					if (elementoAprovacao.val() == 'ajustar') {
+						instanciarAutocomplete(null, 'tipoFornecedor', numeroIdDespesa);
+						instanciarAutocomplete(null, 'nomeFornecedor', numeroIdDespesa);
+						instanciarAutocomplete($('#proprioOrigem___' + numeroIdDespesa), 'cidade');
+						instanciarAutocomplete($('#proprioDestino___' + numeroIdDespesa), 'cidade');
+					}
+				}
 			});
 			if (aprovacaoFinanceiroPreenchida) {
 				verificarAprovacao('Financeiro');
@@ -48,9 +61,18 @@ $(document).ready(function () {
 				verificarAprovacao('Gestor');
 				atribuirReadOnly('.aprovacaoGestor');
 				atribuirReadOnlyAposAprovacao('Gestor');
+				$('[id^=aprovacaoGestor___]').each(function () {
+					const elementoAprovacao = $(this);
+					if (elementoAprovacao.val() == 'ajustar') {
+						const numeroIdDespesa = getPosicaoPaiFilho(elementoAprovacao);
+						instanciarAutocomplete(null, 'tipoFornecedor', numeroIdDespesa);
+						instanciarAutocomplete(null, 'nomeFornecedor', numeroIdDespesa);
+						instanciarAutocomplete($('#proprioOrigem___' + numeroIdDespesa), 'cidade');
+						instanciarAutocomplete($('#proprioDestino___' + numeroIdDespesa), 'cidade');
+					}
+				});
 			}
 			$('.aprovacaoGestor').show();
-			desativarZoomDespesa();
 		}
 
 		if (codigoAtividade != ATIVIDADE.INICIO && codigoAtividade != 0) {
@@ -62,7 +84,6 @@ $(document).ready(function () {
 		if (codigoAtividade == ATIVIDADE.APROVACAO_GESTOR) {
 			verificarAprovacao('Gestor');
 			atribuirReadOnly('.dadosFornecedor, .dadosSolicitacao, .detalhesDespesa');
-			desativarZoomDespesa();
 			$('.aprovacaoGestor').show();
 		}
 
@@ -81,10 +102,8 @@ $(document).ready(function () {
 				$('#justificativaFinanceiro___' + numeroIdDespesa).attr('readonly', false);
 			});
 			atribuirReadOnly('.aprovacaoGestor, .dadosFornecedor, .dadosSolicitacao, .detalhesDespesa');
-			desativarZoomDespesa();
 		}
 
-		// TO DO: Desativar interações com campos de despesas reprovadas pelo financeiro e atribuir o valor não no select despesa efetuada
 		if (codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
 			$('.aprovacaoGestor').show();
 			$('.aprovacaoFinanceiro').show()
@@ -96,7 +115,6 @@ $(document).ready(function () {
 				pickTime: false
 			});
 			atribuirReadOnly('.aprovacaoGestor, .aprovacaoFinanceiro, .dadosSolicitacao, .detalhesDespesa');
-			desativarZoomDespesa();
 			$('#btnAdicionarDespesa').prop('disabled', false);
 		}
 	}, 500);

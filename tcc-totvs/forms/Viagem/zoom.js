@@ -1,5 +1,5 @@
 /**
- * @function ativarZoom Remove o atributo disabled de um campo zoom.
+ * Remove o atributo disabled de um campo zoom.
  * 
  * @param {String} id String com o id do campo zoom que deve ser ativado.
  */
@@ -8,9 +8,9 @@ function ativarZoom(id) {
 }
 
 /**
- * @function atualizarZoom Atualiza os valores do campo zoom informado de acordo com o filtro informado.
+ * Atualiza os valores do campo zoom informado de acordo com o filtro informado.
  * 
- * @param {String} inputName Name do campo zoom que deve ser atualizado
+ * @param {String} id Id do campo zoom que deve ser atualizado
  * @param {String} campo Nome do campo filtro
  * @param {String} valor Valor que deve ser filtrado
  */
@@ -19,13 +19,13 @@ function atualizarZoom(id, campo = '', valor = '') {
 	reloadZoomFilterValues(id, campo + ',' + valor);
 	// Se o zoom estiver desativado, desativa-o novamente após atualizá-lo
 	if (!estaAtivo) {
-		limparZoom(id)
+		limparZoom(id);
 		desativarZoom(id);
 	}
 }
 
 /**
- * @function desativarZoom Adiciona o atributo disabled a um campo zoom.
+ * Adiciona o atributo disabled a um campo zoom.
  * 
  * @param {String} id String com o id do campo zoom que deve ser desativado.
  */
@@ -33,22 +33,8 @@ function desativarZoom(id) {
 	window[id].disable(true);
 }
 
-function desativarZoomDespesa() {
-	$('[id^=despesa___]').each(function () {
-		const numeroIdDespesa = getPosicaoPaiFilho($(this));
-		const aprovacaoGestor = $('#aprovacaoGestor___' + numeroIdDespesa).val();
-		const aprovacaoFinanceiro = $('#aprovacaoFinanceiro___' + numeroIdDespesa).val();
-		if ((estaVazio(aprovacaoGestor) || (aprovacaoGestor == 'ajustar' && codigoAtividade != ATIVIDADE.INICIO)) ||
-			(estaVazio(aprovacaoFinanceiro) || (aprovacaoFinanceiro == 'ajustar' && codigoAtividade != ATIVIDADE.INICIO)) ||
-			codigoAtividade == ATIVIDADE.ACERTO_VIAGEM) {
-			desativarZoom('tipoFornecedor___' + numeroIdDespesa);
-			desativarZoom('nomeFornecedor___' + numeroIdDespesa);
-		}
-	});
-}
-
 /**
- * @function limparZoom Limpa os valores de um campo zoom.
+ * Limpa os valores de um campo zoom.
  * 
  * @param {String} id String com o id do campo zoom que deve ser ativado.
  */
@@ -57,7 +43,7 @@ function limparZoom(id) {
 }
 
 /**
- * @function setSelectedZoomItem Função executa na seleção de um item de um campo zoom.
+ * Função executa na seleção de um item de um campo zoom.
  * 
  * @param {Object} selectedItem Objeto com o conteúdo relacionado ao campo zoom.
  */
@@ -106,7 +92,7 @@ function setSelectedZoomItem(selectedItem) {
 
 		$('[id^=origemDestino___]').each(function () {
 			const elementoOrigemDestino = $(this);
-			const numeroIdDespesa = getPosicaoPaiFilho(elementoOrigemDestino); //elementoOrigemDestino.prop('id').split('___')[1];
+			const numeroIdDespesa = getPosicaoPaiFilho(elementoOrigemDestino);
 
 			if ($('#numeroTrajetoDespesa___' + numeroIdDespesa).val() == numeroIdPaiFilho) {
 				elementoOrigemDestino.html(origemDestino);
@@ -114,36 +100,10 @@ function setSelectedZoomItem(selectedItem) {
 		});
 	}
 	/** Fim de campos zoom do painel Itinerário */
-
-
-	/** Início de campos zoom do painel Despesas da Viagem */
-	// Atualiza o zoom de fornecedores com apenas aqueles do tipo selecionado
-	if (idCampoZoom == 'tipoFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		// const tituloDespesa = numeroIdPaiFilho + ' - ' + selectedItem.ramoAtividade;
-		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
-
-		$('#possuiLimite___' + numeroIdPaiFilho).val(selectedItem.possuiLimite);
-		$('#valorLimite___' + numeroIdPaiFilho).val(selectedItem.valorLimite);
-		ativarZoom('nomeFornecedor___' + numeroIdPaiFilho);
-		atualizarZoom('nomeFornecedor___' + numeroIdPaiFilho, 'zoomTipoFornecedor', selectedItem.ramoAtividade);
-		// Exibe os detalhes da despesa
-		controlarDetalhesTipoDespesa(selectedItem.ramoAtividade, numeroIdPaiFilho);
-		atribuirTituloDespesa(numeroIdPaiFilho);
-	}
-
-	// Preenche campos ocultos com os dados do fornecedor selecionado
-	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		// const tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val()[0];
-		// const tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor + ' - ' + selectedItem.nomeFornecedor;
-		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
-		$('#cnpjFornecedor___' + numeroIdPaiFilho).val(selectedItem.cnpj);
-		atribuirTituloDespesa(numeroIdPaiFilho);
-	}
-	/** Fim de campos zoom do painel Despesas da Viagem */
 }
 
 /**
- * @function removedZoomItem Função executa na remoção de um item de um campo zoom.
+ * Função executa na remoção de um item de um campo zoom.
  * 
  * @param {Object} removedItem Objeto com o conteúdo relacionado ao campo zoom.
  */
@@ -184,29 +144,4 @@ function removedZoomItem(removedItem) {
 		desativarZoom('cidadeDestino');
 	}
 	/** Fim de campos zoom do painel Itinerário */
-
-
-	/** Início de campos zoom do painel Despesas da Viagem */
-	// Atualiza o zoom de fornecedores com apenas aqueles do tipo selecionado
-	if (idCampoZoom == 'tipoFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		// const tituloDespesa = numeroIdPaiFilho + ' - Preencha a despesa';
-		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
-		$('#possuiLimite___' + numeroIdPaiFilho).val('');
-		$('#valorLimite___' + numeroIdPaiFilho).val('');
-		limparZoom('nomeFornecedor___' + numeroIdPaiFilho);
-		desativarZoom('nomeFornecedor___' + numeroIdPaiFilho);
-		alternarDetalhesTipoDespesa(null, numeroIdPaiFilho);
-		atribuirTituloDespesa(numeroIdPaiFilho);
-	}
-
-	// Preenche campos ocultos com os dados do fornecedor selecionado
-	if (idCampoZoom == 'nomeFornecedor' && !estaVazio(numeroIdPaiFilho)) {
-		const tipoFornecedor = $('#tipoFornecedor___' + numeroIdPaiFilho).val()[0];
-		// const tituloDespesa = numeroIdPaiFilho + ' - ' + tipoFornecedor;
-		// $('#tituloDespesa___' + numeroIdPaiFilho).html(tituloDespesa);
-		atualizarZoom('nomeFornecedor___' + numeroIdPaiFilho, 'zoomTipoFornecedor', tipoFornecedor);
-		$('#cnpjFornecedor___' + numeroIdPaiFilho).val('');
-		atribuirTituloDespesa(numeroIdPaiFilho);
-	}
-	/** Fim de campos zoom do painel Despesas da Viagem */
 }

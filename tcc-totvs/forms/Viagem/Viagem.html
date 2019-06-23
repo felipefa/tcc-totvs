@@ -2,6 +2,7 @@
 
 <head>
 	<link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
+	<link type="text/css" rel="stylesheet" href="autocomplete.css" />
 	<script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
 	<script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
@@ -28,7 +29,12 @@
 					<div class="row">
 						<div class="form-group col-md-2">
 							<label class="control-label" for="dataSolicitacao">Data da Solicitação</label>
-							<input type="text" name="dataSolicitacao" id="dataSolicitacao" class="form-control" readonly>
+							<div class="input-group">
+								<input type="text" name="dataSolicitacao" id="dataSolicitacao" class="form-control" readonly>
+								<span class="input-group-addon">
+									<span class="fluigicon fluigicon-calendar"></span>
+								</span>
+							</div>
 						</div>
 						<div class="form-group col-md-1">
 							<label class="control-label" for="numeroSolicitacao">Solicitação</label>
@@ -40,7 +46,7 @@
 									'displayKey':'colleagueName',
 									'datasetId':'colleague',
 									'filterValues':'active,true',
-									'placeholder': 'Selecione quem irá viajar',
+									'placeholder': 'Informe quem irá viajar',
 									'fields':[
 										{'field':'colleagueName', 'label':'Nome', 'standard':'true'},
 										{'field':'login', 'label':'Login'}]
@@ -51,7 +57,7 @@
 							<input type="zoom" name="centroCusto" id="centroCusto" class="form-control" data-zoom="{
 									'displayKey':'nomeCentroCusto',
 									'datasetId':'felipe_CadastroCentroCusto',
-									'placeholder': 'Selecione o centro de custo',
+									'placeholder': 'Informe o centro de custo',
 									'fields':[
 										{'field': 'nomeCentroCusto', 'label': 'Nome', 'standard': 'true'},
 										{'field': 'zoomEmpresa', 'label': 'Empresa'},
@@ -61,7 +67,7 @@
 						</div>
 						<div class="form-group col-md-3">
 							<label class="control-label" for="nomeGestor">Gestor</label>
-							<input type="text" name="nomeGestor" id="nomeGestor" class="form-control" placeholder="Selecione um centro de custo" readonly>
+							<input type="text" name="nomeGestor" id="nomeGestor" class="form-control" placeholder="Informe o centro de custo" readonly>
 						</div>
 						<!-- Início de Campos Ocultos dos Dados da Solicitação -->
 						<input id="codigoAtividade" name="codigoAtividade" type="hidden">
@@ -72,7 +78,7 @@
 					<div class="row">
 						<div class="form-group col-xs-12">
 							<label class="control-label" for="justificativaViagem">Justificativa de Viagem</label>
-							<textarea class="form-control obrigatorio atividadeInicio" name="justificativaViagem" id="justificativaViagem" rows="1" style="resize: vertical" placeholder="Informe a justificativa para a viagem"></textarea>
+							<textarea class="form-control obrigatorio atividadeInicio" name="justificativaViagem" id="justificativaViagem" rows="1" style="resize: vertical" placeholder="Informe o motivo da viagem"></textarea>
 						</div>
 					</div>
 				</div>
@@ -265,37 +271,21 @@
 													<!-- Início Dados do Fornecedor -->
 													<div class="row">
 														<div class="dadosFornecedor">
-															<div class="form-group col-md-3 validacaoZoom atividadeInicio">
-																<label class="control-label" for="tipoFornecedor">Tipo</label>
-																<input class="form-control" id="tipoFornecedor" name="tipoFornecedor" type="zoom" data-zoom="{
-																		'displayKey':'ramoAtividade',
-																		'datasetId':'felipe_CadastroTipoFornecedor',
-																		'placeholder': 'Selecione o tipo de fornecedor',
-																		'fields':[
-																			{'field':'ramoAtividade', 'label':'Tipo', 'standard':'true'},
-																			{'field':'possuiLimite', 'visible': 'false'},
-																			{'field':'valorLimite', 'label': 'Valor Limite'}]
-																		}">
+															<div class="form-group col-md-3">
+																<label class="control-label" for="tipoFornecedor">Tipo de Fornecedor</label>
+																<input class="form-control obrigatorio atividadeInicio" id="tipoFornecedor" name="tipoFornecedor" placeholder="Informe um tipo de fornecedor" type="text">
 															</div>
-															<div class="form-group col-md-3 validacaoZoom atividadeInicio">
+															<div class="form-group col-md-3">
 																<label class="control-label" for="nomeFornecedor">Fornecedor</label>
-																<input class="form-control" id="nomeFornecedor" name="nomeFornecedor" type="zoom" data-zoom="{
-																		'displayKey':'nomeFornecedor',
-																		'datasetId':'felipe_CadastroFornecedor',
-																		'placeholder': 'Selecione o fornecedor',
-																		'fields':[
-																			{'field':'nomeFornecedor', 'label':'Nome', 'standard':'true'},
-																			{'field':'cnpj', 'label': 'CNPJ'},
-																			{'field':'zoomTipoFornecedor', 'visible': 'false'}]
-																		}">
+																<input class="form-control obrigatorio atividadeInicio" id="nomeFornecedor" name="nomeFornecedor" placeholder="Informe um fornecedor" type="text" readonly>
 															</div>
 															<div class="form-group col-md-2">
-																<label class="control-label" for="valorLimite">Valor Limite</label>
-																<input class="form-control real" id="valorLimite" name="valorLimite" type="text" readonly>
+																<label class="control-label corrigirIndice" for="valorPrevisto" id="labelValorPrevisto">Valor Previsto / Unidade</label>
+																<input class="form-control obrigatorio atividadeInicio real" id="valorPrevisto" name="valorPrevisto" type="text" onblur="salvarValorSemMascara(this,'Previsto')" readonly>
 															</div>
 															<div class="form-group col-md-2">
-																<label class="control-label" for="valorPrevisto">Valor Previsto</label>
-																<input class="form-control obrigatorio atividadeInicio real" id="valorPrevisto" name="valorPrevisto" type="text" onblur="salvarValorSemMascara(this,'Previsto')">
+																<label class="control-label" for="valorTotalPrevisto">Valor Total Previsto</label>
+																<input class="form-control real" id="valorTotalPrevisto" name="valorTotalPrevisto" type="text" readonly>
 															</div>
 														</div>
 														<div class="form-group col-md-2 acertoViagem" hidden>
@@ -310,8 +300,10 @@
 														<input id="cnpjFornecedor" name="cnpjFornecedor" type="hidden">
 														<input id="despesaPrevista" name="despesaPrevista" type="hidden" value="sim">
 														<input id="possuiLimite" name="possuiLimite" type="hidden">
+														<input id="limitePor" name="limitePor" type="hidden">
 														<input id="valorLimiteSM" name="valorLimiteSM" type="hidden">
 														<input id="valorPrevistoSM" name="valorPrevistoSM" type="hidden">
+														<input id="valorTotalPrevistoSM" name="valorTotalPrevistoSM" type="hidden">
 														<!-- Fim de Campos Ocultos dos Dados do Fornecedor -->
 													</div>
 													<!-- Fim Dados do Fornecedor -->
@@ -363,14 +355,14 @@
 																	<input id="hospedagemDiarias" class="form-control" type="text" name="hospedagemDiarias" readonly>
 																</div>
 															</div>
-															<div class="corrigirIndice" id="tipoProprio" name="tipoProprio" hidden>
+															<div class="corrigirIndice" id="tipoCombustivel" name="tipoCombustivel" hidden>
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="proprioOrigem">Origem</label>
-																	<input id="proprioOrigem" class="form-control" type="text" name="proprioOrigem">
+																	<input id="proprioOrigem" class="form-control" type="text" name="proprioOrigem" placeholder="Informe uma cidade">
 																</div>
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="proprioDestino">Destino</label>
-																	<input id="proprioDestino" class="form-control" type="text" name="proprioDestino">
+																	<input id="proprioDestino" class="form-control" type="text" name="proprioDestino" placeholder="Informe uma cidade">
 																</div>
 																<div class="form-group col-md-2">
 																	<label class="control-label" for="proprioData">Data Prevista</label>
@@ -383,7 +375,7 @@
 																</div>
 																<div class="form-group col-md-1">
 																	<label class="control-label" for="proprioDistancia">Distância</label>
-																	<input id="proprioDistancia" class="form-control" type="text" name="proprioDistancia">
+																	<input id="proprioDistancia" class="form-control" type="text" name="proprioDistancia" placeholder="km">
 																</div>
 															</div>
 															<div class="corrigirIndice" id="tipoTransporte" name="tipoTransporte" hidden>
@@ -414,7 +406,7 @@
 														</div>
 														<div class="acertoViagem corrigirIndice" id="comprovante" name="comprovante" hidden>
 															<div class="form-group col-md-2">
-																<label class="control-label" for="valorEfetivo">Valor Efetivo</label>
+																<label class="control-label" for="valorEfetivo">Valor Total Efetivo</label>
 																<input id="valorEfetivo" class="form-control obrigatorio atividadeAcerto real" type="text" name="valorEfetivo" onblur="salvarValorSemMascara(this,'Efetivo')">
 																<input id="valorEfetivoSM" type="hidden" name="valorEfetivoSM">
 															</div>
@@ -447,7 +439,7 @@
 			<!-- Fim do Painel de Despesas da Viagem -->
 
 			<!-- Início do Painel de Resumo da Viagem -->
-			<div class="panel panel-primary aprovacaoGestor aprovacaoFinanceiro" id="panelResumoViagem" hidden>
+			<div class="panel panel-primary aprovacaoGestor aprovacaoFinanceiro" id="panelResumoViagem">
 				<div class="panel-heading">
 					<h3 class="panel-title">Resumo da Viagem</h3>
 				</div>
@@ -455,15 +447,15 @@
 					<div class="row">
 						<div class="form-group col-md-2">
 							<label class="control-label" for="totalPrevisto">Despesa Total Prevista</label>
-							<input id="totalPrevisto" class="form-control real" type="text" name="totalPrevisto" readonly>
+							<input id="totalPrevisto" class="form-control real" type="text" name="totalPrevisto" placeholder="R$ 0,00" readonly>
 						</div>
 						<div class="form-group col-md-2 acertoViagem" hidden>
 							<label class="control-label" for="totalEfetivo">Despesa Total Efetiva</label>
-							<input id="totalEfetivo" class="form-control real" type="text" name="totalEfetivo" readonly>
+							<input id="totalEfetivo" class="form-control real" type="text" name="totalEfetivo" placeholder="R$ 0,00" readonly>
 						</div>
 						<!-- Início de Campos Ocultos do Resumo da Viagem -->
-						<input type="hidden" id="totalPrevistoSM" name="totalPrevistoSM">
-						<input type="hidden" id="totalEfetivoSM" name="totalEfetivoSM">
+						<input type="text" id="totalPrevistoSM" name="totalPrevistoSM" hidden>
+						<input type="text" id="totalEfetivoSM" name="totalEfetivoSM" hidden>
 						<!-- Fim de Campos Ocultos do Resumo da Viagem -->
 					</div>
 				</div>
@@ -471,6 +463,7 @@
 			<!-- Fim do Painel de Resumo da Viagem -->
 		</form>
 	</div>
+
 
 	<script type="text/template" class="cadastroTrajeto">
 		<div class="row">
@@ -510,7 +503,7 @@
 			<td>{{destino}}</td>
 			<td>{{dataHoraTrajeto}}</td>
 			<td>{{identificador}}</td>
-			<td class="opcoesTrajeto" style="text-align: center;">
+			<td class="opcoesTrajeto">
 				<button class="btn btn-primary btn-sm" onclick="cadastrarTrajeto({'numeroIdDespesa':{{numeroIdDespesa}}, 'numeroIdTrajeto':{{numeroIdTrajeto}}}, 'editar')">
 					<i class="fluigicon fluigicon-pencil icon-sm"></i>
 				</button>

@@ -40,8 +40,9 @@ const loading = FLUIGC.loading(window, {
 var quantidadeIdsTrajetos = 1;
 
 /**
+ * Abre a modal de anexos.
  * 
- * @param {Object} elemento 
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
  */
 function abrirModalAnexos(elemento) {
 	const numeroIdDespesa = getPosicaoPaiFilho(elemento);
@@ -75,7 +76,7 @@ function abrirModalAnexos(elemento) {
 }
 
 /**
- * @function adicionarDespesa Adiciona uma nova despesa no painel de despesas.
+ * Adiciona uma nova despesa no painel de despesas.
  */
 function adicionarDespesa() {
 	$('[id^=despesa___]').each(function () {
@@ -99,9 +100,36 @@ function adicionarDespesa() {
 	}
 
 	$('.bodyDespesas').show();
-	limparZoom('tipoFornecedor___' + numeroIdDespesa);
-	limparZoom('nomeFornecedor___' + numeroIdDespesa);
-	desativarZoom('nomeFornecedor___' + numeroIdDespesa);
+
+	const elementoTipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa);
+	const elementoFornecedor = $('#nomeFornecedor___' + numeroIdDespesa);
+
+	instanciarAutocomplete(elementoTipoFornecedor, 'tipoFornecedor', numeroIdDespesa);
+
+	elementoTipoFornecedor.on('blur', function () {
+		if (estaVazio(elementoTipoFornecedor.val())) {
+			alternarDetalhesTipoDespesa(null, numeroIdDespesa);
+			elementoFornecedor.val('');
+			elementoFornecedor.attr('readonly', true);
+		} else {
+			controlarDetalhesTipoDespesa(elementoTipoFornecedor.val(), numeroIdDespesa);
+			if (elementoTipoFornecedor.val() != 'Km Rodado') elementoFornecedor.attr('readonly', false);
+		}
+
+		atribuirTituloDespesa(numeroIdDespesa);
+	});
+
+	elementoFornecedor.on('blur', function () {
+		atribuirTituloDespesa(numeroIdDespesa);
+	});
+
+	$('#proprioDistancia___' + numeroIdDespesa).on('blur', function () {
+		calcularValorTotalPrevistoDespesa(numeroIdDespesa);
+	});
+
+	instanciarAutocomplete($('#proprioOrigem___' + numeroIdDespesa), 'cidade');
+	instanciarAutocomplete($('#proprioDestino___' + numeroIdDespesa), 'cidade');
+
 	FLUIGC.calendar('.calendario', {
 		pickDate: true,
 		pickTime: false
@@ -123,8 +151,8 @@ function adicionarDespesa() {
 /**
  * Função para anexar documentos na página através do diretório /ecm/upload.
  * 
- * @param {Object} elemento 
- * @param {String} numeroIdDespesa 
+ * @param {Object} elemento Elemento do DOM com o input de arquivos.
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
  */
 function anexarComprovantes(elemento, numeroIdDespesa) {
 	$(function () {
@@ -146,8 +174,19 @@ function anexarComprovantes(elemento, numeroIdDespesa) {
 }
 
 /**
+ * Atualiza a label do valor previsto de acordo com o tipo de limite da despesa.
  * 
- * @param {String} numeroIdDespesa 
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
+ */
+function atualizarLabelValorPrevistoPor(numeroIdDespesa) {
+	const limitePor = $('#limitePor___' + numeroIdDespesa).val();
+	if (!estaVazio(limitePor)) $('#labelValorPrevisto___' + numeroIdDespesa).html('Valor Previsto / ' + limitePor);
+}
+
+/**
+ * Busca os anexos de uma determinada despesa.
+ * 
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
  */
 function buscarArquivos(numeroIdDespesa) {
 	const codigoPastaDespesa = verificarCriarPasta(numeroIdDespesa);
@@ -183,7 +222,7 @@ function buscarPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado) {
 }
 
 /**
- * @function cadastrarTrajeto Adiciona ou edita um trajeto existente de acordo com os parâmetros informados.
+ * Adiciona ou edita um trajeto existente de acordo com os parâmetros informados.
  * 
  * @param {Object} elemento Objeto que pode ser o botão de adicionar trajeto do DOM ou dados contendo o numero do id da despesa e do trajeto, no caso de edição.
  * @param {String} tipo Aceita dois parâmetros de acordo com o que deve ser feito, sendo eles:
@@ -201,7 +240,8 @@ function cadastrarTrajeto(elemento, tipo) {
 		elemento = JSON.parse($('#jsonTrajetos___' + numeroIdDespesa).val());
 		elemento = elemento[elemento.findIndex(trajeto => trajeto.numeroIdDespesa == numeroIdDespesa && trajeto.numeroIdTrajeto == numeroIdTrajeto)];
 	}
-	const fornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
+	const elementoFornecedor = $('#nomeFornecedor___' + numeroIdDespesa);
+	const fornecedor = elementoFornecedor.val();
 
 	// Só permite adicionar um trajeto se um fornecedor estiver selecionado
 	if (!estaVazio(fornecedor)) {
@@ -228,6 +268,9 @@ function cadastrarTrajeto(elemento, tipo) {
 			}]
 		});
 
+		instanciarAutocomplete($('#origem'), 'cidade');
+		instanciarAutocomplete($('#destino'), 'cidade');
+
 		FLUIGC.calendar('.calendarioHora', {
 			pickDate: true,
 			pickTime: true,
@@ -251,12 +294,12 @@ function cadastrarTrajeto(elemento, tipo) {
 			}
 		});
 	} else {
-		toast('Atenção!', 'Selecione um fornecedor antes de adicionar um trajeto.', 'warning');
+		toast('Atenção!', 'Informe o fornecedor antes de adicionar um trajeto.', 'warning');
 	}
 }
 
 /**
- * @function calcularValorTotal Calcula o valor total das despesas de acordo com o tipo informado.
+ * Calcula o valor total das despesas de acordo com o tipo informado.
  * 
  * @param {String} tipo  Tipo de valor calculado, podendo ser:
  * - Previsto
@@ -264,13 +307,16 @@ function cadastrarTrajeto(elemento, tipo) {
  */
 function calcularValorTotal(tipo) {
 	let valorTotal = 0;
-	$('[id^=valor' + tipo + 'SM___]').each(function () {
+	let seletor = '[id^=valor' + tipo + 'SM___]';
+	if (tipo == 'Previsto') seletor = '[id^=valorTotal' + tipo + 'SM___]';
+	$(seletor).each(function () {
 		const elementoValorSM = $(this);
 		const numeroIdDespesa = getPosicaoPaiFilho(elementoValorSM);
 		const aprovacaoGestor = $('#aprovacaoGestor___' + numeroIdDespesa).val();
 		const aprovacaoFinanceiro = $('#aprovacaoFinanceiro___' + numeroIdDespesa).val();
-		if ((aprovacaoGestor == 'aprovar' || aprovacaoGestor == '') ||
-			(aprovacaoFinanceiro == 'aprovar' || aprovacaoFinanceiro == '')) {
+		if (((aprovacaoGestor == 'aprovar' || aprovacaoGestor == '') ||
+				(aprovacaoFinanceiro == 'aprovar' || aprovacaoFinanceiro == '')) &&
+			!estaVazio(elementoValorSM.val())) {
 			valorTotal += parseFloat(elementoValorSM.val());
 		}
 	});
@@ -284,26 +330,65 @@ function calcularValorTotal(tipo) {
 }
 
 /**
+ * Calcula o valor total previsto de uma despesa.
+ * 
+ * @param {Number} numeroIdDespesa Número da posição dos elementos no pai x filho.
+ */
+function calcularValorTotalPrevistoDespesa(numeroIdDespesa) {
+	const tipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa).val();
+	const valorPrevistoSM = $('#valorPrevistoSM___' + numeroIdDespesa).val();
+	const valor = isNaN(valorPrevistoSM) ? 0.00 : parseFloat(valorPrevistoSM).toFixed(2);
+	let multiplicador = 1;
+
+	if (tipoFornecedor.indexOf('Aluguel de Veículos') != -1) {
+		multiplicador = parseInt($('#diariasAluguel___' + numeroIdDespesa).val());
+	} else if (tipoFornecedor.indexOf('Km Rodado') != -1) {
+		multiplicador = parseInt($('#proprioDistancia___' + numeroIdDespesa).val());
+	} else if (tipoFornecedor.indexOf('Hospedagem') != -1) {
+		multiplicador = parseInt($('#hospedagemDiarias___' + numeroIdDespesa).val());
+	} else if (tipoFornecedor.indexOf('Transporte') != -1) {
+		const jsonTrajetos = $('#jsonTrajetos___' + numeroIdDespesa).val();
+		multiplicador = estaVazio(jsonTrajetos) ? 1 : JSON.parse(jsonTrajetos).length;
+	}
+
+	if (multiplicador == 0 || isNaN(multiplicador)) multiplicador = 1;
+
+	const valorTotal = (valor * multiplicador).toFixed(2);
+
+	$('#valorTotalPrevistoSM___' + numeroIdDespesa).val(valorTotal);
+	$('.real').unmask();
+	$('#valorTotalPrevisto___' + numeroIdDespesa).val(valorTotal);
+	$('.real').maskMoney({
+		prefixMoney: 'R$ ',
+		placeholder: 'R$ 0,00'
+	});
+
+	calcularValorTotal('Previsto');
+	atribuirTituloDespesa(numeroIdDespesa);
+}
+
+/**
  * Função que cria pasta utilizando a API 2.0
  * 
- * @param {string} codigoPastaPai Código da pasta pai no fluig 
- * @param {string} codItemBuscado Código do item buscado. Podendo ser:
+ * @param {String} codigoPastaPai Código da pasta pai no fluig 
+ * @param {String} codItemBuscado Código do item buscado. Podendo ser:
  * - Número de uma solicitação
  * - Número do id de uma despesa
- * @param {string} descricaoItemBuscado descrição (nome) do item buscado. Podendo ser:
+ * @param {String} descricaoItemBuscado descrição (nome) do item buscado. Podendo ser:
  * - Nome do solicitante
  * - Nome do fornecedor
  * 
- * @return {string} Retorna o código da pasta criada.
+ * @return {Number} Retorna o código da pasta criada.
  */
-function criaPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado) {
+function criarPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado) {
 	const dados = montarDadosPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado);
 	return ajaxApi('criarPasta', JSON.stringify(dados));
 }
 
 /**
+ * Monta a tabela de anexos da despesa.
  * 
- * @param {String} numeroIdDespesa 
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
  */
 function criarTabelaAnexos(numeroIdDespesa) {
 	const anexos = buscarArquivos(numeroIdDespesa);
@@ -341,7 +426,7 @@ function criarTabelaAnexos(numeroIdDespesa) {
 }
 
 /**
- * @function criarTabelaTrajetos Monta a tabela com os trajetos cadastrados pelo usuário de acordo com o que foi salvo no campo jsonTrajetos de uma determinada despesa.
+ * Monta a tabela com os trajetos cadastrados pelo usuário de acordo com o que foi salvo no campo jsonTrajetos de uma determinada despesa.
  * 
  * @param {Number} numeroIdDespesa Número do id da despesa.
  */
@@ -360,10 +445,10 @@ function criarTabelaTrajetos(numeroIdDespesa) {
 			'size': 'col-md-3'
 		}, {
 			'title': 'Data',
-			'size': 'col-md-3'
+			'size': 'col-md-2'
 		}, {
 			'title': 'Identificador',
-			'size': 'col-md-1'
+			'size': 'col-md-2'
 		}, {
 			'title': 'Opções',
 			'size': 'col-md-2 opcoesTrajeto'
@@ -384,9 +469,9 @@ function criarTabelaTrajetos(numeroIdDespesa) {
 }
 
 /**
- * @function excluirDespesa Exclui uma despesa do painel de despesas.
+ * Exclui uma despesa do painel de despesas.
  * 
- * @param {Object} elemento Elemento do DOM clicado para realizar a remoção da despesa.
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
  */
 function excluirDespesa(elemento) {
 	FLUIGC.message.confirm({
@@ -405,7 +490,7 @@ function excluirDespesa(elemento) {
 }
 
 /**
- * @function excluirTrajeto Exclui um trajeto de acordo com os parâmetros informados.
+ * Exclui um trajeto de acordo com os parâmetros informados.
  * 
  * @param {Number} numeroIdDespesa Número do id da despesa ao qual o trajeto pertence.
  * @param {Number} numeroIdTrajeto Número do id do trajeto.
@@ -432,7 +517,7 @@ function excluirTrajeto(numeroIdDespesa, numeroIdTrajeto) {
  * @param {string} codigoPasta Id da pasta onde o arquivo deve ser gravado.
  * @param {string} nomeArquivo Descrição do arquivo no ECM.
  * 
- * @returns O resultado da requisição ajax.
+ * @returns {Object} O resultado da requisição ajax.
  */
 function gravarArquivo(codigoPasta, nomeArquivo) {
 	const dados = JSON.stringify({
@@ -449,13 +534,150 @@ function gravarArquivo(codigoPasta, nomeArquivo) {
 }
 
 /**
+ * Instancia o autocomplete no input (elemento) passado como parâmetro.
+ * 
+ * @param {Object} elementoCidade Input que receberá o autocomplete (obrigatório para o tipo 'cidade').
+ * @param {String} tipo Tipo do input que deve ser instanciado. Podendo ser:
+ * - cidades
+ * - nomeFornecedor
+ * - tipoFornecedor
+ * @param {String} numeroIdDespesa Posição do elemento no pai x filho (obrigatório para os tipos 'nomeFornecedor' e 'tipoFornecedor').
+ */
+function instanciarAutocomplete(elementoCidade = null, tipo, numeroIdDespesa = null) {
+	if (tipo == 'cidade' && !estaVazio(elementoCidade)) {
+		elementoCidade.autocomplete({
+			minLength: 1,
+			source: function (request, response) {
+				const cidades = [];
+				const constraintsCidades = [DatasetFactory.createConstraint('cidade', request.term, null, ConstraintType.MUST)];
+				const dsCidadesBrasil = DatasetFactory.getDataset('dsCidadesBrasil', null, constraintsCidades, null);
+				if (!estaVazio(dsCidadesBrasil)) {
+					dsCidadesBrasil.values.forEach(cidade => {
+						cidades.push({
+							value: cidade.cidade + ' (' + cidade.uf + ')',
+							estado: cidade.estado,
+							uf: cidade.uf,
+							json: cidade
+						});
+					});
+				}
+				response(cidades);
+			},
+			select: function (event, cidade) {
+				elementoCidade.val(cidade.item.value + ' (' + cidade.item.uf + ')');
+			},
+			close: function (event, ui) {
+				if (event.handleObj.type != 'menuselect') {
+					elementoCidade.val('');
+					elementoCidade.blur();
+				}
+			}
+		});
+	} else if (tipo == 'nomeFornecedor' && !estaVazio(numeroIdDespesa)) {
+		const elementoTipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa);
+		const elementoFornecedor = $('#nomeFornecedor___' + numeroIdDespesa);
+		const fornecedores = [];
+		const constraintFornecedor = [DatasetFactory.createConstraint('zoomTipoFornecedor', elementoTipoFornecedor.val(), elementoTipoFornecedor.val(), ConstraintType.MUST)];
+		const felipe_CadastroFornecedor = DatasetFactory.getDataset('felipe_CadastroFornecedor', null, constraintFornecedor, null);
+
+		$('#valorPrevisto___' + numeroIdDespesa).attr('readonly', false);
+		elementoFornecedor.attr('readonly', false);
+
+		if (!estaVazio(felipe_CadastroFornecedor)) {
+			felipe_CadastroFornecedor.values.forEach(fornecedor => {
+				fornecedores.push({
+					value: fornecedor.nomeFornecedor,
+					cnpj: fornecedor.cnpj,
+					json: fornecedor
+				});
+			});
+		}
+
+		elementoFornecedor.autocomplete({
+			minLength: 0,
+			source: fornecedores,
+			select: function (event, fornecedor) {
+				elementoFornecedor.val(fornecedor.item.value);
+				$('#cnpjFornecedor___' + numeroIdDespesa).val(fornecedor.item.cnpj);
+				return false;
+			},
+			response: function (event, ui) {
+				ui.content.push({
+					value: elementoFornecedor.val(),
+					label: elementoFornecedor.val()
+				});
+				return false;
+			},
+			close: function (event, ui) {
+				atribuirTituloDespesa(numeroIdDespesa);
+			}
+		});
+	} else if (tipo == 'tipoFornecedor' && !estaVazio(numeroIdDespesa)) {
+		const elementoTipoFornecedor = $('#tipoFornecedor___' + numeroIdDespesa);
+		const elementoFornecedor = $('#nomeFornecedor___' + numeroIdDespesa);
+		const tiposFornecedores = [];
+		const felipe_CadastroTipoFornecedor = DatasetFactory.getDataset('felipe_CadastroTipoFornecedor', null, null, null);
+
+		if (!estaVazio(felipe_CadastroTipoFornecedor)) {
+			felipe_CadastroTipoFornecedor.values.forEach(tipo => {
+				tiposFornecedores.push({
+					value: tipo.ramoAtividade,
+					possuiLimite: tipo.possuiLimite,
+					valorLimite: tipo.valorLimite,
+					valorLimiteSM: tipo.valorLimiteSemMascara,
+					limitePor: tipo.limitePor,
+					json: tipo
+				});
+			});
+		}
+
+		elementoTipoFornecedor.autocomplete({
+			minLength: 0,
+			source: tiposFornecedores,
+			select: function (event, tipo) {
+				elementoTipoFornecedor.val(tipo.item.value);
+				$('#possuiLimite___' + numeroIdDespesa).val(tipo.item.possuiLimite);
+				$('#valorLimiteSM___' + numeroIdDespesa).val(parseFloat(tipo.item.valorLimiteSM).toFixed(2));
+
+				if (tipo.item.value.indexOf('Transporte') != -1) {
+					$('#limitePor___' + numeroIdDespesa).val('Trajeto');
+					$('#labelValorPrevisto___' + numeroIdDespesa).html('Valor Previsto / Trajeto');
+				} else if (!estaVazio(tipo.item.limitePor)) {
+					$('#limitePor___' + numeroIdDespesa).val(tipo.item.limitePor);
+					$('#labelValorPrevisto___' + numeroIdDespesa).html('Valor Previsto / ' + tipo.item.limitePor);
+				}
+
+				controlarDetalhesTipoDespesa(tipo.item.value, numeroIdDespesa);
+				if (tipo.item.value == 'Km Rodado') {
+					elementoFornecedor.val('Próprio');
+					elementoFornecedor.attr('readonly', true);
+					$('#valorPrevisto___' + numeroIdDespesa).val(tipo.item.valorLimite);
+					$('#valorPrevistoSM___' + numeroIdDespesa).val(parseFloat(tipo.item.valorLimiteSM).toFixed(2));
+				} else instanciarAutocomplete(null, 'nomeFornecedor', numeroIdDespesa);
+				return false;
+			},
+			response: function (event, ui) {
+				ui.content.push({
+					value: elementoTipoFornecedor.val(),
+					label: elementoTipoFornecedor.val()
+				});
+				return false;
+			},
+			close: function (event, ui) {
+				atribuirTituloDespesa(numeroIdDespesa);
+			}
+		});
+	}
+}
+
+/**
  * Função que monta os dados para criação de uma pasta em um JSON.
  * 
- * @param {string} codigoPastaPai Código da pasta pai no fluig 
- * @param {string} codItemBuscado Código do item buscado. Podendo ser:
+ * @param {String} codigoPastaPai Código da pasta pai no fluig 
+ * @param {String} codItemBuscado Código do item buscado. Podendo ser:
  * - Número de uma solicitação
  * - Número do id de uma despesa
- * @param {string} descricaoItemBuscado descrição (nome) do item buscado. Podendo ser:
+ * @param {String} descricaoItemBuscado descrição (nome) do item buscado. Podendo ser:
  * - Nome do solicitante
  * - Nome do fornecedor
  * 
@@ -477,7 +699,8 @@ function montarDadosPasta(codigoPastaPai, codItemBuscado, descricaoItemBuscado) 
 /**
  * Função para remover arquivo ou pasta de acordo com o id informado.
  * 
- * @param {string} codigo Código do arquivo/pasta do fluig que deve ser removido.
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
+ * @param {String} codigo Código do arquivo/pasta do fluig que deve ser removido.
  * 
  * @returns O retorno do método ajax de remoção de arquivo ou pasta.
  */
@@ -501,9 +724,11 @@ function removerArquivoPasta(numeroIdDespesa, codigo) {
 }
 
 /**
- * @function removerMascaraReal Remove a máscara de reais sobre o valor de um campo especificado por parâmetro.
+ * Remove a máscara de reais sobre o valor de um campo especificado por parâmetro.
  * 
  * @param {Object} elemento Campo do DOM que contém o valor em reais com máscara.
+ * 
+ * @returns {Number} Valor sem máscara de real e com duas casas decimais.
  */
 function removerMascaraReal(elemento) {
 	const valor = $(elemento).cleanVal();
@@ -511,20 +736,23 @@ function removerMascaraReal(elemento) {
 }
 
 /**
- * @function salvarTrajeto Salva um trajeto de acordo com os parâmetros informados.
+ * Salva um trajeto de acordo com os parâmetros informados.
  * 
  * @param {Number} numeroIdDespesa Número do id da despesa.
  * @param {Number} numeroIdTrajeto Número do id do trajeto.
  * @param {String} tipo Tipo de operação que será realizada, podendo ser:
  * - adicionar
  * - editar
+ * 
+ * @returns {Boolean} True se o trajeto for salvo com sucesso.
  */
 function salvarTrajeto(numeroIdDespesa, numeroIdTrajeto, tipo) {
 	let jsonTrajetos = $('#jsonTrajetos___' + numeroIdDespesa).val();
 	const origem = $('#origem').val();
 	const destino = $('#destino').val();
-	const dataHoraTrajeto = $('#dataHoraTrajeto').val();
 	const identificador = $('#identificador').val();
+	const elementoData = $('#dataHoraTrajeto');
+	const dataHoraTrajeto = verificarDataEmPaiFilho(elementoData, numeroIdDespesa) ? elementoData.val() : null;
 
 	if (estaVazio(origem) || estaVazio(destino) || estaVazio(dataHoraTrajeto)) {
 		return false;
@@ -551,12 +779,13 @@ function salvarTrajeto(numeroIdDespesa, numeroIdTrajeto, tipo) {
 
 		jsonTrajetos = JSON.stringify(jsonTrajetos);
 		$('#jsonTrajetos___' + numeroIdDespesa).val(jsonTrajetos);
+		calcularValorTotalPrevistoDespesa(numeroIdDespesa);
 		return true;
 	}
 }
 
 /**
- * @function salvarValorSemMascara Salva o valor em reais digitado em um campo com máscara em outro campo escondido sem máscara.
+ * Salva o valor em reais digitado em um campo com máscara em outro campo escondido sem máscara.
  * 
  * @param {Object} elemento Objeto do DOM que contém o valor em reais com máscara.
  * @param {String} tipo Tipo de valor calculado, podendo ser:
@@ -567,12 +796,19 @@ function salvarValorSemMascara(elemento, tipo) {
 	const numeroIdDespesa = getPosicaoPaiFilho(elemento);
 	const valor = removerMascaraReal(elemento);
 	$('#valor' + tipo + 'SM___' + numeroIdDespesa).val(valor);
+	if (tipo == 'Previsto') {
+		calcularValorTotalPrevistoDespesa(numeroIdDespesa);
+		atribuirTituloDespesa(numeroIdDespesa);
+		const valorLimiteSM = parseFloat($('#valorLimiteSM___' + numeroIdDespesa).val()).toFixed(2);
+		if (!isNaN(valorLimiteSM) && parseFloat(valor) > parseFloat(valorLimiteSM)) {
+			toast('Atenção!', 'O valor informado está acima do limite oferecido pela empresa.', 'info');
+		}
+	}
 	calcularValorTotal(tipo);
-	if (tipo == 'Previsto') atribuirTituloDespesa(numeroIdDespesa);
 }
 
 /**
- * @function verificarAprovacao Verifica aprovação do gestor ou do financeiro por despesa e adiciona um layout conforme seu status.
+ * Verifica aprovação do gestor ou do financeiro por despesa e adiciona um layout conforme seu status.
  * 
  * @param {String} idTipo Tipo de aprovação a ser verificada, podendo ser:
  * - Gestor
@@ -613,24 +849,25 @@ function verificarAprovacao(idTipo) {
  * Função à ser executada antes de salvar arquivos. 
  * Busca e cria pastas no ECM de acordo com o número da solicitação e o nome do solicitante, sendo que cada despesa também possui sua pasta.
  * 
- * @param {String} numeroIdDespesa
+ * @param {Number} numeroIdDespesa Número da posição do elemento no pai x filho.
  * 
  * @return {string} Código da pasta existente ou já criada para os comprovantes da solicitação.
  */
 function verificarCriarPasta(numeroIdDespesa) {
-	const codigoAnexosComprovantes = '44'; //44 no fluig local
+	let codigoAnexosComprovantes = '44'; //44 no fluig local - 3494 no demofluig
+	if (top.WCMAPI.serverURL.indexOf('demofluig') != -1) codigoAnexosComprovantes = 3494;
 	const numeroSolicitacao = $('#numeroSolicitacao').val();
 	const nomeSolicitante = $('#nomeSolicitante').val();
 	const nomeFornecedor = $('#nomeFornecedor___' + numeroIdDespesa).val();
 
 	let codigoPastaSolicitacao = buscarPasta(codigoAnexosComprovantes, numeroSolicitacao, nomeSolicitante);
 	if (estaVazio(codigoPastaSolicitacao)) {
-		codigoPastaSolicitacao = (criaPasta(codigoAnexosComprovantes, numeroSolicitacao, nomeSolicitante)).content.documentId;
+		codigoPastaSolicitacao = (criarPasta(codigoAnexosComprovantes, numeroSolicitacao, nomeSolicitante)).content.documentId;
 	}
 
 	let codigoPastaDespesa = buscarPasta(codigoPastaSolicitacao, numeroIdDespesa, nomeFornecedor);
 	if (estaVazio(codigoPastaDespesa)) {
-		codigoPastaDespesa = (criaPasta(codigoPastaSolicitacao, numeroIdDespesa, nomeFornecedor)).content.documentId;
+		codigoPastaDespesa = (criarPasta(codigoPastaSolicitacao, numeroIdDespesa, nomeFornecedor)).content.documentId;
 	}
 
 	return codigoPastaDespesa;
