@@ -948,6 +948,14 @@ function instanciarAutocomplete(elementoCidade = null, tipo, numeroIdDespesa = n
 							json: cidade
 						});
 					});
+
+					if (cidades.length > 0) {
+						cidades.sort(function (a, b) {
+							if (a.value < b.value) return -1;
+							if (a.value > b.value) return 1;
+							return 0;
+						});
+					}
 				}
 				response(cidades);
 			},
@@ -979,6 +987,14 @@ function instanciarAutocomplete(elementoCidade = null, tipo, numeroIdDespesa = n
 					json: fornecedor
 				});
 			});
+
+			if (fornecedores.length > 0) {
+				fornecedores.sort(function (a, b) {
+					if (a.value < b.value) return -1;
+					if (a.value > b.value) return 1;
+					return 0;
+				});
+			}
 		}
 
 		elementoFornecedor.autocomplete({
@@ -1017,6 +1033,14 @@ function instanciarAutocomplete(elementoCidade = null, tipo, numeroIdDespesa = n
 					json: tipo
 				});
 			});
+
+			if (tiposFornecedores.length > 0) {
+				tiposFornecedores.sort(function (a, b) {
+					if (a.value < b.value) return -1;
+					if (a.value > b.value) return 1;
+					return 0;
+				});
+			}
 		}
 
 		elementoTipoFornecedor.autocomplete({
@@ -1039,9 +1063,15 @@ function instanciarAutocomplete(elementoCidade = null, tipo, numeroIdDespesa = n
 				if (tipo.item.value == 'Km Rodado') {
 					elementoFornecedor.val('Próprio');
 					elementoFornecedor.attr('readonly', true);
+					elementoFornecedor.blur();
 					$('#valorPrevisto___' + numeroIdDespesa).val(tipo.item.valorLimite);
+					$('#valorPrevisto___' + numeroIdDespesa).attr('readonly', true);
 					$('#valorPrevistoSM___' + numeroIdDespesa).val(parseFloat(tipo.item.valorLimiteSM).toFixed(2));
-				} else instanciarAutocomplete(null, 'nomeFornecedor', numeroIdDespesa);
+				} else {
+					$('#valorPrevisto___' + numeroIdDespesa).attr('readonly', false);
+					elementoFornecedor.val('');
+					instanciarAutocomplete(null, 'nomeFornecedor', numeroIdDespesa);
+				}
 				return false;
 			},
 			response: function (event, ui) {
